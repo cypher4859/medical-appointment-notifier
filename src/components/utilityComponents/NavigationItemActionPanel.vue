@@ -28,6 +28,6 @@ import { Component, Prop } from 'vue-property-decorator'
   name: 'navigation-item-action-panel'
 })
 export default class NavigationItemActionPanel extends Vue {
-  @Prop(Object) private actionButtons!: object[]
+  @Prop(Array) private actionButtons!: object[]
 }
 </script>
