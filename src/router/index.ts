@@ -8,6 +8,11 @@ const routes = [
     path: '*',
     name: 'Not Found',
     component: require('@/App.vue')
+  },
+  {
+    path: '/',
+    name: 'Main',
+    component: require('@/App.vue')
   }
 ]
 
