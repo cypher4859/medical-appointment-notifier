@@ -9,8 +9,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import { Component } from 'vue-property-decorator'
-import PrimaryView from './components/NewComponent/PrimaryView.vue'
-import NavigationBar from './components/utilityComponents/NavigationBar.vue'
+import PrimaryView from './components/PrimaryView.vue'
 
 @Component({
   name: 'app',

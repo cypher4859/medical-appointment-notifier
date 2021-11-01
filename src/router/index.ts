@@ -4,15 +4,22 @@ import VueRouter from 'vue-router'
 Vue.use(VueRouter)
 
 const routes = [
-  {
-    path: '*',
-    name: 'Not Found',
-    component: require('@/App.vue')
-  },
+  // {
+  //   path: '*',
+  //   name: 'Not Found',
+  //   component: () => import('@/App.vue')
+  // },
   {
     path: '/',
     name: 'Main',
-    component: require('@/App.vue')
+    component: () => import('@/App.vue'),
+    children: [
+      {
+        path: 'messaging',
+        name: 'Messaging Dashboard',
+        component: () => import('@/components/clientMessaging/render/SmsMessagingDashboard.vue')
+      }
+    ]
   }
 ]
 

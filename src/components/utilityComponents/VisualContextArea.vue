@@ -4,7 +4,7 @@
       <div>
         <b-row>
           <b-col>
-            Visual context
+            <router-view />
           </b-col>
         </b-row>
       </div>

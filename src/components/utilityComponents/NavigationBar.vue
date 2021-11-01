@@ -1,23 +1,9 @@
 <template>
   <div>
-    <b-navbar
-      type="dark"
-      variant="info"
-      toggleable="lg"
-      sticky
-    >
-      <b-navbar-brand class="ml-auto">Brand</b-navbar-brand>
-      <b-navbar-toggle target="nav-collapse" />
-      <b-collapse id="nav-collapse" is-nav>
-        <b-navbar-nav>
-          <b-nav-item
-            v-for="(item, index) in navigationItems"
-            :key="index"
-          >
-            {{ item }}
-          </b-nav-item>
-        </b-navbar-nav>
-      </b-collapse>
+    <b-navbar>
+      <b-navbar-brand class="ml-auto mx-4 my-4 pb-2">
+        Brand of Valhalla
+      </b-navbar-brand>
     </b-navbar>
   </div>
 </template>
