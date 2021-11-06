@@ -12,15 +12,25 @@ const routes = [
   {
     path: '/',
     name: 'Main',
-    component: () => import('@/App.vue'),
+    component: () => import('@/components/PrimaryView.vue'),
     children: [
       {
         path: 'messaging',
         name: 'Messaging Dashboard',
-        component: () => import('@/components/clientMessaging/render/SmsMessagingDashboard.vue')
+        component: () => import('@/components/clientMessaging/ClientMessagingView.vue')
+      },
+      {
+        path: 'monitoring',
+        name: 'Monitoring Dashboard',
+        component: () => import('@/components/messagingMonitor/MessagingMonitoringDashboardView.vue')
       }
     ]
   }
+  // {
+  //   path: 'monitoring',
+  //   name: 'Monitoring Dashboard',
+  //   component: () => import('@/components/clientMessaging/render/MessaginMonitoringDashboard.vue')
+  // }
 ]
 
 const router = new VueRouter({
