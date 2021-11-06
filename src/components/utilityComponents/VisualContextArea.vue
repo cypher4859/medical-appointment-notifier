@@ -4,7 +4,7 @@
       <div>
         <b-row>
           <b-col>
-            <router-view />
+            <slot />
           </b-col>
         </b-row>
       </div>

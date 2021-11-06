@@ -15,7 +15,9 @@
       <b-col>
         <!-- <navigation-bar /> -->
         <div class="my-3">
-          <visual-context-area />
+          <visual-context-area>
+            <router-view />
+          </visual-context-area>
         </div>
       </b-col>
     </b-row>
