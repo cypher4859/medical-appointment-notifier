@@ -2,12 +2,13 @@
   <div>
     <b-button
       class="px-5"
+      :to="linkTo"
     >
       <div>
         <b-row>
           <b-col
             v-if="iconName"
-            cols="4"
+            cols="1"
           >
             <b-icon
               :icon="iconName"
@@ -32,5 +33,6 @@ import { Component, Prop } from 'vue-property-decorator'
 export default class ListButton extends Vue {
   @Prop(String) private buttonText!: string
   @Prop(String) private iconName!: string
+  @Prop({ default: '', type: String }) private linkTo!: string
 }
 </script>

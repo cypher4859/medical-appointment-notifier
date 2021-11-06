@@ -16,6 +16,7 @@
             <list-button
               :button-text="button.text"
               :icon-name="button.iconName ? button.iconName : undefined"
+              :link-to="button.routeToComponent"
             />
           </b-col>
         </b-row>

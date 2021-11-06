@@ -43,15 +43,19 @@ export default class PrimaryView extends Vue {
   get getActionButtons () : object[] {
     return [
       {
-        text: 'Action 1',
-        iconName: 'chat-square-dots-fill'
+        text: 'Messaging',
+        iconName: 'chat-square-dots-fill',
+        routeToComponent: 'messaging'
       },
       {
-        text: 'Action 2',
-        iconName: 'check-circle-fill'
+        text: 'Monitoring',
+        iconName: 'check-circle-fill',
+        routeToComponent: 'monitoring'
       },
       {
-        text: 'Action 3'
+        text: 'Action 3',
+        iconName: '',
+        routeToComponent: ''
       }
     ]
   }
