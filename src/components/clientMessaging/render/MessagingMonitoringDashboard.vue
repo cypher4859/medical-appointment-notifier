@@ -1,6 +1,10 @@
 <template>
   <div>
-    Messaging Monitor Dashboard
+    <b-card>
+      <b-card-title>
+        Messaging Monitor Dashboard
+      </b-card-title>
+    </b-card>
   </div>
 </template>
 
