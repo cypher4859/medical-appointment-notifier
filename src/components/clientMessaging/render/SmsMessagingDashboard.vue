@@ -21,13 +21,13 @@
 import Vue from 'vue'
 import { Component } from 'vue-property-decorator'
 import SmsMessageSending from './MessageSending.vue'
-import MessagingMonitoringDashboard from './MessagingMonitoringDashboard.vue'
+import MessagingMonitoring from './MessagingMonitoring.vue'
 
 @Component({
   name: 'sms-messaging-dashboard',
   components: {
     'message-sending': SmsMessageSending,
-    'message-monitoring': MessagingMonitoringDashboard
+    'message-monitoring': MessagingMonitoring
   }
 })
 export default class SmsMessagingDashboard extends Vue {
