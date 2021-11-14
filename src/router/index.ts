@@ -7,6 +7,7 @@ const routes = [
   {
     path: '/',
     name: 'Main',
+    redirect: 'messaging',
     component: () => import('@/components/PrimaryView.vue'),
     children: [
       {
