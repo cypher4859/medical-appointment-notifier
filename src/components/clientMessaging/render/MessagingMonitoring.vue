@@ -79,6 +79,7 @@
                   sticky-header
                   select-mode="single"
                   selectable
+                  :fields="messagesReceivedFields"
                   :current-page="currentMessageListPage"
                   :per-page="messagesPerPage"
                   :filter="tableSearchCriteria"
@@ -138,6 +139,7 @@ export default class MessagingMonitoringDashboard extends Vue {
   private messagesPerPage: number = this.perPageSelect
   private currentMessageListPage: number = 1
   private gradient!: any
+  private messagesReceivedFields: string[] = ['messageReceivedOnDate', 'messageReceivedAtTime', 'fullName', 'messageText', 'appointmentAccepted']
   private numberOfMessagesInTimeInterval: number[] = []
   private dataCollection: object | null = null
   private interval: number = 30
