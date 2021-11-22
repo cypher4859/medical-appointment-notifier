@@ -65,7 +65,7 @@
                   Search
                 </h5>
                 <b-form-input
-                  id="data-table-search"
+                  id="message-monitoring-data-table-search"
                   v-model="tableSearchCriteria"
                   type="search"
                   placeholder="Search the message list"
@@ -123,7 +123,7 @@ import { Component, Watch } from 'vue-property-decorator'
 import LineChart from '@/components/utilityComponents/LineChartCustom.vue'
 import DateAndTime from 'date-and-time'
 
-const mockData = require('@/assets/MOCK_DATA.json')
+const mockData = require('@/assets/MockPatientData.json')
 
 @Component({
   name: 'messaging-monitor-dashboard',
@@ -188,14 +188,12 @@ export default class MessagingMonitoringDashboard extends Vue {
 
   @Watch('showMessagesSent')
   onShowMessagesSentChange (newShowMessagesSent: boolean, oldshowMessagesSent: boolean) {
-    console.log('Preupdate:', this.collectionOfDatasets)
     this.$nextTick(() => {
       if (this.showMessagesSent && !this.datasetIsInCollectionOfDatasets(this.messagesSentDataset)) {
         this.collectionOfDatasets.push(this.messagesSentDataset)
       } else if (!this.showMessagesSent) {
         this.removeDatasetFromChart(this.collectionOfDatasets, this.messagesSentDataset)
       }
-      console.log('post-update:', this.collectionOfDatasets)
     })
   }
 
