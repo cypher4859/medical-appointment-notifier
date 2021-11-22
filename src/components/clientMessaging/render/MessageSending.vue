@@ -37,10 +37,25 @@
               >
                 {{ getContactSelectionHelpMessage }}
               </b-alert>
+              <h5
+                class="align-center mx-3 pt-2"
+              >
+                Address Book
+              </h5>
+              <b-form-input
+                id="message-sending-data-table-search"
+                v-model="addressBookTableSearchCriteria"
+                class="mb-2"
+                type="search"
+                placeholder="Search the address book"
+              />
               <b-table
+                ref="addressBookTable"
                 sticky-header
-                :select-mode="getSelectMode()"
                 selectable
+                :select-mode="getSelectMode()"
+                :filter="addressBookTableSearchCriteria"
+                :fields="getAddressBookTableHeaders"
                 :items="addressBook"
                 @row-selected="onRowSelected"
               />
@@ -56,7 +71,16 @@
                 :disabled="!recipientsIsSelected"
                 @click="loadRecipientList()"
               >
-                Load Recipients
+                <span
+                  v-if="selectedRecipientMode === appointmentModes.BY_APPOINTMENT"
+                >
+                  Load Recipients
+                </span>
+                <span
+                  v-else
+                >
+                  Add to Recipient List
+                </span>
               </b-button>
             </div>
           </b-card>
@@ -67,7 +91,18 @@
             <b-table
               striped
               hover
+              show-empty
+              :fields="getAddressBookTableHeaders"
               :items="messageRecipients"
+              :per-page="recipientsPerPage"
+              :current-page="currentRecipientListPage"
+            />
+            <b-pagination
+              v-if="messageRecipients.length >= recipientsPerPage"
+              v-model="currentRecipientListPage"
+              :total-rows="messageRecipients.length"
+              :per-page="recipientsPerPage"
+              aria-controls="messages-received-list-table"
             />
           </b-card>
           <b-card class="mt-3">
@@ -100,7 +135,7 @@
         <b-col cols="1">
           <div>
             <b-button
-              :disabled="showAlertCountdown > 0"
+              :disabled="showAlertCountdown > 0 || messageRecipients.length === 0 || selectedMessageTemplate === null"
               @click="showSendMessagePreview()"
             >
               Send
@@ -126,6 +161,16 @@
             striped
             hover
             :items="messageRecipients"
+            :fields="getRecipientListPreviewTableHeader"
+            :per-page="previewRecipientsPerPage"
+            :current-page="previewCurrentRecipientListPage"
+          />
+          <b-pagination
+            v-if="messageRecipients.length >= previewRecipientsPerPage"
+            v-model="previewCurrentRecipientListPage"
+            :total-rows="messageRecipients.length"
+            :per-page="previewRecipientsPerPage"
+            aria-controls="messages-received-list-table"
           />
         </b-card>
         <b-card class="mt-3">
@@ -154,7 +199,12 @@
 <script lang="ts">
 import App from '@/App.vue'
 import Vue from 'vue'
-import { Component } from 'vue-property-decorator'
+import { Component, Watch } from 'vue-property-decorator'
+import DateAndTime from 'date-and-time'
+import ISmsMessageTemplate from '@/components/clientMessaging/types/ISmsMessageTemplate'
+import IClientRecipientWithAppointment from '@/components/clientMessaging/types/IClientRecipientWithAppointment'
+
+const mockData = require('@/assets/MockPatientData.json')
 
 enum AppointmentModes {
   BY_APPOINTMENT='byAppointment',
@@ -168,18 +218,28 @@ enum AppointmentModes {
 export default class SmsMessageSending extends Vue {
   private appointmentModes = AppointmentModes
   private selectedDateToLoadRecipients: string = ''
-  private selectedRecipientMode: string | null = this.appointmentModes.BY_APPOINTMENT
-  private messageRecipients: object[] = this.getMessageRecipients
-  private addressBook: object[] = this.getAddressBook
-  private selectedRecipientRows = []
+  private selectedRecipientMode: AppointmentModes | null = this.appointmentModes.BY_APPOINTMENT
+  private messageRecipients: IClientRecipientWithAppointment[] = []
+  private addressBook: IClientRecipientWithAppointment[] = this.getAddressBook
+  private selectedRecipientRows: IClientRecipientWithAppointment[] = []
   private showMessagePreview: boolean = false
   private showAlertCountdown: number = 0
   private alertDefaultCountdown: number = 5
   private showMessagePreviewOverlay: boolean = false
-  private selectedMessageTemplate: object = {}
-  private messageTemplates: object = this.getMessageTemplates
+  private selectedMessageTemplate: ISmsMessageTemplate | null = null
+  private messageTemplates: ISmsMessageTemplate[] = this.getMessageTemplates
+  private recipientsPerPage: number = 7
+  private currentRecipientListPage: number = 1
+  private addressBookTableSearchCriteria: string = ''
+  private previewRecipientsPerPage: number = 7
+  private previewCurrentRecipientListPage: number = 1
 
-  get getMessageTemplates () : object[] {
+  @Watch('selectedRecipientMode')
+  onMessagingModeChange () {
+    this.clearRecipientList()
+  }
+
+  get getMessageTemplates () : ISmsMessageTemplate[] {
     return [
       {
         value: null, text: 'Please Select You Message Template'
@@ -196,7 +256,7 @@ export default class SmsMessageSending extends Vue {
     ]
   }
 
-  get recipientModes () : object[] {
+  get recipientModes () : ISmsMessageTemplate[] {
     return [
       { value: null, text: 'Please select recipient loading mode' },
       { value: this.appointmentModes.BY_APPOINTMENT, text: 'By Appointment Date' },
@@ -205,25 +265,19 @@ export default class SmsMessageSending extends Vue {
     ]
   }
 
-  get getMessageRecipients () : object[] {
-    return [
-      { age: 40, firstName: 'Dickerson', lastName: 'Macdonald' },
-      { age: 21, firstName: 'Larsen', lastName: 'Shaw' },
-      { age: 89, firstName: 'Geneva', lastName: 'Wilson' },
-      { age: 38, firstName: 'Jami', lastName: 'Carney' }
-    ]
+  get getMessageRecipientsOnAppointmentDate () : (dateToLoadAppointments: string) => IClientRecipientWithAppointment[] {
+    return (dateToLoadAppointments) => {
+      return this.addressBook.filter((contact: IClientRecipientWithAppointment) => {
+        return DateAndTime.isSameDay(DateAndTime.parse(contact.appointmentDateTime!, 'MM/DD/YYYY'), DateAndTime.parse(dateToLoadAppointments, 'YYYY-MM-DD'))
+      })
+    }
   }
 
-  get getAddressBook () : object[] {
-    return [
-      { isActive: true, age: 40, first_name: 'Dickerson', last_name: 'Macdonald' },
-      { isActive: false, age: 21, first_name: 'Larsen', last_name: 'Shaw' },
-      { isActive: false, age: 89, first_name: 'Geneva', last_name: 'Wilson' },
-      { isActive: true, age: 38, first_name: 'Jami', last_name: 'Carney' }
-    ]
+  get getAddressBook () : IClientRecipientWithAppointment[] {
+    return mockData
   }
 
-  private getSelectMode () {
+  private getSelectMode () : string {
     if (this.selectedRecipientMode === this.appointmentModes.SINGLE_CONTACT) {
       return 'single'
     } else if (this.selectedRecipientMode === this.appointmentModes.MULTIPLE_CONTACTS) {
@@ -233,7 +287,15 @@ export default class SmsMessageSending extends Vue {
     }
   }
 
-  private onRowSelected (items: any) {
+  get getAddressBookTableHeaders () : string[] {
+    return ['fullName', 'phoneNumber', 'dateOfBirth', 'appointmentDateTime', 'appointmentAccepted']
+  }
+
+  get getRecipientListPreviewTableHeader () : string[] {
+    return ['fullName', 'phoneNumber', 'dateOfBirth', 'appointmentDateTime']
+  }
+
+  private onRowSelected (items: IClientRecipientWithAppointment[]) {
     this.selectedRecipientRows = items
   }
 
@@ -241,6 +303,8 @@ export default class SmsMessageSending extends Vue {
     this.messageRecipients = []
     if (this.selectedRecipientMode === this.appointmentModes.BY_APPOINTMENT) {
       this.selectedDateToLoadRecipients = ''
+    } else if (this.selectedRecipientRows.length > 0) {
+      (this.$refs.addressBookTable as any).clearSelected()
     }
   }
 
@@ -249,16 +313,23 @@ export default class SmsMessageSending extends Vue {
       switch (this.selectedRecipientMode) {
         case this.appointmentModes.BY_APPOINTMENT:
           if (this.selectedDateToLoadRecipients) {
-            this.messageRecipients = this.getMessageRecipients
+            this.messageRecipients = this.getMessageRecipientsOnAppointmentDate(this.selectedDateToLoadRecipients)
           } else {
             this.messageRecipients = []
           }
           break
         case this.appointmentModes.SINGLE_CONTACT:
-          this.messageRecipients = this.selectedRecipientRows
+          // this.messageRecipients = this.selectedRecipientRows
+          if (this.messageRecipients.length === 0 && !this.messageRecipients.includes(this.selectedRecipientRows[0])) {
+            this.messageRecipients.push(this.selectedRecipientRows[0])
+          }
           break
         case this.appointmentModes.MULTIPLE_CONTACTS:
-          this.messageRecipients = this.selectedRecipientRows
+          this.selectedRecipientRows.forEach((selectedRow) => {
+            if (!this.messageRecipients.includes(selectedRow)) {
+              this.messageRecipients.push(selectedRow)
+            }
+          })
           break
         default:
           this.clearRecipientList()
@@ -293,6 +364,9 @@ export default class SmsMessageSending extends Vue {
         this.showAlertCountdown = this.alertDefaultCountdown
         this.showMessagePreviewOverlay = false
         this.showMessagePreview = false
+      })
+      .then(() => {
+        this.clearRecipientList()
       })
       .catch((e) => {
         this.showMessagePreviewOverlay = false
