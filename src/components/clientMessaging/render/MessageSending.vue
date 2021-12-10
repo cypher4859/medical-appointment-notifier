@@ -141,7 +141,7 @@
               Messages successfully sent! ... {{ showAlertCountdown }}
             </b-alert>
           </b-col>
-          <b-col cols="1">
+          <b-col cols="auto">
             <div>
               <b-button
                 :disabled="showAlertCountdown > 0 || messageRecipients.length === 0 || selectedMessageTemplate === null"

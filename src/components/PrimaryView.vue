@@ -12,7 +12,9 @@
           />
         </div>
       </b-col>
-      <b-col>
+      <b-col
+        cols="auto"
+      >
         <!-- <navigation-bar /> -->
         <div class="my-3">
           <visual-context-area>
