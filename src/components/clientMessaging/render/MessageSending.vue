@@ -64,7 +64,7 @@
               <b-button
                 @click="clearRecipientList()"
               >
-                Clear
+                Clear Selection
               </b-button>
               <b-button
                 v-if="selectedRecipientMode === appointmentModes.BY_APPOINTMENT"
