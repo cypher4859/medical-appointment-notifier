@@ -2,141 +2,157 @@
   <div>
     <b-card>
       <b-card-title>
-        Sending Messages
-      </b-card-title>
-      <b-row>
-        <b-col>
-          <b-card>
-            <div>
-              <b-card-sub-title class="mb-3">
-                Messaging Mode:
-              </b-card-sub-title>
-              <b-form-select
-                v-model="selectedRecipientMode"
-                class="mb-3"
-                :options="recipientModes"
-              />
-            </div>
-            <div v-if="selectedRecipientMode === appointmentModes.BY_APPOINTMENT">
-              <b-alert
-                show
-                variant="info"
-              >
-                {{ getContactSelectionHelpMessage }}
-              </b-alert>
-              <b-form-datepicker
-                id="example-datepicker"
-                v-model="selectedDateToLoadRecipients"
-                class="mb-3"
-              />
-            </div>
-            <div v-if="selectedRecipientMode === appointmentModes.SINGLE_CONTACT || selectedRecipientMode === appointmentModes.MULTIPLE_CONTACTS">
-              <b-alert
-                show
-                variant="info"
-              >
-                {{ getContactSelectionHelpMessage }}
-              </b-alert>
-              <h5
-                class="align-center mx-3 pt-2"
-              >
-                Address Book
-              </h5>
-              <b-form-input
-                id="message-sending-data-table-search"
-                v-model="addressBookTableSearchCriteria"
-                class="mb-2"
-                type="search"
-                placeholder="Search the address book"
-              />
-              <b-table
-                ref="addressBookTable"
-                sticky-header
-                selectable
-                :select-mode="getSelectMode()"
-                :filter="addressBookTableSearchCriteria"
-                :fields="getAddressBookTableHeaders"
-                :items="addressBook"
-                @row-selected="onRowSelected"
-              />
-            </div>
-            <div>
-              <b-button
-                @click="clearRecipientList()"
-              >
-                Clear Selection
-              </b-button>
-              <b-button
-                v-if="selectedRecipientMode === appointmentModes.BY_APPOINTMENT"
-                class="mx-3"
-                :disabled="!recipientsIsSelected"
-                @click="loadRecipientList()"
-              >
-                <span>
-                  Load Recipients
-                </span>
-              </b-button>
-            </div>
-          </b-card>
-        </b-col>
-        <b-col>
-          <b-card>
-            <b-card-sub-title>Recipient List</b-card-sub-title>
-            <b-table
-              striped
-              hover
-              show-empty
-              :fields="getAddressBookTableHeaders"
-              :items="messageRecipients"
-              :per-page="recipientsPerPage"
-              :current-page="currentRecipientListPage"
-            />
-            <b-pagination
-              v-if="messageRecipients.length >= recipientsPerPage"
-              v-model="currentRecipientListPage"
-              :total-rows="messageRecipients.length"
-              :per-page="recipientsPerPage"
-              aria-controls="messages-received-list-table"
-            />
-          </b-card>
-          <b-card class="mt-3">
-            <b-card-sub-title>Message Template</b-card-sub-title>
-            <b-form-select
-              v-model="selectedMessageTemplate"
-              class="mt-2"
-              :options="messageTemplates"
-            />
-            <b-card-text class="mt-4">
-              Example: <h4>{{ selectedMessageTemplate }}</h4>
-            </b-card-text>
-          </b-card>
-        </b-col>
-      </b-row>
-      <b-row
-        class="mt-3"
-        align-h="end"
-      >
-        <b-col>
-          <b-alert
-            :show="showAlertCountdown"
-            variant="success"
-            @dismissed="showAlertCountdown = 0"
-            @dismiss-count-down="showAlertChanged"
-          >
-            Messages successfully sent! ... {{ showAlertCountdown }}
-          </b-alert>
-        </b-col>
-        <b-col cols="1">
-          <div>
+        <b-row>
+          <b-col>
+            Sending Messages
+          </b-col>
+          <b-col cols="auto">
             <b-button
-              :disabled="showAlertCountdown > 0 || messageRecipients.length === 0 || selectedMessageTemplate === null"
-              @click="showSendMessagePreview()"
+              v-b-toggle.toggle-sending-messages-collapse
             >
-              Send
+              collapse
             </b-button>
-          </div>
-        </b-col>
-      </b-row>
+          </b-col>
+        </b-row>
+      </b-card-title>
+      <b-collapse
+        id="toggle-sending-messages-collapse"
+        visible
+      >
+        <b-row>
+          <b-col>
+            <b-card>
+              <div>
+                <b-card-sub-title class="mb-3">
+                  Messaging Mode:
+                </b-card-sub-title>
+                <b-form-select
+                  v-model="selectedRecipientMode"
+                  class="mb-3"
+                  :options="recipientModes"
+                />
+              </div>
+              <div v-if="selectedRecipientMode === appointmentModes.BY_APPOINTMENT">
+                <b-alert
+                  show
+                  variant="info"
+                >
+                  {{ getContactSelectionHelpMessage }}
+                </b-alert>
+                <b-form-datepicker
+                  id="example-datepicker"
+                  v-model="selectedDateToLoadRecipients"
+                  class="mb-3"
+                />
+              </div>
+              <div v-if="selectedRecipientMode === appointmentModes.SINGLE_CONTACT || selectedRecipientMode === appointmentModes.MULTIPLE_CONTACTS">
+                <b-alert
+                  show
+                  variant="info"
+                >
+                  {{ getContactSelectionHelpMessage }}
+                </b-alert>
+                <h5
+                  class="align-center mx-3 pt-2"
+                >
+                  Address Book
+                </h5>
+                <b-form-input
+                  id="message-sending-data-table-search"
+                  v-model="addressBookTableSearchCriteria"
+                  class="mb-2"
+                  type="search"
+                  placeholder="Search the address book"
+                />
+                <b-table
+                  ref="addressBookTable"
+                  sticky-header
+                  selectable
+                  :select-mode="getSelectMode()"
+                  :filter="addressBookTableSearchCriteria"
+                  :fields="getAddressBookTableHeaders"
+                  :items="addressBook"
+                  @row-selected="onRowSelected"
+                />
+              </div>
+              <div>
+                <b-button
+                  @click="clearRecipientList()"
+                >
+                  Clear Selection
+                </b-button>
+                <b-button
+                  v-if="selectedRecipientMode === appointmentModes.BY_APPOINTMENT"
+                  class="mx-3"
+                  :disabled="!recipientsIsSelected"
+                  @click="loadRecipientList()"
+                >
+                  <span>
+                    Load Recipients
+                  </span>
+                </b-button>
+              </div>
+            </b-card>
+          </b-col>
+          <b-col>
+            <b-card>
+              <b-card-sub-title>Recipient List</b-card-sub-title>
+              <b-table
+                striped
+                hover
+                show-empty
+                :fields="getAddressBookTableHeaders"
+                :items="messageRecipients"
+                :per-page="recipientsPerPage"
+                :current-page="currentRecipientListPage"
+              />
+              <b-pagination
+                v-if="messageRecipients.length >= recipientsPerPage"
+                v-model="currentRecipientListPage"
+                :total-rows="messageRecipients.length"
+                :per-page="recipientsPerPage"
+                aria-controls="messages-received-list-table"
+              />
+            </b-card>
+            <b-card class="mt-3">
+              <b-card-sub-title>Message Template</b-card-sub-title>
+              <b-form-select
+                v-model="selectedMessageTemplate"
+                class="mt-2"
+                :options="messageTemplates"
+              />
+              <b-card-text class="mt-4">
+                Example: <h4>{{ selectedMessageTemplate }}</h4>
+              </b-card-text>
+            </b-card>
+          </b-col>
+        </b-row>
+        <b-row
+          class="mt-3"
+          align-h="end"
+        >
+          <b-col>
+            <b-alert
+              :show="showAlertCountdown"
+              variant="success"
+              @dismissed="showAlertCountdown = 0"
+              @dismiss-count-down="showAlertChanged"
+            >
+              Messages successfully sent! ... {{ showAlertCountdown }}
+            </b-alert>
+          </b-col>
+          <b-col cols="1">
+            <div>
+              <b-button
+                :disabled="showAlertCountdown > 0 || messageRecipients.length === 0 || selectedMessageTemplate === null"
+                @click="showSendMessagePreview()"
+              >
+                Send
+              </b-button>
+            </div>
+          </b-col>
+        </b-row>
+      </b-collapse>
     </b-card>
     <b-modal
       v-model="showMessagePreview"

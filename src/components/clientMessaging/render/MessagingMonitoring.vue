@@ -2,116 +2,132 @@
   <div>
     <b-card>
       <b-card-title>
-        Messaging Monitor Dashboard
+        <b-row>
+          <b-col>
+            Messaging Monitor Dashboard
+          </b-col>
+          <b-col cols="auto">
+            <b-button
+              v-b-toggle.toggle-monitoring-messages-collapse
+            >
+              collapse
+            </b-button>
+          </b-col>
+        </b-row>
       </b-card-title>
-      <b-row>
-        <b-col>
-          <b-card>
-            <b-card-sub-title>Messaging Statistics - Graph</b-card-sub-title>
-            <b-row>
-              <b-col>
-                <div class="Chart">
-                  <line-chart
-                    :chart-data="dataCollection"
-                    :options="chartOptions"
-                  />
-                </div>
-                <b-row>
-                  <b-col cols="auto">
-                    <b-form-checkbox
-                      id="enable-chart-messages-received"
-                      v-model="showMessagesReceived"
-                      name="enable-chart-messages-received"
-                      :value="true"
-                      :unchecked-value="false"
-                    >
-                      <div class="mx-2">
-                        Show Messages Received
-                      </div>
-                    </b-form-checkbox>
-                  </b-col>
-                  <b-col cols="auto">
-                    <b-form-checkbox
-                      id="enable-chart-messages-sent"
-                      v-model="showMessagesSent"
-                      name="enable-chart-messages-sent"
-                      :value="true"
-                      :unchecked-value="false"
-                    >
-                      <div class="mx-2">
-                        All Messages Sent
-                      </div>
-                    </b-form-checkbox>
-                  </b-col>
-                </b-row>
-              </b-col>
-            </b-row>
-          </b-card>
-        </b-col>
-      </b-row>
-      <b-row class="mt-3">
-        <b-col>
-          <b-card>
-            <b-card-sub-title>Messages Received - Details</b-card-sub-title>
-            <!-- List of messages -->
-            <b-row align-h="end">
-              <b-col
-                cols="4"
-                class="d-flex"
-              >
-                <h5
-                  class="align-center mx-3 pt-2"
+      <b-collapse
+        id="toggle-monitoring-messages-collapse"
+        visible
+      >
+        <b-row>
+          <b-col>
+            <b-card>
+              <b-card-sub-title>Messaging Statistics - Graph</b-card-sub-title>
+              <b-row>
+                <b-col>
+                  <div class="Chart">
+                    <line-chart
+                      :chart-data="dataCollection"
+                      :options="chartOptions"
+                    />
+                  </div>
+                  <b-row>
+                    <b-col cols="auto">
+                      <b-form-checkbox
+                        id="enable-chart-messages-received"
+                        v-model="showMessagesReceived"
+                        name="enable-chart-messages-received"
+                        :value="true"
+                        :unchecked-value="false"
+                      >
+                        <div class="mx-2">
+                          Show Messages Received
+                        </div>
+                      </b-form-checkbox>
+                    </b-col>
+                    <b-col cols="auto">
+                      <b-form-checkbox
+                        id="enable-chart-messages-sent"
+                        v-model="showMessagesSent"
+                        name="enable-chart-messages-sent"
+                        :value="true"
+                        :unchecked-value="false"
+                      >
+                        <div class="mx-2">
+                          All Messages Sent
+                        </div>
+                      </b-form-checkbox>
+                    </b-col>
+                  </b-row>
+                </b-col>
+              </b-row>
+            </b-card>
+          </b-col>
+        </b-row>
+        <b-row class="mt-3">
+          <b-col>
+            <b-card>
+              <b-card-sub-title>Messages Received - Details</b-card-sub-title>
+              <!-- List of messages -->
+              <b-row align-h="end">
+                <b-col
+                  cols="4"
+                  class="d-flex"
                 >
-                  Search
-                </h5>
-                <b-form-input
-                  id="message-monitoring-data-table-search"
-                  v-model="tableSearchCriteria"
-                  type="search"
-                  placeholder="Search the message list"
-                />
-              </b-col>
-            </b-row>
-            <b-row>
-              <b-col>
-                <b-table
-                  id="messages-received-list-table"
-                  sticky-header
-                  select-mode="single"
-                  selectable
-                  :fields="messagesReceivedFields"
-                  :current-page="currentMessageListPage"
-                  :per-page="messagesPerPage"
-                  :filter="tableSearchCriteria"
-                  :items="messageList"
-                  @row-selected="onRowSelected"
-                />
-              </b-col>
-            </b-row>
-            <b-row>
-              <b-col cols="auto">
-                <b-pagination
-                  v-model="currentMessageListPage"
-                  :total-rows="messageList.length"
-                  :per-page="messagesPerPage"
-                  aria-controls="messages-received-list-table"
-                />
-              </b-col>
-            </b-row>
-            <b-row>
-              <b-col>
-                <strong>Items per Page:</strong>
-                <b-form-select
-                  v-model="perPageSelect"
-                  class="mx-3"
-                  :options="perPageOptions"
-                  @change="onPerPageSelect(perPageSelect)"
-                />
-              </b-col>
-            </b-row>
-          </b-card>
-        </b-col>
-      </b-row>
+                  <h5
+                    class="align-center mx-3 pt-2"
+                  >
+                    Search
+                  </h5>
+                  <b-form-input
+                    id="message-monitoring-data-table-search"
+                    v-model="tableSearchCriteria"
+                    type="search"
+                    placeholder="Search the message list"
+                  />
+                </b-col>
+              </b-row>
+              <b-row>
+                <b-col>
+                  <b-table
+                    id="messages-received-list-table"
+                    sticky-header
+                    select-mode="single"
+                    selectable
+                    :fields="messagesReceivedFields"
+                    :current-page="currentMessageListPage"
+                    :per-page="messagesPerPage"
+                    :filter="tableSearchCriteria"
+                    :items="messageList"
+                    @row-selected="onRowSelected"
+                  />
+                </b-col>
+              </b-row>
+              <b-row>
+                <b-col cols="auto">
+                  <b-pagination
+                    v-model="currentMessageListPage"
+                    :total-rows="messageList.length"
+                    :per-page="messagesPerPage"
+                    aria-controls="messages-received-list-table"
+                  />
+                </b-col>
+              </b-row>
+              <b-row>
+                <b-col>
+                  <strong>Items per Page:</strong>
+                  <b-form-select
+                    v-model="perPageSelect"
+                    class="mx-3"
+                    :options="perPageOptions"
+                    @change="onPerPageSelect(perPageSelect)"
+                  />
+                </b-col>
+              </b-row>
+            </b-card>
+          </b-col>
+        </b-row>
+      </b-collapse>
     </b-card>
   </div>
 </template>
