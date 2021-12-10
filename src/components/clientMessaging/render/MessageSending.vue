@@ -67,19 +67,13 @@
                 Clear
               </b-button>
               <b-button
+                v-if="selectedRecipientMode === appointmentModes.BY_APPOINTMENT"
                 class="mx-3"
                 :disabled="!recipientsIsSelected"
                 @click="loadRecipientList()"
               >
-                <span
-                  v-if="selectedRecipientMode === appointmentModes.BY_APPOINTMENT"
-                >
+                <span>
                   Load Recipients
-                </span>
-                <span
-                  v-else
-                >
-                  Add to Recipient List
                 </span>
               </b-button>
             </div>
@@ -203,6 +197,8 @@ import { Component, Watch } from 'vue-property-decorator'
 import DateAndTime from 'date-and-time'
 import ISmsMessageTemplate from '@/components/clientMessaging/types/ISmsMessageTemplate'
 import IClientRecipientWithAppointment from '@/components/clientMessaging/types/IClientRecipientWithAppointment'
+import cloneDeep from 'lodash'
+import IClient from '../types/IClient'
 
 const mockData = require('@/assets/MockPatientData.json')
 
@@ -237,6 +233,11 @@ export default class SmsMessageSending extends Vue {
   @Watch('selectedRecipientMode')
   onMessagingModeChange () {
     this.clearRecipientList()
+  }
+
+  @Watch('selectedRecipientRows')
+  onAddressBookSelectedRowChange (newSelected: any, oldSelected: any) {
+    this.messageRecipients = this.selectedRecipientRows
   }
 
   get getMessageTemplates () : ISmsMessageTemplate[] {
