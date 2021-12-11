@@ -32,13 +32,30 @@
                   :options="recipientModes"
                 />
               </div>
+              <!-- <b-button
+                id="popover-target-send-messages-message-mode-info"
+              >
+                Info
+              </b-button> -->
+              <div class="mb-3">
+                <custom-popover-target
+                  :popover-id="'send-messages-message-mode-info'"
+                />
+              </div>
               <div v-if="selectedRecipientMode === appointmentModes.BY_APPOINTMENT">
-                <b-alert
-                  show
-                  variant="info"
+                <b-popover
+                  target="custom-popover-target-send-messages-message-mode-info"
+                  triggers="hover"
+                  placement="left"
                 >
-                  {{ getContactSelectionHelpMessage }}
-                </b-alert>
+                  <b-alert
+                    class="my-0"
+                    show
+                    variant="info"
+                  >
+                    {{ getContactSelectionHelpMessage }}
+                  </b-alert>
+                </b-popover>
                 <b-form-datepicker
                   id="example-datepicker"
                   v-model="selectedDateToLoadRecipients"
@@ -46,12 +63,19 @@
                 />
               </div>
               <div v-if="selectedRecipientMode === appointmentModes.SINGLE_CONTACT || selectedRecipientMode === appointmentModes.MULTIPLE_CONTACTS">
-                <b-alert
-                  show
-                  variant="info"
+                <b-popover
+                  target="custom-popover-target-send-messages-message-mode-info"
+                  triggers="hover"
+                  placement="left"
                 >
-                  {{ getContactSelectionHelpMessage }}
-                </b-alert>
+                  <b-alert
+                    class="my-0"
+                    show
+                    variant="info"
+                  >
+                    {{ getContactSelectionHelpMessage }}
+                  </b-alert>
+                </b-popover>
                 <h5
                   class="align-center mx-3 pt-2"
                 >
@@ -143,12 +167,28 @@
           </b-col>
           <b-col cols="auto">
             <div>
-              <b-button
-                :disabled="showAlertCountdown > 0 || messageRecipients.length === 0 || selectedMessageTemplate === null"
-                @click="showSendMessagePreview()"
+              <b-popover
+                v-if="messageRecipients.length !== 0 && selectedMessageTemplate === null"
+                target="popover-target-send-messages-warning"
+                triggers="hover"
+                placement="right"
               >
-                Send
-              </b-button>
+                <b-alert
+                  class="my-0"
+                  show
+                  variant="danger"
+                >
+                  Please select a message template before sending messages
+                </b-alert>
+              </b-popover>
+              <div id="popover-target-send-messages-warning">
+                <b-button
+                  :disabled="showAlertCountdown > 0 || messageRecipients.length === 0 || selectedMessageTemplate === null"
+                  @click="showSendMessagePreview()"
+                >
+                  Send
+                </b-button>
+              </div>
             </div>
           </b-col>
         </b-row>
@@ -215,6 +255,7 @@ import ISmsMessageTemplate from '@/components/clientMessaging/types/ISmsMessageT
 import IClientRecipientWithAppointment from '@/components/clientMessaging/types/IClientRecipientWithAppointment'
 import cloneDeep from 'lodash'
 import IClient from '../types/IClient'
+import CustomPopoverTarget from '@/components/utilityComponents/CustomPopoverTarget.vue'
 
 const mockData = require('@/assets/MockPatientData.json')
 
@@ -225,7 +266,10 @@ enum AppointmentModes {
 }
 
 @Component({
-  name: 'sms-message-sending'
+  name: 'sms-message-sending',
+  components: {
+    'custom-popover-target': CustomPopoverTarget
+  }
 })
 export default class SmsMessageSending extends Vue {
   private appointmentModes = AppointmentModes
@@ -401,7 +445,7 @@ export default class SmsMessageSending extends Vue {
     } else if (this.selectedRecipientMode === this.appointmentModes.MULTIPLE_CONTACTS) {
       return 'Please select the contacts you wish to message. You may select more than one contact by selecting the row.'
     } else if (this.selectedRecipientMode === this.appointmentModes.BY_APPOINTMENT) {
-      return 'Please select a select a date and click to Load Recipients with the patients that have an appointment on that selected day.'
+      return 'Please select a date and click to Load Recipients with the patients that have an appointment on that selected day.'
     } else {
       return ''
     }
