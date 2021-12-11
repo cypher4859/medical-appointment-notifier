@@ -1,28 +1,29 @@
 <template>
   <div>
-    <b-row>
-      <b-col
-        cols="auto"
-      >
-        <div
-          class="my-3"
-        >
-          <navigation-action-panel
-            :action-buttons="getActionButtons"
-          />
-        </div>
-      </b-col>
-      <b-col
-        cols="auto"
-      >
-        <!-- <navigation-bar /> -->
-        <div class="my-3">
-          <visual-context-area>
-            <router-view />
-          </visual-context-area>
-        </div>
-      </b-col>
-    </b-row>
+    <b-container fluid>
+      <b-row no-gutters>
+        <b-col>
+          <div
+            class="my-3"
+          >
+            <navigation-action-panel
+              :action-buttons="getActionButtons"
+            />
+            <!-- <navigation-bar :action-buttons="getActionButtons" /> -->
+          </div>
+        </b-col>
+      </b-row>
+      <b-row>
+        <b-col>
+          <!-- <navigation-bar /> -->
+          <div class="my-3">
+            <visual-context-area>
+              <router-view />
+            </visual-context-area>
+          </div>
+        </b-col>
+      </b-row>
+    </b-container>
   </div>
 </template>
 
@@ -51,7 +52,8 @@ export default class PrimaryView extends Vue {
       },
       {
         text: 'Customize',
-        iconName: 'check-circle-fill'
+        iconName: 'check-circle-fill',
+        routeToComponent: 'settings'
       }
     ]
   }

@@ -1,26 +1,9 @@
 <template>
   <div>
     <b-card>
-      <div
-        class="d-flex justify-content-center mb-3"
-      >
-        <navigation-bar />
-      </div>
-      <div
-        v-for="(button, index) in actionButtons"
-        :key="index"
-        class="d-flex justify-content-start mb-3"
-      >
-        <b-row no-gutters>
-          <b-col>
-            <list-button
-              :button-text="button.text"
-              :icon-name="button.iconName ? button.iconName : undefined"
-              :link-to="button.routeToComponent"
-            />
-          </b-col>
-        </b-row>
-      </div>
+      <navigation-bar
+        :action-buttons="actionButtons"
+      />
     </b-card>
   </div>
 </template>
