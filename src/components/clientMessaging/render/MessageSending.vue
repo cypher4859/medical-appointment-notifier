@@ -17,7 +17,6 @@
       </b-card-title>
       <b-collapse
         id="toggle-sending-messages-collapse"
-        visible
       >
         <b-row>
           <b-col>
@@ -32,11 +31,6 @@
                   :options="recipientModes"
                 />
               </div>
-              <!-- <b-button
-                id="popover-target-send-messages-message-mode-info"
-              >
-                Info
-              </b-button> -->
               <div class="mb-3">
                 <custom-popover-target
                   :popover-id="'send-messages-message-mode-info'"
@@ -252,7 +246,7 @@ import Vue from 'vue'
 import { Component, Watch } from 'vue-property-decorator'
 import DateAndTime from 'date-and-time'
 import ISmsMessageTemplate from '@/components/clientMessaging/types/ISmsMessageTemplate'
-import IClientRecipientWithAppointment from '@/components/clientMessaging/types/IClientRecipientWithAppointment'
+import IClientContactWithAppointment from '@/components/clientMessaging/types/IClientContactWithAppointment'
 import cloneDeep from 'lodash'
 import IClient from '../types/IClient'
 import CustomPopoverTarget from '@/components/utilityComponents/CustomPopoverTarget.vue'
@@ -275,9 +269,9 @@ export default class SmsMessageSending extends Vue {
   private appointmentModes = AppointmentModes
   private selectedDateToLoadRecipients: string = ''
   private selectedRecipientMode: AppointmentModes | null = this.appointmentModes.BY_APPOINTMENT
-  private messageRecipients: IClientRecipientWithAppointment[] = []
-  private addressBook: IClientRecipientWithAppointment[] = this.getAddressBook
-  private selectedRecipientRows: IClientRecipientWithAppointment[] = []
+  private messageRecipients: IClientContactWithAppointment[] = []
+  private addressBook: IClientContactWithAppointment[] = this.getAddressBook
+  private selectedRecipientRows: IClientContactWithAppointment[] = []
   private showMessagePreview: boolean = false
   private showAlertCountdown: number = 0
   private alertDefaultCountdown: number = 5
@@ -326,15 +320,15 @@ export default class SmsMessageSending extends Vue {
     ]
   }
 
-  get getMessageRecipientsOnAppointmentDate () : (dateToLoadAppointments: string) => IClientRecipientWithAppointment[] {
+  get getMessageRecipientsOnAppointmentDate () : (dateToLoadAppointments: string) => IClientContactWithAppointment[] {
     return (dateToLoadAppointments) => {
-      return this.addressBook.filter((contact: IClientRecipientWithAppointment) => {
+      return this.addressBook.filter((contact: IClientContactWithAppointment) => {
         return DateAndTime.isSameDay(DateAndTime.parse(contact.appointmentDateTime!, 'MM/DD/YYYY'), DateAndTime.parse(dateToLoadAppointments, 'YYYY-MM-DD'))
       })
     }
   }
 
-  get getAddressBook () : IClientRecipientWithAppointment[] {
+  get getAddressBook () : IClientContactWithAppointment[] {
     return mockData
   }
 
@@ -356,7 +350,7 @@ export default class SmsMessageSending extends Vue {
     return ['fullName', 'phoneNumber', 'dateOfBirth', 'appointmentDateTime']
   }
 
-  private onRowSelected (items: IClientRecipientWithAppointment[]) {
+  private onRowSelected (items: IClientContactWithAppointment[]) {
     this.selectedRecipientRows = items
   }
 

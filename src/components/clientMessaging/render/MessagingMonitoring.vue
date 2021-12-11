@@ -47,6 +47,32 @@
                     </b-col>
                     <b-col cols="auto">
                       <b-form-checkbox
+                        id="enable-chart-messages-of-accepted-appointments"
+                        v-model="showMessagesOfAcceptedAppointments"
+                        name="enable-chart-messages-of-accepted-appointments"
+                        :value="true"
+                        :unchecked-value="false"
+                      >
+                        <div class="mx-2">
+                          Show Accepted Appointments
+                        </div>
+                      </b-form-checkbox>
+                    </b-col>
+                    <b-col cols="auto">
+                      <b-form-checkbox
+                        id="enable-chart-messages-of-cancelled-appointments"
+                        v-model="showMessagesOfCancelledAppointments"
+                        name="enable-chart-messages-of-cancelled-appointments"
+                        :value="true"
+                        :unchecked-value="false"
+                      >
+                        <div class="mx-2">
+                          Show Cancelled Appointments
+                        </div>
+                      </b-form-checkbox>
+                    </b-col>
+                    <b-col cols="auto">
+                      <b-form-checkbox
                         id="enable-chart-messages-sent"
                         v-model="showMessagesSent"
                         name="enable-chart-messages-sent"
@@ -54,7 +80,7 @@
                         :unchecked-value="false"
                       >
                         <div class="mx-2">
-                          All Messages Sent
+                          Show Messages Sent
                         </div>
                       </b-form-checkbox>
                     </b-col>
@@ -98,7 +124,7 @@
                     :current-page="currentMessageListPage"
                     :per-page="messagesPerPage"
                     :filter="tableSearchCriteria"
-                    :items="messageList"
+                    :items="messagesReceivedList"
                     @row-selected="onRowSelected"
                   />
                 </b-col>
@@ -107,7 +133,7 @@
                 <b-col cols="auto">
                   <b-pagination
                     v-model="currentMessageListPage"
-                    :total-rows="messageList.length"
+                    :total-rows="messagesReceivedList.length"
                     :per-page="messagesPerPage"
                     aria-controls="messages-received-list-table"
                   />
@@ -138,8 +164,16 @@ import { ref } from '@vue/composition-api'
 import { Component, Watch } from 'vue-property-decorator'
 import LineChart from '@/components/utilityComponents/LineChartCustom.vue'
 import DateAndTime from 'date-and-time'
+import IMessageSms from '@/components/clientMessaging/types/IMessageSms'
+import { CANCELLED } from 'dns'
 
-const mockData = require('@/assets/MockPatientData.json')
+enum AppointmentStatus {
+  ACCEPTED='accepted',
+  CANCELLED='cancelled',
+}
+
+const mockMessagesReceived = require('@/assets/MockMessagesReceived.json') as IMessageSms[]
+const mockMessagesSent = require('@/assets/MockMessagesSent.json') as IMessageSms[]
 
 @Component({
   name: 'messaging-monitor-dashboard',
@@ -149,20 +183,24 @@ const mockData = require('@/assets/MockPatientData.json')
 })
 export default class MessagingMonitoringDashboard extends Vue {
   private selectedMessageRows = []
-  private messageList: object[] = []
+  private messagesReceivedList: IMessageSms[] = []
+  private messagesSentList: IMessageSms[] = []
   private tableSearchCriteria: string = ''
   private perPageSelect: number = 10
   private messagesPerPage: number = this.perPageSelect
   private currentMessageListPage: number = 1
   private gradient!: any
   private messagesReceivedFields: string[] = ['messageReceivedOnDate', 'messageReceivedAtTime', 'fullName', 'messageText', 'appointmentAccepted']
-  private numberOfMessagesInTimeInterval: number[] = []
+  private numberOfMessagesRecievedInTimeInterval: number[] = []
+  private numberOfMessagesSentInTimeInterval: number[] = []
+  private numberOfAcceptedAppointmentsInTimeInterval: number[] = []
+  private numberOfCancelledAppointmentsInTimeInterval: number[] = []
   private dataCollection: object | null = null
   private interval: number = 30
   private collectionOfDatasets: object[] = []
   private showMessagesReceived: boolean = true
   private showMessagesSent: boolean = false
-  private showMessagesOfAcceptedAppointments: boolean = false
+  private showMessagesOfAcceptedAppointments: boolean = true
   private showMessagesOfCancelledAppointments: boolean = false
   private chartOptions: object = {
     responsive: true,
@@ -170,13 +208,21 @@ export default class MessagingMonitoringDashboard extends Vue {
   }
 
   async beforeMount () {
-    const x = require('@/assets/MOCK_DATA.json')
-    this.messageList = x
-    this.numberOfMessagesInTimeInterval = this.getNumberOfMessagesInTimeInterval(this.interval)
+    this.messagesReceivedList = mockMessagesReceived
+    this.messagesSentList = mockMessagesSent
+
+    this.messagesSentList.forEach((message) => {
+      message.phoneNumber = '304-444-5555'
+    })
+
+    this.numberOfMessagesRecievedInTimeInterval = this.getNumberOfMessagesReceivedInTimeInterval()
+    this.numberOfMessagesSentInTimeInterval = this.getNumberOfMessagesSentInTimeInterval()
+    this.numberOfAcceptedAppointmentsInTimeInterval = this.getNumberOfMessagesReceivedWithAcceptedAppointmentsInTimeInterval()
+    this.numberOfCancelledAppointmentsInTimeInterval = this.getNumberOfMessagesReceivedWithCancelledAppointmentsInTimeInterval()
     this.initializeCollectionOfDatasets()
 
     this.dataCollection = {
-      labels: this.getIntervalOfDates(this.interval).map((date) => { return DateAndTime.format(date, 'MM/DD/YYYY') }).reverse(),
+      labels: this.getPreviousDatesByInterval(this.interval).map((date) => { return DateAndTime.format(date, 'MM/DD/YYYY') }).reverse(),
       datasets: this.collectionOfDatasets
     }
   }
@@ -188,6 +234,14 @@ export default class MessagingMonitoringDashboard extends Vue {
 
     if (this.showMessagesSent && !this.datasetIsInCollectionOfDatasets(this.messagesSentDataset)) {
       this.collectionOfDatasets.push(this.messagesSentDataset)
+    }
+
+    if (this.showMessagesOfAcceptedAppointments && !this.datasetIsInCollectionOfDatasets(this.messagesOfAcceptedAppointmentsDataset)) {
+      this.collectionOfDatasets.push(this.messagesOfAcceptedAppointmentsDataset)
+    }
+
+    if (this.showMessagesOfCancelledAppointments && !this.datasetIsInCollectionOfDatasets(this.messagesOfCancelledAppointmentsDataset)) {
+      this.collectionOfDatasets.push(this.messagesOfCancelledAppointmentsDataset)
     }
   }
 
@@ -213,6 +267,28 @@ export default class MessagingMonitoringDashboard extends Vue {
     })
   }
 
+  @Watch('showMessagesOfAcceptedAppointments')
+  onShowMessagesOfAcceptedAppointmentsChange (newShowMessagesOfAcceptedAppointments: boolean, oldShowMessagesOfAcceptedAppointments: boolean) {
+    this.$nextTick(() => {
+      if (this.showMessagesOfAcceptedAppointments && !this.datasetIsInCollectionOfDatasets(this.messagesOfAcceptedAppointmentsDataset)) {
+        this.collectionOfDatasets.push(this.messagesOfAcceptedAppointmentsDataset)
+      } else if (!this.showMessagesOfAcceptedAppointments) {
+        this.removeDatasetFromChart(this.collectionOfDatasets, this.messagesOfAcceptedAppointmentsDataset)
+      }
+    })
+  }
+
+  @Watch('showMessagesOfCancelledAppointments')
+  onShowMessagesOfCancelledAppointmentsChange (newShowMessagesOfCancelledAppointments: boolean, oldShowMessagesOfCancelledAppointments: boolean) {
+    this.$nextTick(() => {
+      if (this.showMessagesOfCancelledAppointments && !this.datasetIsInCollectionOfDatasets(this.messagesOfCancelledAppointmentsDataset)) {
+        this.collectionOfDatasets.push(this.messagesOfCancelledAppointmentsDataset)
+      } else if (!this.showMessagesOfCancelledAppointments) {
+        this.removeDatasetFromChart(this.collectionOfDatasets, this.messagesOfCancelledAppointmentsDataset)
+      }
+    })
+  }
+
   private datasetIsInCollectionOfDatasets (dataset: object) {
     return this.collectionOfDatasets.includes(dataset)
   }
@@ -226,7 +302,7 @@ export default class MessagingMonitoringDashboard extends Vue {
     }
   }
 
-  getIntervalOfDates (interval: number = 30) : Date[] {
+  getPreviousDatesByInterval (interval: number = 30) : Date[] {
     // get [1DayAgo, 2DaysAgo, 3DaysAgo]
     // By default we get the dates for the last 30 days
     const rawCurrentDate = DateAndTime.format(new Date(), 'MM/DD/YYYY')
@@ -241,69 +317,56 @@ export default class MessagingMonitoringDashboard extends Vue {
     return listOfPreviousDates
   }
 
-  getMessagesInTimeInterval (interval: number = 30) : object[] {
-    const dates = this.getIntervalOfDates(interval)
-    const messagesPerDay: object[] = dates.map((day) => {
-      return this.getMessageReceivedOnDate(day)
+  getMessagesInTimeInterval (messageList: IMessageSms[]) : IMessageSms[][] {
+    const dates = this.getPreviousDatesByInterval(this.interval)
+    const messagesPerDay: IMessageSms[][] = []
+    dates.forEach((day) => {
+      messagesPerDay.push(this.getMessagesFromDate(day, messageList))
     })
     return messagesPerDay
   }
 
-  getNumberOfMessagesInTimeInterval (interval: number = 30) : number[] {
-    const dates = this.getIntervalOfDates(interval)
+  getNumberOfMessagesInTimeInterval (messageList: IMessageSms[]) : number[] {
+    const dates = this.getPreviousDatesByInterval(this.interval)
     const messagesPerDay: number[] = dates.map((day) => {
-      return this.getNumberOfMessagesReceivedOnDate(day)
+      return this.getNumberOfMessagesFromDate(day, messageList)
     })
     return messagesPerDay
+  }
+
+  getNumberOfMessagesFromDate (onDate: Date, messageList: IMessageSms[]) : number {
+    return this.getMessagesFromDate(onDate, messageList).length
+  }
+
+  getMessagesFromDate (onDate: Date, messageList: IMessageSms[]) : IMessageSms[] {
+    return messageList.filter((message: IMessageSms) => {
+      const parsedmessageReceivedOnDate = DateAndTime.parse(message.messageTimeStampDate, 'MM/DD/YYYY')
+      return DateAndTime.isSameDay(parsedmessageReceivedOnDate, onDate)
+    })
   }
 
   getNumberOfMessagesReceivedOnDate (onDate: Date) : number {
-    return this.messageList.filter((message: any) => {
-      const parsedmessageReceivedOnDate = DateAndTime.parse(message.messageReceivedOnDate, 'MM/DD/YYYY')
-      return DateAndTime.isSameDay(parsedmessageReceivedOnDate, onDate)
-    }).length
+    return this.getNumberOfMessagesFromDate(onDate, this.messagesReceivedList)
   }
 
-  getMessageReceivedOnDate (onDate: Date) : object {
-    return this.messageList.filter((message: any) => {
-      const parsedmessageReceivedOnDate = DateAndTime.parse(message.messageReceivedOnDate, 'MM/DD/YYYY')
-      return DateAndTime.isSameDay(parsedmessageReceivedOnDate, onDate)
-    })
+  getNumberOfMessagesReceivedInTimeInterval () : number[] {
+    return this.getNumberOfMessagesInTimeInterval(this.messagesReceivedList)
   }
 
-  get getSampleMessageList () : object[] {
-    return [
-      {
-        id: 'someIdAJFLkjkjd79',
-        fullName: 'Jan Suzaka',
-        firstName: 'Jan',
-        lastName: 'Suzaka',
-        messageReceivedOnDate: '10/25/2021',
-        messageReceivedAtTime: '8:43 AM',
-        messageText: 'I accept the appointment',
-        appointmentAccepted: true
-      },
-      {
-        id: '098X987lkjyasd',
-        fullName: 'Tedward Platur',
-        firstName: 'Tedward',
-        lastName: 'Platur',
-        messageReceivedOnDate: '10/24/2021',
-        messageReceivedAtTime: '10:45 AM',
-        messageText: 'I accept the appointment',
-        appointmentAccepted: true
-      },
-      {
-        id: '0asdlj*(^332',
-        fullName: 'Goeftifer Christopherson',
-        firstName: 'Goeftifer',
-        lastName: 'Christopherson',
-        messageReceivedOnDate: '10/23/2021',
-        messageReceivedAtTime: '9:54 AM',
-        messageText: 'I accept the appointment',
-        appointmentAccepted: true
-      }
-    ]
+  getMessagesReceivedOnDate (onDate: Date) : IMessageSms[] {
+    return this.getMessagesFromDate(onDate, this.messagesReceivedList)
+  }
+
+  getNumberOfMessagesSentOnDate (onDate: Date) : number {
+    return this.getNumberOfMessagesFromDate(onDate, this.messagesReceivedList)
+  }
+
+  getNumberOfMessagesSentInTimeInterval () : number[] {
+    return this.getNumberOfMessagesInTimeInterval(this.messagesSentList)
+  }
+
+  getMessagesSentOnDate (onDate: Date) : IMessageSms[] {
+    return this.getMessagesFromDate(onDate, this.messagesReceivedList)
   }
 
   get perPageOptions () : object[] {
@@ -312,7 +375,7 @@ export default class MessagingMonitoringDashboard extends Vue {
       { value: 10, text: '10' },
       { value: 15, text: '15' },
       { value: 30, text: '30' },
-      { value: this.messageList.length, text: 'All' }
+      { value: this.messagesReceivedList.length, text: 'All' }
     ]
   }
 
@@ -324,19 +387,54 @@ export default class MessagingMonitoringDashboard extends Vue {
     this.selectedMessageRows = items
   }
 
-  get getNumberOfMessagesReceivedInTimeInterval () : number[] {
-    return this.numberOfMessagesInTimeInterval
+  getNumberOfMessagesReceivedWithAcceptedAppointmentsInTimeInterval () : number[] {
+    // Example data set
+    // [
+    //   someDate: [message1, message2, message3],
+    //   anotherDate: [message1, message2],
+    //   thirdDate: [message1, message2,message3, message4]
+    // ]
+    return this.getMessagesInTimeInterval(this.messagesReceivedList).map((dayOfMessages: IMessageSms[]) => {
+      // filter out the messages with accepted appointments
+      const messagesWithAcceptedAppointments: IMessageSms[] = dayOfMessages.filter((message) => {
+        return this.isMessageTextAppointmentStatus(message, AppointmentStatus.ACCEPTED)
+      })
+      // then get that number
+      return messagesWithAcceptedAppointments.length
+    })
   }
 
-  // get numberOfMessagesSentInTimeInterval () : number[] {
-  //   return this.numberOfMessagesReceivedInTimeInterval
-  // }
-
-  get getNumberOfMessagesWithAcceptedAppointmentsInTimeInterval () : number[] {
-    this.getMessagesInTimeInterval().map((message: any) => {
-      return message.appointmentAccepted === true
+  getNumberOfMessagesReceivedWithCancelledAppointmentsInTimeInterval () : number[] {
+    return this.getMessagesInTimeInterval(this.messagesReceivedList).map((dayOfMessages: IMessageSms[]) => {
+      const messagesWithCancelledAppointments: IMessageSms[] = dayOfMessages.filter((message) => {
+        return this.isMessageTextAppointmentStatus(message, AppointmentStatus.CANCELLED)
+      })
+      // then get that number
+      return messagesWithCancelledAppointments.length
     })
-    return [5, 6, 9, 3]
+  }
+
+  isMessageTextAppointmentStatus (message: IMessageSms, status: AppointmentStatus) : boolean {
+    switch (status) {
+      case AppointmentStatus.ACCEPTED:
+        return this.isMessageTextAppointmentStatusAccepted(message)
+      case AppointmentStatus.CANCELLED:
+        return this.isMessageTextAppointmentStatusCancelled(message)
+      default:
+        return this.isMessageTextAppointmentStatusUnknown(message)
+    }
+  }
+
+  isMessageTextAppointmentStatusAccepted (message: IMessageSms) : boolean {
+    return message.messageText === 'y'
+  }
+
+  isMessageTextAppointmentStatusCancelled (message: IMessageSms) : boolean {
+    return message.messageText === 'n'
+  }
+
+  isMessageTextAppointmentStatusUnknown (message: IMessageSms) : boolean {
+    return (message.messageText !== 'y' && message.messageText !== 'n')
   }
 
   get messagesReceivedDataset () : object {
@@ -346,7 +444,7 @@ export default class MessagingMonitoringDashboard extends Vue {
       pointBackgroundColor: 'white',
       borderWidth: 1,
       pointBorderColor: 'white',
-      data: this.getNumberOfMessagesReceivedInTimeInterval
+      data: this.numberOfMessagesRecievedInTimeInterval
     }
   }
 
@@ -357,29 +455,29 @@ export default class MessagingMonitoringDashboard extends Vue {
       pointBackgroundColor: '#52E1F0',
       borderWidth: 1,
       pointBorderColor: '#52E1F0',
-      data: this.numberOfMessagesInTimeInterval
+      data: this.numberOfMessagesSentInTimeInterval
     }
   }
 
   get messagesOfAcceptedAppointmentsDataset () : object {
     return {
-      label: 'Messages Received',
-      borderColor: '#FC2525',
+      label: 'Accepted Appointments',
+      borderColor: '#04CF57',
       pointBackgroundColor: 'white',
       borderWidth: 1,
       pointBorderColor: 'white',
-      data: this.getNumberOfMessagesWithAcceptedAppointmentsInTimeInterval
+      data: this.numberOfAcceptedAppointmentsInTimeInterval
     }
   }
 
   get messagesOfCancelledAppointmentsDataset () : object {
     return {
-      label: 'Messages Received',
-      borderColor: '#FC2525',
+      label: 'Cancelled Appointments',
+      borderColor: '#CF04C3',
       pointBackgroundColor: 'white',
       borderWidth: 1,
       pointBorderColor: 'white',
-      data: this.numberOfMessagesInTimeInterval
+      data: this.numberOfCancelledAppointmentsInTimeInterval
     }
   }
 }
