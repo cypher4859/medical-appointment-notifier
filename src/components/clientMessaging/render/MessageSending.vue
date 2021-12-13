@@ -101,6 +101,8 @@
                     ref="addressBookTable"
                     sticky-header
                     selectable
+                    sort-by.sync="fullName"
+                    :sort-desc="false"
                     :select-mode="getSelectMode()"
                     :filter="addressBookTableSearchCriteria"
                     :fields="getAddressBookTableHeaders"
@@ -153,6 +155,7 @@
                   striped
                   hover
                   show-empty
+                  sort-by.sync="fullName"
                   :fields="getAddressBookTableHeaders"
                   :items="messageRecipients"
                   :per-page="recipientsPerPage"
@@ -258,7 +261,7 @@
             striped
             hover
             :items="messageRecipients"
-            :fields="getRecipientListPreviewTableHeader"
+            :fields="getAddressBookTableHeadersgetAddressBookTableHeaders"
             :per-page="previewRecipientsPerPage"
             :current-page="previewCurrentRecipientListPage"
           />
@@ -395,8 +398,14 @@ export default class SmsMessageSending extends Vue {
     }
   }
 
-  get getAddressBookTableHeaders () : string[] {
-    return ['fullName', 'phoneNumber', 'dateOfBirth', 'appointmentDateTime', 'appointmentAccepted']
+  get getAddressBookTableHeaders () : object[] {
+    return [
+      { key: 'fullName', sortable: true, label: 'Name' },
+      { key: 'dateOfBirth', sortable: false, label: 'Date of Birth' },
+      { key: 'phoneNumber', sortable: false, label: 'Phone Number' },
+      { key: 'appointmentDateTime', sortable: false, label: 'Appointment Time' },
+      { key: 'appointmentAccepted', sortable: false, label: 'Appointment Date' }
+    ]
   }
 
   get getRecipientListPreviewTableHeader () : string[] {
