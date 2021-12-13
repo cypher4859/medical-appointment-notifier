@@ -217,14 +217,15 @@ export default class MessagingMonitoringDashboard extends Vue {
       message.phoneNumber = '304-444-5555'
     })
 
-    this.numberOfMessagesRecievedInTimeInterval = this.getNumberOfMessagesReceivedInTimeInterval()
-    this.numberOfMessagesSentInTimeInterval = this.getNumberOfMessagesSentInTimeInterval()
-    this.numberOfAcceptedAppointmentsInTimeInterval = this.getNumberOfMessagesReceivedWithAcceptedAppointmentsInTimeInterval()
-    this.numberOfCancelledAppointmentsInTimeInterval = this.getNumberOfMessagesReceivedWithCancelledAppointmentsInTimeInterval()
+    this.numberOfMessagesRecievedInTimeInterval = this.getNumberOfMessagesReceivedInTimeInterval().reverse()
+    this.numberOfMessagesSentInTimeInterval = this.getNumberOfMessagesSentInTimeInterval().reverse()
+    this.numberOfAcceptedAppointmentsInTimeInterval = this.getNumberOfMessagesReceivedWithAcceptedAppointmentsInTimeInterval().reverse()
+    this.numberOfCancelledAppointmentsInTimeInterval = this.getNumberOfMessagesReceivedWithCancelledAppointmentsInTimeInterval().reverse()
     this.initializeCollectionOfDatasets()
 
+    // reverse the order so the graph is formed correctly
     this.dataCollection = {
-      labels: this.getPreviousDatesByInterval(this.interval).map((date) => { return DateAndTime.format(date, 'MM/DD/YYYY') }),
+      labels: this.getPreviousDatesByInterval(this.interval).map((date) => { return DateAndTime.format(date, 'MM/DD/YYYY') }).reverse(),
       datasets: this.collectionOfDatasets
     }
   }
@@ -441,13 +442,13 @@ export default class MessagingMonitoringDashboard extends Vue {
 
   get preprocessMessagesList () : (messageList: IMessageSmsDetails[]) => IMessageSmsDetails[] {
     return (messageList) : IMessageSmsDetails[] => {
-      return this.messagesReceivedList
+      return messageList
         .map((message) => {
           return this.preprocessMessagesGetAppointmentStatusResponse(message)
         })
-        .map((message) => {
-          return this.preprocessMessagesGetPatientName(message)
-        })
+        // .map((message) => {
+        //   return this.preprocessMessagesGetPatientName(message)
+        // })
     }
   }
 
