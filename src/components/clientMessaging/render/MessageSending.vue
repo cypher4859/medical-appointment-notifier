@@ -95,6 +95,7 @@
               </div>
               <div>
                 <b-button
+                  :disabled="selectedRecipientRows.length === 0"
                   @click="clearRecipientList()"
                 >
                   Clear Selection

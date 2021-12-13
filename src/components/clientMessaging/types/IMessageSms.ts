@@ -1,4 +1,4 @@
-export default interface ISmsMessageTemplate {
+export default interface IMessageSms {
   id: string
   phoneNumber: string
   messageTimeStampTime: string

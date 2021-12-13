@@ -120,11 +120,12 @@
                     sticky-header
                     select-mode="single"
                     selectable
+                    sort-by="messageTimeStampDate"
                     :fields="messagesReceivedFields"
                     :current-page="currentMessageListPage"
                     :per-page="messagesPerPage"
                     :filter="tableSearchCriteria"
-                    :items="messagesReceivedList"
+                    :items="preprocessMessagesList(messagesReceivedList)"
                     @row-selected="onRowSelected"
                   />
                 </b-col>
@@ -164,16 +165,15 @@ import { ref } from '@vue/composition-api'
 import { Component, Watch } from 'vue-property-decorator'
 import LineChart from '@/components/utilityComponents/LineChartCustom.vue'
 import DateAndTime from 'date-and-time'
-import IMessageSms from '@/components/clientMessaging/types/IMessageSms'
-import { CANCELLED } from 'dns'
+// import IMessageSms from '@/components/clientMessaging/types/IMessageSms'
+import IMessageSmsDetails from '@/components/clientMessaging/types/IMessageSmsDetails'
+import AppointmentStatus from '@/components/clientMessaging/services/AppointmentStatus'
+import IMessageSms from '../types/IMessageSms'
+import IClientContact from '../types/IClientContact'
 
-enum AppointmentStatus {
-  ACCEPTED='accepted',
-  CANCELLED='cancelled',
-}
-
-const mockMessagesReceived = require('@/assets/MockMessagesReceived.json') as IMessageSms[]
-const mockMessagesSent = require('@/assets/MockMessagesSent.json') as IMessageSms[]
+const mockMessagesReceived = require('@/assets/MockMessagesReceived.json') as IMessageSmsDetails[]
+const mockMessagesSent = require('@/assets/MockMessagesSent.json') as IMessageSmsDetails[]
+const mockPatientData = require('@/assets/MockPatientData.json') as IClientContact[]
 
 @Component({
   name: 'messaging-monitor-dashboard',
@@ -183,14 +183,15 @@ const mockMessagesSent = require('@/assets/MockMessagesSent.json') as IMessageSm
 })
 export default class MessagingMonitoringDashboard extends Vue {
   private selectedMessageRows = []
-  private messagesReceivedList: IMessageSms[] = []
-  private messagesSentList: IMessageSms[] = []
+  private messagesReceivedList: IMessageSmsDetails[] = []
+  private messagesSentList: IMessageSmsDetails[] = []
+  private patientList: IClientContact[] = []
   private tableSearchCriteria: string = ''
   private perPageSelect: number = 10
   private messagesPerPage: number = this.perPageSelect
   private currentMessageListPage: number = 1
   private gradient!: any
-  private messagesReceivedFields: string[] = ['messageReceivedOnDate', 'messageReceivedAtTime', 'fullName', 'messageText', 'appointmentAccepted']
+  private messagesReceivedFields: string[] = ['messageTimeStampDate', 'messageTimeStampTime', 'phoneNumber', 'fullName', 'messageText', 'appointmentStatusResponse']
   private numberOfMessagesRecievedInTimeInterval: number[] = []
   private numberOfMessagesSentInTimeInterval: number[] = []
   private numberOfAcceptedAppointmentsInTimeInterval: number[] = []
@@ -210,6 +211,7 @@ export default class MessagingMonitoringDashboard extends Vue {
   async beforeMount () {
     this.messagesReceivedList = mockMessagesReceived
     this.messagesSentList = mockMessagesSent
+    this.patientList = mockPatientData
 
     this.messagesSentList.forEach((message) => {
       message.phoneNumber = '304-444-5555'
@@ -222,7 +224,7 @@ export default class MessagingMonitoringDashboard extends Vue {
     this.initializeCollectionOfDatasets()
 
     this.dataCollection = {
-      labels: this.getPreviousDatesByInterval(this.interval).map((date) => { return DateAndTime.format(date, 'MM/DD/YYYY') }).reverse(),
+      labels: this.getPreviousDatesByInterval(this.interval).map((date) => { return DateAndTime.format(date, 'MM/DD/YYYY') }),
       datasets: this.collectionOfDatasets
     }
   }
@@ -317,16 +319,16 @@ export default class MessagingMonitoringDashboard extends Vue {
     return listOfPreviousDates
   }
 
-  getMessagesInTimeInterval (messageList: IMessageSms[]) : IMessageSms[][] {
+  getMessagesInTimeInterval (messageList: IMessageSmsDetails[]) : IMessageSmsDetails[][] {
     const dates = this.getPreviousDatesByInterval(this.interval)
-    const messagesPerDay: IMessageSms[][] = []
+    const messagesPerDay: IMessageSmsDetails[][] = []
     dates.forEach((day) => {
       messagesPerDay.push(this.getMessagesFromDate(day, messageList))
     })
     return messagesPerDay
   }
 
-  getNumberOfMessagesInTimeInterval (messageList: IMessageSms[]) : number[] {
+  getNumberOfMessagesInTimeInterval (messageList: IMessageSmsDetails[]) : number[] {
     const dates = this.getPreviousDatesByInterval(this.interval)
     const messagesPerDay: number[] = dates.map((day) => {
       return this.getNumberOfMessagesFromDate(day, messageList)
@@ -334,12 +336,12 @@ export default class MessagingMonitoringDashboard extends Vue {
     return messagesPerDay
   }
 
-  getNumberOfMessagesFromDate (onDate: Date, messageList: IMessageSms[]) : number {
+  getNumberOfMessagesFromDate (onDate: Date, messageList: IMessageSmsDetails[]) : number {
     return this.getMessagesFromDate(onDate, messageList).length
   }
 
-  getMessagesFromDate (onDate: Date, messageList: IMessageSms[]) : IMessageSms[] {
-    return messageList.filter((message: IMessageSms) => {
+  getMessagesFromDate (onDate: Date, messageList: IMessageSmsDetails[]) : IMessageSmsDetails[] {
+    return messageList.filter((message: IMessageSmsDetails) => {
       const parsedmessageReceivedOnDate = DateAndTime.parse(message.messageTimeStampDate, 'MM/DD/YYYY')
       return DateAndTime.isSameDay(parsedmessageReceivedOnDate, onDate)
     })
@@ -353,7 +355,7 @@ export default class MessagingMonitoringDashboard extends Vue {
     return this.getNumberOfMessagesInTimeInterval(this.messagesReceivedList)
   }
 
-  getMessagesReceivedOnDate (onDate: Date) : IMessageSms[] {
+  getMessagesReceivedOnDate (onDate: Date) : IMessageSmsDetails[] {
     return this.getMessagesFromDate(onDate, this.messagesReceivedList)
   }
 
@@ -365,7 +367,7 @@ export default class MessagingMonitoringDashboard extends Vue {
     return this.getNumberOfMessagesInTimeInterval(this.messagesSentList)
   }
 
-  getMessagesSentOnDate (onDate: Date) : IMessageSms[] {
+  getMessagesSentOnDate (onDate: Date) : IMessageSmsDetails[] {
     return this.getMessagesFromDate(onDate, this.messagesReceivedList)
   }
 
@@ -394,9 +396,9 @@ export default class MessagingMonitoringDashboard extends Vue {
     //   anotherDate: [message1, message2],
     //   thirdDate: [message1, message2,message3, message4]
     // ]
-    return this.getMessagesInTimeInterval(this.messagesReceivedList).map((dayOfMessages: IMessageSms[]) => {
+    return this.getMessagesInTimeInterval(this.messagesReceivedList).map((dayOfMessages: IMessageSmsDetails[]) => {
       // filter out the messages with accepted appointments
-      const messagesWithAcceptedAppointments: IMessageSms[] = dayOfMessages.filter((message) => {
+      const messagesWithAcceptedAppointments: IMessageSmsDetails[] = dayOfMessages.filter((message) => {
         return this.isMessageTextAppointmentStatus(message, AppointmentStatus.ACCEPTED)
       })
       // then get that number
@@ -405,8 +407,8 @@ export default class MessagingMonitoringDashboard extends Vue {
   }
 
   getNumberOfMessagesReceivedWithCancelledAppointmentsInTimeInterval () : number[] {
-    return this.getMessagesInTimeInterval(this.messagesReceivedList).map((dayOfMessages: IMessageSms[]) => {
-      const messagesWithCancelledAppointments: IMessageSms[] = dayOfMessages.filter((message) => {
+    return this.getMessagesInTimeInterval(this.messagesReceivedList).map((dayOfMessages: IMessageSmsDetails[]) => {
+      const messagesWithCancelledAppointments: IMessageSmsDetails[] = dayOfMessages.filter((message) => {
         return this.isMessageTextAppointmentStatus(message, AppointmentStatus.CANCELLED)
       })
       // then get that number
@@ -414,7 +416,7 @@ export default class MessagingMonitoringDashboard extends Vue {
     })
   }
 
-  isMessageTextAppointmentStatus (message: IMessageSms, status: AppointmentStatus) : boolean {
+  isMessageTextAppointmentStatus (message: IMessageSmsDetails, status: AppointmentStatus) : boolean {
     switch (status) {
       case AppointmentStatus.ACCEPTED:
         return this.isMessageTextAppointmentStatusAccepted(message)
@@ -425,16 +427,51 @@ export default class MessagingMonitoringDashboard extends Vue {
     }
   }
 
-  isMessageTextAppointmentStatusAccepted (message: IMessageSms) : boolean {
+  isMessageTextAppointmentStatusAccepted (message: IMessageSmsDetails) : boolean {
     return message.messageText === 'y'
   }
 
-  isMessageTextAppointmentStatusCancelled (message: IMessageSms) : boolean {
+  isMessageTextAppointmentStatusCancelled (message: IMessageSmsDetails) : boolean {
     return message.messageText === 'n'
   }
 
-  isMessageTextAppointmentStatusUnknown (message: IMessageSms) : boolean {
+  isMessageTextAppointmentStatusUnknown (message: IMessageSmsDetails) : boolean {
     return (message.messageText !== 'y' && message.messageText !== 'n')
+  }
+
+  get preprocessMessagesList () : (messageList: IMessageSmsDetails[]) => IMessageSmsDetails[] {
+    return (messageList) : IMessageSmsDetails[] => {
+      return this.messagesReceivedList
+        .map((message) => {
+          return this.preprocessMessagesGetAppointmentStatusResponse(message)
+        })
+        .map((message) => {
+          return this.preprocessMessagesGetPatientName(message)
+        })
+    }
+  }
+
+  preprocessMessagesGetAppointmentStatusResponse (message: IMessageSmsDetails) : IMessageSmsDetails {
+    if (this.isMessageTextAppointmentStatus(message, AppointmentStatus.ACCEPTED)) {
+      message.appointmentStatusResponse = AppointmentStatus.ACCEPTED
+    } else if (this.isMessageTextAppointmentStatus(message, AppointmentStatus.CANCELLED)) {
+      message.appointmentStatusResponse = AppointmentStatus.CANCELLED
+    } else {
+      message.appointmentStatusResponse = AppointmentStatus.UNKNOWN
+    }
+    return message
+  }
+
+  preprocessMessagesGetPatientName (message: IMessageSmsDetails) : IMessageSmsDetails {
+    const patientName = this.patientList
+      .find((patient) => {
+        return patient.phoneNumber === message.phoneNumber
+      })
+
+    if (patientName) {
+      message.fullName = patientName.fullName
+    }
+    return message
   }
 
   get messagesReceivedDataset () : object {
