@@ -5,8 +5,11 @@ import ISmsMessageTemplate from '@/components/clientMessaging/types/ISmsMessageT
 import type IMessagingService from '@/components/clientMessaging/services/IMessagingService'
 import AppointmentModes from '@/components/clientMessaging/services/AppointmentModes'
 import IClientContactWithAppointment from '../../types/IClientContactWithAppointment'
+import IMessageSmsDetails from '../../types/IMessageSmsDetails'
 
 const patientDataMockData = require('@/assets/MockPatientData.json')
+const mockMessagesReceived = require('@/assets/MockMessagesReceived.json') as IMessageSmsDetails[]
+const mockMessagesSent = require('@/assets/MockMessagesSent.json') as IMessageSmsDetails[]
 
 @injectable()
 export default class MessagingService extends Vue implements IMessagingService {
@@ -37,6 +40,8 @@ export default class MessagingService extends Vue implements IMessagingService {
   }
 
   getAddressBook () : IClientContactWithAppointment[] {
+    // we should instead use a different service to manage this
+    // this.patientService.getAddressBookOfPatients() or something
     return patientDataMockData
   }
 
@@ -55,5 +60,34 @@ export default class MessagingService extends Vue implements IMessagingService {
       .then(() => {
         console.log('Sending message')
       })
+  }
+
+  getMessagesReceivedList () : IMessageSmsDetails[] {
+    let messageList: any[] = []
+    Promise.resolve()
+      .then(() => {
+        messageList = mockMessagesReceived
+      })
+    return messageList
+  }
+
+  getMessagesSentList () : IMessageSmsDetails[] {
+    let messageList: any[] = []
+    Promise.resolve()
+      .then(() => {
+        messageList = mockMessagesSent
+      })
+    return messageList
+  }
+
+  getMessageDetailsTableFields () : string[] {
+    return [
+      'messageTimeStampDate',
+      'messageTimeStampTime',
+      'phoneNumber',
+      'fullName',
+      'messageText',
+      'appointmentStatusResponse'
+    ]
   }
 }

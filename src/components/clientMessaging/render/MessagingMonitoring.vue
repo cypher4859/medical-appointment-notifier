@@ -199,7 +199,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import { ref } from '@vue/composition-api'
-import { Component, Watch } from 'vue-property-decorator'
+import { Component, Mixins, Watch } from 'vue-property-decorator'
 import LineChart from '@/components/utilityComponents/LineChartCustom.vue'
 import DateAndTime from 'date-and-time'
 // import IMessageSms from '@/components/clientMessaging/types/IMessageSms'
@@ -207,6 +207,7 @@ import IMessageSmsDetails from '@/components/clientMessaging/types/IMessageSmsDe
 import AppointmentStatus from '@/components/clientMessaging/services/AppointmentStatus'
 import IMessageSms from '../types/IMessageSms'
 import IClientContact from '../types/IClientContact'
+import ServiceMixin from '@/mixins/service-mixin'
 
 const mockMessagesReceived = require('@/assets/MockMessagesReceived.json') as IMessageSmsDetails[]
 const mockMessagesSent = require('@/assets/MockMessagesSent.json') as IMessageSmsDetails[]
@@ -218,7 +219,7 @@ const mockPatientData = require('@/assets/MockPatientData.json') as IClientConta
     'line-chart': LineChart
   }
 })
-export default class MessagingMonitoringDashboard extends Vue {
+export default class MessagingMonitoringDashboard extends Mixins(ServiceMixin) {
   private selectedMessageRows = []
   private messagesReceivedList: IMessageSmsDetails[] = []
   private messagesSentList: IMessageSmsDetails[] = []
@@ -228,7 +229,7 @@ export default class MessagingMonitoringDashboard extends Vue {
   private messagesPerPage: number = this.perPageSelect
   private currentMessageListPage: number = 1
   private gradient!: any
-  private messagesReceivedFields: string[] = ['messageTimeStampDate', 'messageTimeStampTime', 'phoneNumber', 'fullName', 'messageText', 'appointmentStatusResponse']
+  private messagesReceivedFields: string[] = []
   private numberOfMessagesRecievedInTimeInterval: number[] = []
   private numberOfMessagesSentInTimeInterval: number[] = []
   private numberOfAcceptedAppointmentsInTimeInterval: number[] = []
@@ -249,6 +250,7 @@ export default class MessagingMonitoringDashboard extends Vue {
     this.messagesReceivedList = mockMessagesReceived
     this.messagesSentList = mockMessagesSent
     this.patientList = mockPatientData
+    this.messagesReceivedFields = this.messagingService.getMessageDetailsTableFields()
 
     this.messagesSentList.forEach((message) => {
       message.phoneNumber = '304-444-5555'
