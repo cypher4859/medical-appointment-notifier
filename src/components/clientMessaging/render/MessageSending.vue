@@ -17,6 +17,7 @@
       </b-card-title>
       <b-collapse
         id="toggle-sending-messages-collapse"
+        visible
       >
         <b-row>
           <b-col>
@@ -105,7 +106,7 @@
                     :sort-desc="false"
                     :select-mode="getSelectMode()"
                     :filter="addressBookTableSearchCriteria"
-                    :fields="getAddressBookTableHeaders"
+                    :fields="addressBookTableHeaders"
                     :items="addressBook"
                     @row-selected="onRowSelected"
                   />
@@ -156,7 +157,7 @@
                   hover
                   show-empty
                   sort-by.sync="fullName"
-                  :fields="getAddressBookTableHeaders"
+                  :fields="addressBookTableHeaders"
                   :items="messageRecipients"
                   :per-page="recipientsPerPage"
                   :current-page="currentRecipientListPage"
@@ -261,7 +262,7 @@
             striped
             hover
             :items="messageRecipients"
-            :fields="getAddressBookTableHeadersgetAddressBookTableHeaders"
+            :fields="addressBookTableHeaders"
             :per-page="previewRecipientsPerPage"
             :current-page="previewCurrentRecipientListPage"
           />
@@ -286,9 +287,9 @@
           </b-button>
           <b-button
             variant="primary"
-            @click="sendMessage()"
+            @click="sendMessages()"
           >
-            Send Message
+            Send Messages
           </b-button>
         </div>
       </b-overlay>
@@ -297,15 +298,12 @@
 </template>
 
 <script lang="ts">
-import App from '@/App.vue'
-import Vue from 'vue'
-import { Component, Watch } from 'vue-property-decorator'
+import { Component, Mixins, Watch } from 'vue-property-decorator'
 import DateAndTime from 'date-and-time'
 import ISmsMessageTemplate from '@/components/clientMessaging/types/ISmsMessageTemplate'
 import IClientContactWithAppointment from '@/components/clientMessaging/types/IClientContactWithAppointment'
-import cloneDeep from 'lodash'
-import IClient from '../types/IClient'
 import CustomPopoverTarget from '@/components/utilityComponents/CustomPopoverTarget.vue'
+import ServiceMixin from '@/mixins/service-mixin'
 
 const mockData = require('@/assets/MockPatientData.json')
 
@@ -321,24 +319,34 @@ enum AppointmentModes {
     'custom-popover-target': CustomPopoverTarget
   }
 })
-export default class SmsMessageSending extends Vue {
+export default class SmsMessageSending extends Mixins(ServiceMixin) {
   private appointmentModes = AppointmentModes
+  private recipientModes: ISmsMessageTemplate[] = []
+  private addressBookTableHeaders: object[] = []
+
   private selectedDateToLoadRecipients: string = ''
   private selectedRecipientMode: AppointmentModes | null = this.appointmentModes.BY_APPOINTMENT
   private messageRecipients: IClientContactWithAppointment[] = []
-  private addressBook: IClientContactWithAppointment[] = this.getAddressBook
+  private addressBook: IClientContactWithAppointment[] = []
   private selectedRecipientRows: IClientContactWithAppointment[] = []
   private showMessagePreview: boolean = false
   private showAlertCountdown: number = 0
   private alertDefaultCountdown: number = 5
   private showMessagePreviewOverlay: boolean = false
   private selectedMessageTemplate: ISmsMessageTemplate | null = null
-  private messageTemplates: ISmsMessageTemplate[] = this.getMessageTemplates
+  private messageTemplates: ISmsMessageTemplate[] = []
   private recipientsPerPage: number = 7
   private currentRecipientListPage: number = 1
   private addressBookTableSearchCriteria: string = ''
   private previewRecipientsPerPage: number = 7
   private previewCurrentRecipientListPage: number = 1
+
+  beforeMount () {
+    this.messageTemplates = this.messagingService.getMessageTemplates()
+    this.recipientModes = this.messagingService.getRecipientModes()
+    this.addressBook = this.messagingService.getAddressBook()
+    this.addressBookTableHeaders = this.messagingService.getAddressBookTableHeaders()
+  }
 
   @Watch('selectedRecipientMode')
   onMessagingModeChange () {
@@ -350,42 +358,12 @@ export default class SmsMessageSending extends Vue {
     this.messageRecipients = this.selectedRecipientRows
   }
 
-  get getMessageTemplates () : ISmsMessageTemplate[] {
-    return [
-      {
-        value: null, text: 'Please Select You Message Template'
-      },
-      {
-        value: 'You have an appointment at "TIME" on "DATE"', text: 'Default - You have an appointment'
-      },
-      {
-        value: 'Happy Halloween! Get your vaccines before Trick Or Treat!', text: 'Happy Halloween!'
-      },
-      {
-        value: 'Get Prepared for the Holiday Spirit!', text: 'Merry Christmas!'
-      }
-    ]
-  }
-
-  get recipientModes () : ISmsMessageTemplate[] {
-    return [
-      { value: null, text: 'Please select recipient loading mode' },
-      { value: this.appointmentModes.BY_APPOINTMENT, text: 'By Appointment Date' },
-      { value: this.appointmentModes.SINGLE_CONTACT, text: 'Single Contact' },
-      { value: this.appointmentModes.MULTIPLE_CONTACTS, text: 'Multiple Contacts' }
-    ]
-  }
-
   get getMessageRecipientsOnAppointmentDate () : (dateToLoadAppointments: string) => IClientContactWithAppointment[] {
     return (dateToLoadAppointments) => {
       return this.addressBook.filter((contact: IClientContactWithAppointment) => {
         return DateAndTime.isSameDay(DateAndTime.parse(contact.appointmentDateTime!, 'MM/DD/YYYY'), DateAndTime.parse(dateToLoadAppointments, 'YYYY-MM-DD'))
       })
     }
-  }
-
-  get getAddressBook () : IClientContactWithAppointment[] {
-    return mockData
   }
 
   private getSelectMode () : string {
@@ -396,20 +374,6 @@ export default class SmsMessageSending extends Vue {
     } else {
       return ''
     }
-  }
-
-  get getAddressBookTableHeaders () : object[] {
-    return [
-      { key: 'fullName', sortable: true, label: 'Name' },
-      { key: 'dateOfBirth', sortable: false, label: 'Date of Birth' },
-      { key: 'phoneNumber', sortable: false, label: 'Phone Number' },
-      { key: 'appointmentDateTime', sortable: false, label: 'Appointment Time' },
-      { key: 'appointmentAccepted', sortable: false, label: 'Appointment Date' }
-    ]
-  }
-
-  get getRecipientListPreviewTableHeader () : string[] {
-    return ['fullName', 'phoneNumber', 'dateOfBirth', 'appointmentDateTime']
   }
 
   private onRowSelected (items: IClientContactWithAppointment[]) {
@@ -469,13 +433,13 @@ export default class SmsMessageSending extends Vue {
     this.showMessagePreview = true
   }
 
-  private async sendMessage () {
+  private async sendMessages () {
     return Promise.resolve()
       .then(() => {
         this.showMessagePreviewOverlay = true
       })
       .then(() => {
-        console.log('Sending message')
+        this.messagingService.sendMessages()
       })
       .then(() => {
         this.showAlertCountdown = this.alertDefaultCountdown
