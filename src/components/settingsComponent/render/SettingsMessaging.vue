@@ -37,16 +37,22 @@ import ISmsMessageTemplate from '@/components/clientMessaging/types/ISmsMessageT
   name: 'SettingsMessaging'
 })
 export default class SettingsMessaging extends Mixins(SettingsMixin, ServiceMixin) {
-  private _messageTemplates: ISmsMessageTemplate[] = []
+  private messageTemplates: ISmsMessageTemplate[] = []
 
-  beforeMount () {
-    this._messageTemplates = this.messagingService.getMessageTemplates()
-  }
-
-  get messageTemplates () : ISmsMessageTemplate[] {
-    return this._messageTemplates.filter((template) => {
-      return template.value !== null
-    })
+  async beforeMount () {
+    return Promise.resolve()
+      .then(() => {
+        return Promise.all([
+          this.messagingService.loadMessageTemplates()
+        ])
+      })
+      .then(() => {
+        this.messageTemplates = this.messagingService
+          .getMessageTemplates()
+          .filter((template) => {
+            return template.value !== null
+          })
+      })
   }
 
   get messageTemplateFields () : object[] {

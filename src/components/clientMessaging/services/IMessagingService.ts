@@ -14,4 +14,5 @@ export default interface IMessagingService {
   loadAddressBook () : Promise<void>
   loadMessagesReceived () : Promise<void>
   loadMessagesSent () : Promise<void>
+  loadMessageTemplates () : Promise<void>
 }

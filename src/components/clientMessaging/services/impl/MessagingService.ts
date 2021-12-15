@@ -20,22 +20,15 @@ export default class MessagingService extends Vue implements IMessagingService {
   private _addressBook: IClientContactWithAppointment[] = []
   private _messagesReceived: IMessageSmsDetails[] = []
   private _messagesSent: IMessageSmsDetails[] = []
+  private _messageTemplates: ISmsMessageTemplate[] = []
 
   getMessageTemplates () : ISmsMessageTemplate[] {
-    return [
-      {
-        value: null, text: 'Please Select You Message Template'
-      },
-      {
-        value: 'You have an appointment at "TIME" on "DATE"', text: 'Default - You have an appointment'
-      },
-      {
-        value: 'Happy Halloween! Get your vaccines before Trick Or Treat!', text: 'Happy Halloween!'
-      },
-      {
-        value: 'Get Prepared for the Holiday Spirit!', text: 'Merry Christmas!'
-      }
-    ] as ISmsMessageTemplate[]
+    if (!this._messageTemplates.length) {
+      this.loadMessageTemplates()
+      return this._messageTemplates
+    } else {
+      return this._messageTemplates
+    }
   }
 
   getRecipientModes () : ISmsMessageTemplate[] {
@@ -113,6 +106,26 @@ export default class MessagingService extends Vue implements IMessagingService {
       })
   }
 
+  private async getMessageTemplatesListFromApi () : Promise<ISmsMessageTemplate[]> {
+    return Promise.resolve()
+      .then(() => {
+        return [
+          {
+            value: null, text: 'Please Select You Message Template'
+          },
+          {
+            value: 'You have an appointment at "TIME" on "DATE"', text: 'Default - You have an appointment'
+          },
+          {
+            value: 'Happy Halloween! Get your vaccines before Trick Or Treat!', text: 'Happy Halloween!'
+          },
+          {
+            value: 'Get Prepared for the Holiday Spirit!', text: 'Merry Christmas!'
+          }
+        ] as ISmsMessageTemplate[]
+      })
+  }
+
   private async getMessagesSentListFromApi () : Promise<IMessageSmsDetails[]> {
     return Promise.resolve()
       .then(() => {
@@ -137,5 +150,9 @@ export default class MessagingService extends Vue implements IMessagingService {
 
   async loadMessagesSent () : Promise<void> {
     this._messagesSent = await this.getMessagesSentListFromApi()
+  }
+
+  async loadMessageTemplates () : Promise<void> {
+    this._messageTemplates = await this.getMessageTemplatesListFromApi()
   }
 }
