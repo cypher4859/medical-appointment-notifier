@@ -341,11 +341,22 @@ export default class SmsMessageSending extends Mixins(ServiceMixin) {
   private previewRecipientsPerPage: number = 7
   private previewCurrentRecipientListPage: number = 1
 
-  beforeMount () {
-    this.messageTemplates = this.messagingService.getMessageTemplates()
-    this.recipientModes = this.messagingService.getRecipientModes()
-    this.addressBook = this.messagingService.getAddressBook()
-    this.addressBookTableHeaders = this.messagingService.getAddressBookTableHeaders()
+  async beforeMount () {
+    return Promise.resolve()
+      .then(() => {
+        return this.messagingService.loadAddressBook()
+      })
+      .then(() => {
+      })
+      .then(() => {
+      })
+      .then(() => {
+        this.messageTemplates = this.messagingService.getMessageTemplates()
+        this.recipientModes = this.messagingService.getRecipientModes()
+        this.addressBook = this.messagingService.getAddressBook()
+        console.log('beforeMount addressbook: ', this.addressBook)
+        this.addressBookTableHeaders = this.messagingService.getAddressBookTableHeaders()
+      })
   }
 
   @Watch('selectedRecipientMode')
@@ -361,7 +372,7 @@ export default class SmsMessageSending extends Mixins(ServiceMixin) {
   get getMessageRecipientsOnAppointmentDate () : (dateToLoadAppointments: string) => IClientContactWithAppointment[] {
     return (dateToLoadAppointments) => {
       return this.addressBook.filter((contact: IClientContactWithAppointment) => {
-        return DateAndTime.isSameDay(DateAndTime.parse(contact.appointmentDateTime!, 'MM/DD/YYYY'), DateAndTime.parse(dateToLoadAppointments, 'YYYY-MM-DD'))
+        return DateAndTime.isSameDay(DateAndTime.parse(contact.nextAppointment?.appointmentDateTime!, 'MM/DD/YYYY'), DateAndTime.parse(dateToLoadAppointments, 'YYYY-MM-DD'))
       })
     }
   }

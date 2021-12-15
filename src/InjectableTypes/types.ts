@@ -5,7 +5,8 @@ interface IRegistryTypes {
 }
 
 const TYPES : IRegistryTypes = {
-  IMessagingService: Symbol('IMessagingService')
+  IMessagingService: Symbol('IMessagingService'),
+  IPatientService: Symbol('IPatientService')
 }
 
 export default TYPES

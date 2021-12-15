@@ -1,18 +1,26 @@
-import { injectable } from 'inversify-props'
+import { inject, injectable } from 'inversify-props'
 import 'reflect-metadata'
 import { Vue, Component } from 'vue-property-decorator'
-import ISmsMessageTemplate from '@/components/clientMessaging/types/ISmsMessageTemplate'
+import type ISmsMessageTemplate from '@/components/clientMessaging/types/ISmsMessageTemplate'
 import type IMessagingService from '@/components/clientMessaging/services/IMessagingService'
 import AppointmentModes from '@/components/clientMessaging/services/AppointmentModes'
-import IClientContactWithAppointment from '../../types/IClientContactWithAppointment'
-import IMessageSmsDetails from '../../types/IMessageSmsDetails'
+import type IClientContactWithAppointment from '../../types/IClientContactWithAppointment'
+import type IMessageSmsDetails from '../../types/IMessageSmsDetails'
+import TYPES from '@/InjectableTypes/types'
+import type IPatientService from '../IPatientService'
 
-const patientDataMockData = require('@/assets/MockPatientData.json')
 const mockMessagesReceived = require('@/assets/MockMessagesReceived.json') as IMessageSmsDetails[]
 const mockMessagesSent = require('@/assets/MockMessagesSent.json') as IMessageSmsDetails[]
 
 @injectable()
 export default class MessagingService extends Vue implements IMessagingService {
+  @inject(TYPES.IPatientService)
+  protected patientService!: IPatientService
+
+  private _addressBook: IClientContactWithAppointment[] = []
+  private _messagesReceived: IMessageSmsDetails[] = []
+  private _messagesSent: IMessageSmsDetails[] = []
+
   getMessageTemplates () : ISmsMessageTemplate[] {
     return [
       {
@@ -40,9 +48,12 @@ export default class MessagingService extends Vue implements IMessagingService {
   }
 
   getAddressBook () : IClientContactWithAppointment[] {
-    // we should instead use a different service to manage this
-    // this.patientService.getAddressBookOfPatients() or something
-    return patientDataMockData
+    if (!this._addressBook.length) {
+      this.loadAddressBook()
+      return this._addressBook
+    } else {
+      return this._addressBook
+    }
   }
 
   getAddressBookTableHeaders () : object[] {
@@ -63,21 +74,21 @@ export default class MessagingService extends Vue implements IMessagingService {
   }
 
   getMessagesReceivedList () : IMessageSmsDetails[] {
-    let messageList: any[] = []
-    Promise.resolve()
-      .then(() => {
-        messageList = mockMessagesReceived
-      })
-    return messageList
+    if (!this._messagesReceived.length) {
+      this.loadMessagesReceived()
+      return this._messagesReceived
+    } else {
+      return this._messagesReceived
+    }
   }
 
   getMessagesSentList () : IMessageSmsDetails[] {
-    let messageList: any[] = []
-    Promise.resolve()
-      .then(() => {
-        messageList = mockMessagesSent
-      })
-    return messageList
+    if (!this._messagesSent.length) {
+      this.loadMessagesSent()
+      return this._messagesSent
+    } else {
+      return this._messagesSent
+    }
   }
 
   getMessageDetailsTableFields () : string[] {
@@ -89,5 +100,42 @@ export default class MessagingService extends Vue implements IMessagingService {
       'messageText',
       'appointmentStatusResponse'
     ]
+  }
+
+  private async getAddressBookFromApi () : Promise<IClientContactWithAppointment[]> {
+    return Promise.resolve(await this.patientService.getListOfPatients())
+  }
+
+  private async getMessagesReceivedListFromApi () : Promise<IMessageSmsDetails[]> {
+    return Promise.resolve()
+      .then(() => {
+        return mockMessagesReceived
+      })
+  }
+
+  private async getMessagesSentListFromApi () : Promise<IMessageSmsDetails[]> {
+    return Promise.resolve()
+      .then(() => {
+        return mockMessagesSent
+      })
+  }
+
+  private async sendMessagesByApi () : Promise<void> {
+    return Promise.resolve()
+      .then(() => {
+        console.log('Sending message')
+      })
+  }
+
+  async loadAddressBook () : Promise<void> {
+    this._addressBook = await this.getAddressBookFromApi()
+  }
+
+  async loadMessagesReceived () : Promise<void> {
+    this._messagesReceived = await this.getMessagesReceivedListFromApi()
+  }
+
+  async loadMessagesSent () : Promise<void> {
+    this._messagesSent = await this.getMessagesSentListFromApi()
   }
 }
