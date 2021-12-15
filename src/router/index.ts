@@ -14,6 +14,11 @@ const routes = [
         path: 'messaging',
         name: 'Messaging Dashboard',
         component: () => import('@/components/clientMessaging/ClientMessagingView.vue')
+      },
+      {
+        path: 'settings',
+        name: 'Settings',
+        component: () => import('@/components/settingsComponent/SettingsComponentView.vue')
       }
     ]
   }

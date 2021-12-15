@@ -51,7 +51,7 @@ export default class PrimaryView extends Vue {
         routeToComponent: 'messaging'
       },
       {
-        text: 'Customize',
+        text: 'Settings',
         iconName: 'check-circle-fill',
         routeToComponent: 'settings'
       }
