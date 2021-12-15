@@ -344,17 +344,14 @@ export default class SmsMessageSending extends Mixins(ServiceMixin) {
   async beforeMount () {
     return Promise.resolve()
       .then(() => {
-        return this.messagingService.loadAddressBook()
-      })
-      .then(() => {
-      })
-      .then(() => {
+        return Promise.all([
+          this.messagingService.loadAddressBook()
+        ])
       })
       .then(() => {
         this.messageTemplates = this.messagingService.getMessageTemplates()
         this.recipientModes = this.messagingService.getRecipientModes()
         this.addressBook = this.messagingService.getAddressBook()
-        console.log('beforeMount addressbook: ', this.addressBook)
         this.addressBookTableHeaders = this.messagingService.getAddressBookTableHeaders()
       })
   }

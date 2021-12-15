@@ -247,26 +247,36 @@ export default class MessagingMonitoringDashboard extends Mixins(ServiceMixin) {
   }
 
   async beforeMount () {
-    this.messagesReceivedList = mockMessagesReceived
-    this.messagesSentList = mockMessagesSent
-    this.patientList = mockPatientData
-    this.messagesReceivedFields = this.messagingService.getMessageDetailsTableFields()
+    return Promise.resolve()
+      .then(() => {
+        return Promise.all([
+          this.messagingService.loadMessagesReceived(),
+          this.messagingService.loadMessagesSent()
+        ])
+      })
+      .then(() => {
+        this.patientList = this.messagingService.getAddressBook()
+        this.messagesReceivedList = this.messagingService.getMessagesReceivedList()
+        this.messagesSentList = this.messagingService.getMessagesSentList()
+        this.messagesReceivedFields = this.messagingService.getMessageDetailsTableFields()
 
-    this.messagesSentList.forEach((message) => {
-      message.phoneNumber = '304-444-5555'
-    })
+        this.messagesSentList.forEach((message) => {
+          message.phoneNumber = '304-444-5555'
+        })
+      })
+      .then(() => {
+        this.numberOfMessagesRecievedInTimeInterval = this.getNumberOfMessagesReceivedInTimeInterval().reverse()
+        this.numberOfMessagesSentInTimeInterval = this.getNumberOfMessagesSentInTimeInterval().reverse()
+        this.numberOfAcceptedAppointmentsInTimeInterval = this.getNumberOfMessagesReceivedWithAcceptedAppointmentsInTimeInterval().reverse()
+        this.numberOfCancelledAppointmentsInTimeInterval = this.getNumberOfMessagesReceivedWithCancelledAppointmentsInTimeInterval().reverse()
+        this.initializeCollectionOfDatasets()
 
-    this.numberOfMessagesRecievedInTimeInterval = this.getNumberOfMessagesReceivedInTimeInterval().reverse()
-    this.numberOfMessagesSentInTimeInterval = this.getNumberOfMessagesSentInTimeInterval().reverse()
-    this.numberOfAcceptedAppointmentsInTimeInterval = this.getNumberOfMessagesReceivedWithAcceptedAppointmentsInTimeInterval().reverse()
-    this.numberOfCancelledAppointmentsInTimeInterval = this.getNumberOfMessagesReceivedWithCancelledAppointmentsInTimeInterval().reverse()
-    this.initializeCollectionOfDatasets()
-
-    // reverse the order so the graph is formed correctly
-    this.dataCollection = {
-      labels: this.getPreviousDatesByInterval(this.interval).map((date) => { return DateAndTime.format(date, 'MM/DD/YYYY') }).reverse(),
-      datasets: this.collectionOfDatasets
-    }
+        // reverse the order so the graph is formed correctly
+        this.dataCollection = {
+          labels: this.getPreviousDatesByInterval(this.interval).map((date) => { return DateAndTime.format(date, 'MM/DD/YYYY') }).reverse(),
+          datasets: this.collectionOfDatasets
+        }
+      })
   }
 
   initializeCollectionOfDatasets () {

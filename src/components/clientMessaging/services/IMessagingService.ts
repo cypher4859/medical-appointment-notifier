@@ -12,4 +12,6 @@ export default interface IMessagingService {
   getMessagesSentList () : IMessageSmsDetails[]
   getMessageDetailsTableFields () : string[]
   loadAddressBook () : Promise<void>
+  loadMessagesReceived () : Promise<void>
+  loadMessagesSent () : Promise<void>
 }
