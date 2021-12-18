@@ -25,16 +25,62 @@
           >
             <template
               v-if="selectedMessageTemplate"
+              #cell(text)="row"
+            >
+              <b-row
+                v-if="row.rowSelected"
+              >
+                <b-col>
+                  <b-form>
+                    <b-form-group>
+                      <b-form-input
+                        id="edit-selected-message-template-text"
+                        v-model="messageTemplateWorkingCopy.text"
+                        :disabled="!selectedMessageTemplate"
+                      />
+                    </b-form-group>
+                  </b-form>
+                </b-col>
+              </b-row>
+              <div v-else>
+                {{ row.item.text }}
+              </div>
+            </template>
+
+            <template
+              v-if="selectedMessageTemplate"
               #cell(value)="row"
             >
-              <b-form-group v-if="row.rowSelected">
-                <b-form-input
-                  id="edit-selected-message-template"
-                  v-model="selectedMessageTemplate.value"
-                  placeholder="Please select a message template"
-                  :disabled="!selectedMessageTemplate"
-                />
-              </b-form-group>
+              <b-form
+                v-if="row.rowSelected"
+              >
+                <b-row>
+                  <b-col>
+                    <b-form-group>
+                      <b-form-input
+                        id="edit-selected-message-template-value"
+                        v-model="messageTemplateWorkingCopy.value"
+                        :disabled="!selectedMessageTemplate"
+                      />
+                    </b-form-group>
+                  </b-col>
+                  <b-col cols="auto">
+                    <b-button
+                      class="mx-1"
+                      variant="primary"
+                      @click="onSubmitChangesToMessageTemplate(messageTemplateWorkingCopy)"
+                    >
+                      Submit
+                    </b-button>
+                    <b-button
+                      variant="danger"
+                      @click="onResetChangesToMessageTemplate()"
+                    >
+                      Reset
+                    </b-button>
+                  </b-col>
+                </b-row>
+              </b-form>
               <div v-else>
                 {{ row.item.value }}
               </div>
@@ -71,10 +117,11 @@
 <script lang="ts">
 import Vue from 'vue'
 import Component from 'vue-class-component'
-import { Mixins } from 'vue-property-decorator'
+import { Mixins, Watch } from 'vue-property-decorator'
 import SettingsMixin from '@/mixins/settings-mixin'
 import ServiceMixin from '@/mixins/service-mixin'
-import ISmsMessageTemplate from '@/components/clientMessaging/types/ISmsMessageTemplate'
+import type ISmsMessageTemplate from '@/components/clientMessaging/types/ISmsMessageTemplate'
+import { cloneDeep } from 'lodash'
 
 @Component({
   name: 'SettingsMessaging'
@@ -82,6 +129,14 @@ import ISmsMessageTemplate from '@/components/clientMessaging/types/ISmsMessageT
 export default class SettingsMessaging extends Mixins(SettingsMixin, ServiceMixin) {
   private messageTemplates: ISmsMessageTemplate[] = []
   private selectedMessageTemplate: ISmsMessageTemplate | null = null
+  private messageTemplateWorkingCopy: ISmsMessageTemplate | null = null
+
+  @Watch('selectedMessageTemplate', { immediate: true, deep: true })
+  onSelectedMessageTemplateChange (newMessageTemplate: ISmsMessageTemplate, oldMessageTemplate: ISmsMessageTemplate) {
+    if (this.selectedMessageTemplate !== this.messageTemplateWorkingCopy) {
+      this.messageTemplateWorkingCopy = cloneDeep(this.selectedMessageTemplate)
+    }
+  }
 
   async beforeMount () {
     return Promise.resolve()
@@ -114,7 +169,20 @@ export default class SettingsMessaging extends Mixins(SettingsMixin, ServiceMixi
 
   onRowSelected (items: ISmsMessageTemplate[]) {
     this.selectedMessageTemplate = items[0]
-    console.log('Selected Template:', this.selectedMessageTemplate)
+  }
+
+  onSubmitChangesToMessageTemplate () {
+    const templateToChangeIndex = this.messageTemplates.findIndex((template) => {
+      return template.id === this.messageTemplateWorkingCopy?.id
+    })
+    Vue.set(this.messageTemplates, templateToChangeIndex, this.messageTemplateWorkingCopy)
+    this.messageTemplateWorkingCopy = null
+  }
+
+  onResetChangesToMessageTemplate () {
+    this.selectedMessageTemplate = null;
+    (this.$refs.messagingTemplatesTable as any).clearSelected()
+    console.log('Resetting the table: ')
   }
 }
 </script>
