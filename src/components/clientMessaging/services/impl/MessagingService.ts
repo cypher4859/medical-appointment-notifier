@@ -33,10 +33,10 @@ export default class MessagingService extends Vue implements IMessagingService {
 
   getRecipientModes () : ISmsMessageTemplate[] {
     return [
-      { value: null, text: 'Please select recipient loading mode' },
-      { value: AppointmentModes.BY_APPOINTMENT, text: 'By Appointment Date' },
-      { value: AppointmentModes.SINGLE_CONTACT, text: 'Single Contact' },
-      { value: AppointmentModes.MULTIPLE_CONTACTS, text: 'Multiple Contacts' }
+      { id: '8369f97e-b96c-40f7-92ab-3bd5f4948a60', value: null, text: 'Please select recipient loading mode' },
+      { id: '397092ca-e7a2-48e9-b808-cb9badd5ab22', value: AppointmentModes.BY_APPOINTMENT, text: 'By Appointment Date' },
+      { id: '4f012025-dfbb-44e5-ac69-e12e8c0a00ec', value: AppointmentModes.SINGLE_CONTACT, text: 'Single Contact' },
+      { id: '30c6fd1e-a78c-40a5-a8b5-fef47b694b7e', value: AppointmentModes.MULTIPLE_CONTACTS, text: 'Multiple Contacts' }
     ]
   }
 
