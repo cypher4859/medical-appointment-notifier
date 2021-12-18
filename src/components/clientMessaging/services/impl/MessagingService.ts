@@ -31,12 +31,12 @@ export default class MessagingService extends Vue implements IMessagingService {
     }
   }
 
-  getRecipientModes () : ISmsMessageTemplate[] {
+  getRecipientModes () : object[] {
     return [
-      { id: '8369f97e-b96c-40f7-92ab-3bd5f4948a60', value: null, text: 'Please select recipient loading mode' },
-      { id: '397092ca-e7a2-48e9-b808-cb9badd5ab22', value: AppointmentModes.BY_APPOINTMENT, text: 'By Appointment Date' },
-      { id: '4f012025-dfbb-44e5-ac69-e12e8c0a00ec', value: AppointmentModes.SINGLE_CONTACT, text: 'Single Contact' },
-      { id: '30c6fd1e-a78c-40a5-a8b5-fef47b694b7e', value: AppointmentModes.MULTIPLE_CONTACTS, text: 'Multiple Contacts' }
+      { value: null, text: 'Please select recipient loading mode' },
+      { value: AppointmentModes.BY_APPOINTMENT, text: 'By Appointment Date' },
+      { value: AppointmentModes.SINGLE_CONTACT, text: 'Single Contact' },
+      { value: AppointmentModes.MULTIPLE_CONTACTS, text: 'Multiple Contacts' }
     ]
   }
 
@@ -111,16 +111,16 @@ export default class MessagingService extends Vue implements IMessagingService {
       .then(() => {
         return [
           {
-            value: null, text: 'Please Select You Message Template'
+            id: '397092ca-e7a2-48e9-b808-cb9badd5ab22', value: null, text: 'Please Select You Message Template'
           },
           {
-            value: 'You have an appointment at "TIME" on "DATE"', text: 'Default - You have an appointment'
+            id: '8369f97e-b96c-40f7-92ab-3bd5f4948a60', value: 'You have an appointment at "TIME" on "DATE"', text: 'Default - You have an appointment'
           },
           {
-            value: 'Happy Halloween! Get your vaccines before Trick Or Treat!', text: 'Happy Halloween!'
+            id: '4f012025-dfbb-44e5-ac69-e12e8c0a00ec', value: 'Happy Halloween! Get your vaccines before Trick Or Treat!', text: 'Happy Halloween!'
           },
           {
-            value: 'Get Prepared for the Holiday Spirit!', text: 'Merry Christmas!'
+            id: '30c6fd1e-a78c-40a5-a8b5-fef47b694b7e', value: 'Get Prepared for the Holiday Spirit!', text: 'Merry Christmas!'
           }
         ] as ISmsMessageTemplate[]
       })

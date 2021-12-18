@@ -4,7 +4,7 @@ import IMessageSmsDetails from '../types/IMessageSmsDetails'
 
 export default interface IMessagingService {
   getMessageTemplates () : ISmsMessageTemplate[]
-  getRecipientModes () : ISmsMessageTemplate[]
+  getRecipientModes () : object[]
   getAddressBook () : IClientContactWithAppointment[]
   getAddressBookTableHeaders () : object[]
   sendMessages () : Promise<void>

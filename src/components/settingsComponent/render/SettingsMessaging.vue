@@ -68,7 +68,7 @@
                     <b-button
                       class="mx-1"
                       variant="primary"
-                      @click="onSubmitChangesToMessageTemplate(messageTemplateWorkingCopy)"
+                      @click="onSubmitChangesToMessageTemplate()"
                     >
                       Submit
                     </b-button>
@@ -153,8 +153,10 @@ export default class SettingsMessaging extends Mixins(SettingsMixin, ServiceMixi
     const templateToChangeIndex = this.messageTemplates.findIndex((template) => {
       return template.id === this.messageTemplateWorkingCopy?.id
     })
-    Vue.set(this.messageTemplates, templateToChangeIndex, this.messageTemplateWorkingCopy)
-    this.messageTemplateWorkingCopy = null
+    if (templateToChangeIndex > -1) {
+      Vue.set(this.messageTemplates, templateToChangeIndex, this.messageTemplateWorkingCopy)
+      this.onResetChangesToMessageTemplate()
+    }
   }
 
   onResetChangesToMessageTemplate () {

@@ -321,7 +321,7 @@ enum AppointmentModes {
 })
 export default class SmsMessageSending extends Mixins(ServiceMixin) {
   private appointmentModes = AppointmentModes
-  private recipientModes: ISmsMessageTemplate[] = []
+  private recipientModes: object[] = []
   private addressBookTableHeaders: object[] = []
 
   private selectedDateToLoadRecipients: string = ''
