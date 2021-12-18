@@ -88,28 +88,6 @@
           </b-table>
         </b-col>
       </b-row>
-      <b-row>
-        <b-col>
-          <b-form>
-            <!-- <b-form-group>
-              <b-form-input
-                id="edit-selected-message-template"
-                v-model="selectedMessageTemplate"
-                placeholder="Please select a message template"
-                :disabled="!selectedMessageTemplate"
-              />
-            </b-form-group> -->
-            <!-- <b-form-group>
-              <b-form-input
-                id="edit-selected-message-template"
-                v-model="selectedMessageTemplate.value"
-                placeholder="Please select a message template"
-                :disabled="!selectedMessageTemplate"
-              />
-            </b-form-group> -->
-          </b-form>
-        </b-col>
-      </b-row>
     </b-container>
   </div>
 </template>
