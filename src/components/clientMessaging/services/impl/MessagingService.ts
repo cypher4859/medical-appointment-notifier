@@ -8,6 +8,7 @@ import type IClientContactWithAppointment from '../../types/IClientContactWithAp
 import type IMessageSmsDetails from '../../types/IMessageSmsDetails'
 import TYPES from '@/InjectableTypes/types'
 import type IPatientService from '../IPatientService'
+import { v4 as uuidv4 } from 'uuid'
 
 const mockMessagesReceived = require('@/assets/MockMessagesReceived.json') as IMessageSmsDetails[]
 const mockMessagesSent = require('@/assets/MockMessagesSent.json') as IMessageSmsDetails[]
@@ -123,6 +124,26 @@ export default class MessagingService extends Vue implements IMessagingService {
             id: '30c6fd1e-a78c-40a5-a8b5-fef47b694b7e', value: 'Get Prepared for the Holiday Spirit!', text: 'Merry Christmas!'
           }
         ] as ISmsMessageTemplate[]
+      })
+  }
+
+  getDefaultMessagingTemplate () : ISmsMessageTemplate {
+    // Generate an ID
+    const defaultTemplate = {
+      id: uuidv4(),
+      text: 'Default Template Name - Change me!',
+      value: 'Default Template Definition - Change me!'
+    }
+    this.addDefaultMessagingTemplateToStore(defaultTemplate)
+    return defaultTemplate
+    // Add the default template with ID to the store
+    // on submit then add it to the API
+  }
+
+  private addDefaultMessagingTemplateToStore (defaultTemplate: ISmsMessageTemplate) : Promise<void> {
+    return Promise.resolve()
+      .then(() => {
+        // return this.vuexMessagingService.addToMessageTemplates(defaultTemplate)
       })
   }
 

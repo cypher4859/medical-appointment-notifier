@@ -19,6 +19,8 @@
             hover
             select-mode="single"
             selectable
+            per-page="10"
+            current-page="1"
             :items="messageTemplates"
             :fields="messageTemplateFields"
             @row-selected="onRowSelected"
@@ -67,16 +69,21 @@
                   <b-col cols="auto">
                     <b-button
                       class="mx-1"
-                      variant="primary"
                       @click="onSubmitChangesToMessageTemplate()"
                     >
                       Submit
                     </b-button>
                     <b-button
-                      variant="danger"
                       @click="onResetChangesToMessageTemplate()"
                     >
                       Reset
+                    </b-button>
+                    <b-button
+                      class="mx-1"
+                      variant="danger"
+                      @click="showDeleteTemplateModal()"
+                    >
+                      Delete
                     </b-button>
                   </b-col>
                 </b-row>
@@ -88,7 +95,67 @@
           </b-table>
         </b-col>
       </b-row>
+      <b-row align-h="end">
+        <b-col cols="auto">
+          <b-button
+            @click="addNewDefaultTemplate()"
+          >
+            Add Template
+          </b-button>
+        </b-col>
+      </b-row>
     </b-container>
+    <b-modal
+      v-if="selectedMessageTemplate"
+      v-model="showDeleteTemplateWarning"
+      hide-header-close
+      title="Deletion Warning"
+      hide-footer
+    >
+      <b-row>
+        <b-col>
+          You are about to delete the following message template. Do you want to continue?
+        </b-col>
+      </b-row>
+      <b-row class="mt-3">
+        <b-col>
+          <b-card>
+            <div>
+              <h4>
+                Message Template
+              </h4>
+            </div>
+            <div class="mt-4">
+              <b-card-sub-title>
+                {{ selectedMessageTemplate.text }}
+              </b-card-sub-title>
+              <b-card-text>
+                {{ selectedMessageTemplate.value }}
+              </b-card-text>
+            </div>
+          </b-card>
+        </b-col>
+      </b-row>
+      <b-row
+        class="mt-5"
+        align-h="center"
+      >
+        <b-col cols="auto">
+          <b-button
+            @click="cancelDeletionRequest()"
+          >
+            Cancel
+          </b-button>
+        </b-col>
+        <b-col cols="auto">
+          <b-button
+            @click="requestDeleteTemplate()"
+          >
+            Submit
+          </b-button>
+        </b-col>
+      </b-row>
+    </b-modal>
   </div>
 </template>
 
@@ -108,6 +175,7 @@ export default class SettingsMessaging extends Mixins(SettingsMixin, ServiceMixi
   private messageTemplates: ISmsMessageTemplate[] = []
   private selectedMessageTemplate: ISmsMessageTemplate | null = null
   private messageTemplateWorkingCopy: ISmsMessageTemplate | null = null
+  private showDeleteTemplateWarning: boolean = false
 
   @Watch('selectedMessageTemplate', { immediate: true, deep: true })
   onSelectedMessageTemplateChange (newMessageTemplate: ISmsMessageTemplate, oldMessageTemplate: ISmsMessageTemplate) {
@@ -162,6 +230,47 @@ export default class SettingsMessaging extends Mixins(SettingsMixin, ServiceMixi
   onResetChangesToMessageTemplate () {
     this.selectedMessageTemplate = null;
     (this.$refs.messagingTemplatesTable as any).clearSelected()
+  }
+
+  addNewDefaultTemplate () {
+    const template = this.messagingService.getDefaultMessagingTemplate()
+    // Do this manually for now
+    if (!this.messageTemplates.find((messageTemplate) => { return messageTemplate.id === template.id })) {
+      this.messageTemplates.push(template)
+    }
+  }
+
+  cancelDeletionRequest () {
+    return Promise.resolve()
+      .then(() => {
+        this.showDeleteTemplateWarning = false
+      })
+  }
+
+  showDeleteTemplateModal () {
+    return Promise.resolve()
+      .then(() => {
+        if (!this.showDeleteTemplateWarning) {
+          this.showDeleteTemplateWarning = true
+        }
+      })
+  }
+
+  requestDeleteTemplate () {
+    return Promise.resolve()
+      .then(() => {
+        if (this.selectedMessageTemplate) {
+          const templateToDelete = this.selectedMessageTemplate
+          const indexOfTemplateToDelete = this.messageTemplates.findIndex((template) => {
+            return template.id === templateToDelete.id
+          })
+          this.$data.messageTemplates.splice(indexOfTemplateToDelete, 1)
+          console.log(this.messageTemplates)
+        }
+      })
+      .then(() => {
+        this.showDeleteTemplateWarning = false
+      })
   }
 }
 </script>

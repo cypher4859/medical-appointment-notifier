@@ -8,8 +8,11 @@
           </b-col>
         </b-row>
       </b-card-title>
-      <b-row class="mt-4">
-        <b-col cols="3">
+      <b-row
+        class="mt-4"
+        align-h="center"
+      >
+        <b-col cols="2">
           <div>
             <b-list-group>
               <b-list-group-item
