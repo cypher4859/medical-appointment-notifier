@@ -162,7 +162,6 @@ export default class SettingsMessaging extends Mixins(SettingsMixin, ServiceMixi
   onResetChangesToMessageTemplate () {
     this.selectedMessageTemplate = null;
     (this.$refs.messagingTemplatesTable as any).clearSelected()
-    console.log('Resetting the table: ')
   }
 }
 </script>
