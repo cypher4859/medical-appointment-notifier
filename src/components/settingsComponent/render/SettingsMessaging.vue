@@ -14,11 +14,54 @@
             Message Templates
           </b-card-sub-title>
           <b-table
-            striped
+            ref="messagingTemplatesTable"
+            sticky-header
             hover
+            select-mode="single"
+            selectable
             :items="messageTemplates"
             :fields="messageTemplateFields"
-          />
+            @row-selected="onRowSelected"
+          >
+            <template
+              v-if="selectedMessageTemplate"
+              #cell(value)="row"
+            >
+              <b-form-group v-if="row.rowSelected">
+                <b-form-input
+                  id="edit-selected-message-template"
+                  v-model="selectedMessageTemplate.value"
+                  placeholder="Please select a message template"
+                  :disabled="!selectedMessageTemplate"
+                />
+              </b-form-group>
+              <div v-else>
+                {{ row.item.value }}
+              </div>
+            </template>
+          </b-table>
+        </b-col>
+      </b-row>
+      <b-row>
+        <b-col>
+          <b-form>
+            <!-- <b-form-group>
+              <b-form-input
+                id="edit-selected-message-template"
+                v-model="selectedMessageTemplate"
+                placeholder="Please select a message template"
+                :disabled="!selectedMessageTemplate"
+              />
+            </b-form-group> -->
+            <!-- <b-form-group>
+              <b-form-input
+                id="edit-selected-message-template"
+                v-model="selectedMessageTemplate.value"
+                placeholder="Please select a message template"
+                :disabled="!selectedMessageTemplate"
+              />
+            </b-form-group> -->
+          </b-form>
         </b-col>
       </b-row>
     </b-container>
@@ -38,6 +81,7 @@ import ISmsMessageTemplate from '@/components/clientMessaging/types/ISmsMessageT
 })
 export default class SettingsMessaging extends Mixins(SettingsMixin, ServiceMixin) {
   private messageTemplates: ISmsMessageTemplate[] = []
+  private selectedMessageTemplate: ISmsMessageTemplate | null = null
 
   async beforeMount () {
     return Promise.resolve()
@@ -66,6 +110,11 @@ export default class SettingsMessaging extends Mixins(SettingsMixin, ServiceMixi
         label: 'Definition'
       }
     ]
+  }
+
+  onRowSelected (items: ISmsMessageTemplate[]) {
+    this.selectedMessageTemplate = items[0]
+    console.log('Selected Template:', this.selectedMessageTemplate)
   }
 }
 </script>
