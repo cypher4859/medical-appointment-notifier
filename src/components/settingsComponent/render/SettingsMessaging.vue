@@ -103,6 +103,27 @@
             Add Template
           </b-button>
         </b-col>
+        <b-col cols="auto">
+          <b-button
+            v-b-popover="messageTemplatePopoverInfo()"
+          >
+            Info
+          </b-button>
+        </b-col>
+        <b-col cols="auto">
+          <b-button
+            @click="showMessageTemplateKeywordsHelp()"
+          >
+            Help
+          </b-button>
+        </b-col>
+      </b-row>
+      <b-row v-if="showKeywordsHelp">
+        <b-col>
+          <b-alert variant="info">
+            The following a list of keywords to use in the message template
+          </b-alert>
+        </b-col>
       </b-row>
     </b-container>
     <b-modal
@@ -271,6 +292,10 @@ export default class SettingsMessaging extends Mixins(SettingsMixin, ServiceMixi
       .then(() => {
         this.showDeleteTemplateWarning = false
       })
+  }
+
+  messageTemplatePopoverInfo () {
+    return 'Help Info'
   }
 }
 </script>
