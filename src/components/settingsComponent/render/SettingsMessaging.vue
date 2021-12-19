@@ -105,14 +105,7 @@
         </b-col>
         <b-col cols="auto">
           <b-button
-            v-b-popover="messageTemplatePopoverInfo()"
-          >
-            Info
-          </b-button>
-        </b-col>
-        <b-col cols="auto">
-          <b-button
-            @click="showMessageTemplateKeywordsHelp()"
+            @click="toggleMessageTemplateKeywordsHelp()"
           >
             Help
           </b-button>
@@ -197,6 +190,7 @@ export default class SettingsMessaging extends Mixins(SettingsMixin, ServiceMixi
   private selectedMessageTemplate: ISmsMessageTemplate | null = null
   private messageTemplateWorkingCopy: ISmsMessageTemplate | null = null
   private showDeleteTemplateWarning: boolean = false
+  private showKeywordsHelp: boolean = false
 
   @Watch('selectedMessageTemplate', { immediate: true, deep: true })
   onSelectedMessageTemplateChange (newMessageTemplate: ISmsMessageTemplate, oldMessageTemplate: ISmsMessageTemplate) {
@@ -296,6 +290,10 @@ export default class SettingsMessaging extends Mixins(SettingsMixin, ServiceMixi
 
   messageTemplatePopoverInfo () {
     return 'Help Info'
+  }
+
+  toggleMessageTemplateKeywordsHelp () {
+    this.showKeywordsHelp = !this.showKeywordsHelp
   }
 }
 </script>
