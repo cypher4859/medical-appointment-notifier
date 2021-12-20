@@ -353,7 +353,8 @@ export default class SettingsMessaging extends Mixins(SettingsMixin, ServiceMixi
   }
 
   get selectedMessageTemplateExample () : ISmsMessageTemplate | null {
-    return this.messageTemplateWorkingCopy
+    const examplePatient = this.messagingService.getExamplePatient()
+    return this.messagingService.getMessageTransformedKeyword(this.messageTemplateWorkingCopy as ISmsMessageTemplate, examplePatient)
   }
 }
 </script>

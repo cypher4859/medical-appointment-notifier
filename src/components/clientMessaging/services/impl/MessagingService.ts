@@ -9,6 +9,7 @@ import type IMessageSmsDetails from '../../types/IMessageSmsDetails'
 import TYPES from '@/InjectableTypes/types'
 import type IPatientService from '../IPatientService'
 import { v4 as uuidv4 } from 'uuid'
+import { cloneDeep } from 'lodash'
 
 const mockMessagesReceived = require('@/assets/MockMessagesReceived.json') as IMessageSmsDetails[]
 const mockMessagesSent = require('@/assets/MockMessagesSent.json') as IMessageSmsDetails[]
@@ -169,7 +170,25 @@ export default class MessagingService extends Vue implements IMessagingService {
       })
   }
 
+  getMessageTransformedKeyword (message: ISmsMessageTemplate, patient: IClientContactWithAppointment) : ISmsMessageTemplate {
+    let transformedMessage: ISmsMessageTemplate = cloneDeep(message)
+    this.getMessageTemplateKeywords().forEach((keyword) => {
+      if (message.value?.includes(keyword)) {
+        const clientPropertyAccessor = MessagingTemplateKeywords[keyword as keyof typeof MessagingTemplateKeywords]
+        const clientProperty = patient[clientPropertyAccessor as unknown as keyof IClientContactWithAppointment]?.toString()
+        transformedMessage.value = transformedMessage.value?.replaceAll(`%${keyword}%`, clientProperty as string)
+        console.log('transformed: ', transformedMessage.value)
+      }
+    })
+    return transformedMessage
+  }
+
+  getExamplePatient () : IClientContactWithAppointment {
+    return this.getAddressBook()[0]
+  }
+
   getMessageTemplateKeywords () : string[] {
+    // This should match the valid options in the enum
     return [
       'APPT_TIME',
       'APPT_DATE',

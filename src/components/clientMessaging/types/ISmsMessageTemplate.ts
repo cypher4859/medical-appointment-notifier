@@ -1,5 +1,5 @@
 export default interface ISmsMessageTemplate {
   id: string
   text: string
-  value: string | null
+  value: string | null | undefined
 }

@@ -13,6 +13,8 @@ export default interface IMessagingService {
   getMessageDetailsTableFields () : string[]
   getDefaultMessagingTemplate () : ISmsMessageTemplate
   getMessageTemplateKeywords () : string[]
+  getMessageTransformedKeyword (message: ISmsMessageTemplate, patient: IClientContactWithAppointment) : ISmsMessageTemplate
+  getExamplePatient () : IClientContactWithAppointment
   loadAddressBook () : Promise<void>
   loadMessagesReceived () : Promise<void>
   loadMessagesSent () : Promise<void>
