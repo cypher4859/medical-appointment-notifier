@@ -96,6 +96,24 @@
         </b-col>
       </b-row>
       <b-row align-h="end">
+        <b-col
+          v-if="selectedMessageTemplate"
+        >
+          <b-card>
+            <b-row>
+              <b-col>
+                <b-card-sub-title>
+                  {{ selectedMessageTemplateExample.text }}
+                </b-card-sub-title>
+              </b-col>
+            </b-row>
+            <b-row align-h="center">
+              <b-col>
+                <b>{{ selectedMessageTemplateExample.value }}</b>
+              </b-col>
+            </b-row>
+          </b-card>
+        </b-col>
         <b-col cols="auto">
           <b-button
             @click="addNewDefaultTemplate()"
@@ -105,19 +123,45 @@
         </b-col>
         <b-col cols="auto">
           <b-button
-            @click="toggleMessageTemplateKeywordsHelp()"
+            id="popover-help-message-template-settings-list-keywords"
           >
             Help
           </b-button>
         </b-col>
       </b-row>
-      <b-row v-if="showKeywordsHelp">
-        <b-col>
-          <b-alert variant="info">
-            The following a list of keywords to use in the message template
-          </b-alert>
-        </b-col>
-      </b-row>
+      <b-popover
+        target="popover-help-message-template-settings-list-keywords"
+        triggers="click"
+        placement="righttop"
+      >
+        <template #title>
+          Message Template Keywords
+        </template>
+        <b-row>
+          <b-col>
+            <b-alert
+              show
+              variant="info"
+            >
+              <span>The following a list of special keywords to use in the message template. When using a template containing keywords to send messages the keyword will be replaced by it's corresponding value in the final message to be sent.</span>
+              <br>
+              <ul>
+                <li
+                  v-for="(keyword, index) in messageTemplateKeywords"
+                  :key="index"
+                >
+                  %{{ keyword }}%
+                </li>
+              </ul>
+            </b-alert>
+            <b-button
+              @click="openKeywordHelpModal()"
+            >
+              More Info
+            </b-button>
+          </b-col>
+        </b-row>
+      </b-popover>
     </b-container>
     <b-modal
       v-if="selectedMessageTemplate"
@@ -167,6 +211,18 @@
           >
             Submit
           </b-button>
+        </b-col>
+      </b-row>
+    </b-modal>
+    <b-modal
+      v-model="showKeywordsHelp"
+      hide-header-close
+      title="Messaging Templates - Help"
+      hide-footer
+    >
+      <b-row>
+        <b-col>
+          Help Info about the Message Template Keywords
         </b-col>
       </b-row>
     </b-modal>
@@ -288,12 +344,16 @@ export default class SettingsMessaging extends Mixins(SettingsMixin, ServiceMixi
       })
   }
 
-  messageTemplatePopoverInfo () {
-    return 'Help Info'
+  get messageTemplateKeywords () : string[] {
+    return this.messagingService.getMessageTemplateKeywords()
   }
 
-  toggleMessageTemplateKeywordsHelp () {
+  openKeywordHelpModal () {
     this.showKeywordsHelp = !this.showKeywordsHelp
+  }
+
+  get selectedMessageTemplateExample () : ISmsMessageTemplate | null {
+    return this.messageTemplateWorkingCopy
   }
 }
 </script>

@@ -13,6 +13,14 @@ import { v4 as uuidv4 } from 'uuid'
 const mockMessagesReceived = require('@/assets/MockMessagesReceived.json') as IMessageSmsDetails[]
 const mockMessagesSent = require('@/assets/MockMessagesSent.json') as IMessageSmsDetails[]
 
+enum MessagingTemplateKeywords {
+  APPT_TIME='appointmentDateTime',
+  APPT_DATE='appointmentTime',
+  OFFICE_PHONE='',
+  OFFICE_EMAIL='',
+  TREATING_PHYSICIAN=''
+}
+
 @injectable()
 export default class MessagingService extends Vue implements IMessagingService {
   @inject(TYPES.IPatientService)
@@ -159,6 +167,16 @@ export default class MessagingService extends Vue implements IMessagingService {
       .then(() => {
         console.log('Sending message')
       })
+  }
+
+  getMessageTemplateKeywords () : string[] {
+    return [
+      'APPT_TIME',
+      'APPT_DATE',
+      'OFFICE_PHONE',
+      'OFFICE_EMAIL',
+      'TREATING_PHYSICIAN'
+    ]
   }
 
   async loadAddressBook () : Promise<void> {
