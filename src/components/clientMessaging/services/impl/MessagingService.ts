@@ -15,8 +15,8 @@ const mockMessagesReceived = require('@/assets/MockMessagesReceived.json') as IM
 const mockMessagesSent = require('@/assets/MockMessagesSent.json') as IMessageSmsDetails[]
 
 enum MessagingTemplateKeywords {
-  APPT_TIME='appointmentDateTime',
-  APPT_DATE='appointmentTime',
+  APPT_TIME='appointmentTime',
+  APPT_DATE='appointmentDate',
   OFFICE_PHONE='',
   OFFICE_EMAIL='',
   TREATING_PHYSICIAN=''
@@ -65,7 +65,7 @@ export default class MessagingService extends Vue implements IMessagingService {
       { key: 'dateOfBirth', sortable: false, label: 'Date of Birth' },
       { key: 'phoneNumber', sortable: false, label: 'Phone Number' },
       { key: 'appointmentTime', sortable: false, label: 'Appointment Time' },
-      { key: 'appointmentDateTime', sortable: false, label: 'Appointment Date' }
+      { key: 'appointmentDate', sortable: false, label: 'Appointment Date' }
     ]
   }
 

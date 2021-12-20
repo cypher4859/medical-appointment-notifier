@@ -369,7 +369,7 @@ export default class SmsMessageSending extends Mixins(ServiceMixin) {
   get getMessageRecipientsOnAppointmentDate () : (dateToLoadAppointments: string) => IClientContactWithAppointment[] {
     return (dateToLoadAppointments) => {
       return this.addressBook.filter((contact: IClientContactWithAppointment) => {
-        return DateAndTime.isSameDay(DateAndTime.parse(contact.nextAppointment?.appointmentDateTime!, 'MM/DD/YYYY'), DateAndTime.parse(dateToLoadAppointments, 'YYYY-MM-DD'))
+        return DateAndTime.isSameDay(DateAndTime.parse(contact.nextAppointment?.appointmentDate!, 'MM/DD/YYYY'), DateAndTime.parse(dateToLoadAppointments, 'YYYY-MM-DD'))
       })
     }
   }

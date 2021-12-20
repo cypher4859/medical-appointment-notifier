@@ -96,22 +96,33 @@
         </b-col>
       </b-row>
       <b-row align-h="end">
-        <b-col
-          v-if="selectedMessageTemplate"
-        >
+        <b-col>
           <b-card>
-            <b-row>
-              <b-col>
-                <b-card-sub-title>
-                  {{ selectedMessageTemplateExample.text }}
-                </b-card-sub-title>
-              </b-col>
-            </b-row>
-            <b-row align-h="center">
-              <b-col>
-                <b>{{ selectedMessageTemplateExample.value }}</b>
-              </b-col>
-            </b-row>
+            <div
+              v-if="selectedMessageTemplate"
+            >
+              <b-row>
+                <b-col>
+                  <b-card-sub-title>
+                    {{ selectedMessageTemplateExample.text }}
+                  </b-card-sub-title>
+                </b-col>
+              </b-row>
+              <b-row align-h="center">
+                <b-col>
+                  <b>{{ selectedMessageTemplateExample.value }}</b>
+                </b-col>
+              </b-row>
+            </div>
+            <div v-else>
+              <b-row>
+                <b-col>
+                  <b>
+                    Please select a message template to view an example message
+                  </b>
+                </b-col>
+              </b-row>
+            </div>
           </b-card>
         </b-col>
         <b-col cols="auto">
@@ -125,7 +136,7 @@
           <b-button
             id="popover-help-message-template-settings-list-keywords"
           >
-            Help
+            Keywords
           </b-button>
         </b-col>
       </b-row>
