@@ -139,6 +139,13 @@
             Keywords
           </b-button>
         </b-col>
+        <b-col cols="auto">
+          <b-button
+            @click="openKeywordHelpModal()"
+          >
+            More Info
+          </b-button>
+        </b-col>
       </b-row>
       <b-popover
         target="popover-help-message-template-settings-list-keywords"
@@ -165,11 +172,6 @@
                 </li>
               </ul>
             </b-alert>
-            <b-button
-              @click="openKeywordHelpModal()"
-            >
-              More Info
-            </b-button>
           </b-col>
         </b-row>
       </b-popover>
