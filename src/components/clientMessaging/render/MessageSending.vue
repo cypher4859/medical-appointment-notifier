@@ -345,7 +345,8 @@ export default class SmsMessageSending extends Mixins(ServiceMixin) {
     return Promise.resolve()
       .then(() => {
         return Promise.all([
-          this.messagingService.loadAddressBook()
+          this.messagingService.loadAddressBook(),
+          this.messagingService.loadMessageTemplates()
         ])
       })
       .then(() => {
