@@ -234,7 +234,7 @@ export default class MessagingMonitoringDashboard extends Mixins(ServiceMixin) {
   private numberOfMessagesSentInTimeInterval: number[] = []
   private numberOfAcceptedAppointmentsInTimeInterval: number[] = []
   private numberOfCancelledAppointmentsInTimeInterval: number[] = []
-  private dataCollection: object | null = null
+  private dataCollection: object = {}
   private interval: number = 30
   private collectionOfDatasets: object[] = []
   private showMessagesReceived: boolean = true
@@ -272,10 +272,11 @@ export default class MessagingMonitoringDashboard extends Mixins(ServiceMixin) {
         this.initializeCollectionOfDatasets()
 
         // reverse the order so the graph is formed correctly
-        this.dataCollection = {
+        const data = {
           labels: this.getPreviousDatesByInterval(this.interval).map((date) => { return DateAndTime.format(date, 'MM/DD/YYYY') }).reverse(),
           datasets: this.collectionOfDatasets
         }
+        this.dataCollection = Object.assign({}, this.dataCollection, data)
       })
   }
 

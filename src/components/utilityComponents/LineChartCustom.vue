@@ -1,16 +1,14 @@
 <script lang="ts">
 import { Component, Mixins, Prop, Vue, Watch } from 'vue-property-decorator'
-import { Line, mixins as chartMixins } from 'vue-chartjs-typescript'
-
-const { reactiveProp } = chartMixins
+import { Line, mixins } from 'vue-chartjs-typescript'
+import VueCharts from 'vue-chartjs'
 
 @Component({
   name: 'line-chart-custom',
-  extends: Line,
-  mixins: [reactiveProp]
+  extends: Line
 })
-export default class LineChart extends Mixins(Line) {
-  @Prop(Object) public chartData!: object
+export default class LineChart extends Mixins(Line, VueCharts.mixins.reactiveProp) {
+  // @Prop(Object) public chartData!: object
   @Prop(Object) public options!: object
 
   @Watch('chartData', { deep: true })

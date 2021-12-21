@@ -196,7 +196,10 @@
                   :options="messageTemplates"
                 />
                 <b-card-text class="mt-4">
-                  Example: <h4>{{ selectedMessageTemplate }}</h4>
+                  Example:
+                  <h4>
+                    {{ getExampleMessageTemplate }}
+                  </h4>
                 </b-card-text>
               </b-collapse>
             </b-card>
@@ -478,6 +481,11 @@ export default class SmsMessageSending extends Mixins(ServiceMixin) {
     } else {
       return ''
     }
+  }
+
+  // getMessageTransformedKeyword
+  get getExampleMessageTemplate () : string {
+    return this.selectedMessageTemplate?.value ? this.selectedMessageTemplate.value : ''
   }
 }
 </script>
