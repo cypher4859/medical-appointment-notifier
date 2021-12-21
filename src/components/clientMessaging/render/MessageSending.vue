@@ -190,17 +190,52 @@
                 id="toggle-sending-messages-message-template-collapse"
                 visible
               >
-                <b-form-select
-                  v-model="selectedMessageTemplate"
-                  class="mt-2"
-                  :options="messageTemplates"
-                />
-                <b-card-text class="mt-4">
-                  Example:
-                  <h4>
-                    {{ getExampleMessageTemplateValue.value }}
-                  </h4>
-                </b-card-text>
+                <b-row>
+                  <b-col>
+                    <b-form-select
+                      v-model="selectedMessageTemplate"
+                      class="mt-2"
+                      :options="messageTemplates"
+                    />
+                  </b-col>
+                </b-row>
+                <b-row>
+                  <b-col>
+                    <b-card-text class="mt-4">
+                      Example:
+                      <h4>
+                        <div v-if="selectedMessageTemplate">
+                          {{ getExampleMessageTemplateValue }}
+                        </div>
+                        <div v-else>
+                          {{ 'Please select a template' }}
+                        </div>
+                      </h4>
+                    </b-card-text>
+                  </b-col>
+                </b-row>
+                <b-row v-if="selectedMessageTemplate">
+                  <b-col>
+                    <div class="mb-3">
+                      <custom-popover-target
+                        :popover-id="'send-messages-message-template-info'"
+                      />
+                    </div>
+                    <b-popover
+                      target="custom-popover-target-send-messages-message-template-info"
+                      triggers="hover"
+                      placement="bottomright"
+                    >
+                      <b-alert
+                        class="my-0"
+                        show
+                        variant="info"
+                      >
+                        {{ 'This example is based on an example patient from the current patient list. This is meant to show what the message will ultiamtely appear as.' }}
+                      </b-alert>
+                    </b-popover>
+                  </b-col>
+                </b-row>
               </b-collapse>
             </b-card>
           </b-col>
@@ -222,7 +257,6 @@
           <b-col cols="auto">
             <div>
               <b-popover
-                v-if="messageRecipients.length !== 0 && selectedMessageTemplate === null"
                 target="popover-target-send-messages-warning"
                 triggers="hover"
                 placement="right"
@@ -230,9 +264,9 @@
                 <b-alert
                   class="my-0"
                   show
-                  variant="danger"
+                  :variant="isValidToSendMessages ? 'info' : 'danger'"
                 >
-                  Please select a message template before sending messages
+                  {{ getPopoverHelpInfoToSend }}
                 </b-alert>
               </b-popover>
               <div id="popover-target-send-messages-warning">
@@ -336,13 +370,14 @@ export default class SmsMessageSending extends Mixins(ServiceMixin) {
   private showAlertCountdown: number = 0
   private alertDefaultCountdown: number = 5
   private showMessagePreviewOverlay: boolean = false
-  private selectedMessageTemplate: ISmsMessageTemplate | null = null
+  private selectedMessageTemplate: string | null = null
   private messageTemplates: ISmsMessageTemplate[] = []
   private recipientsPerPage: number = 7
   private currentRecipientListPage: number = 1
   private addressBookTableSearchCriteria: string = ''
   private previewRecipientsPerPage: number = 7
   private previewCurrentRecipientListPage: number = 1
+  private isValidToSendMessages: boolean = false
 
   async beforeMount () {
     return Promise.resolve()
@@ -484,17 +519,29 @@ export default class SmsMessageSending extends Mixins(ServiceMixin) {
   }
 
   // getMessageTransformedKeyword
-  get getExampleMessageTemplateValue () : ISmsMessageTemplate {
-    console.log('Message template: ', this.selectedMessageTemplate)
-    console.log('Patient: ', this.messagingService.getExamplePatient())
-    let x = { value: '' } as ISmsMessageTemplate
-    this.$nextTick(() => {
-      if (this.selectedMessageTemplate) {
-        x = this.messagingService.getMessageTransformedKeyword(this.selectedMessageTemplate, this.messagingService.getExamplePatient())
-        console.log('Transformed message:', x)
-      }
-    })
-    return x
+  get getExampleMessageTemplateValue () : string {
+    const template = this.messageTemplates.find((templ) => {
+      return templ.value === this.selectedMessageTemplate
+    }) as ISmsMessageTemplate
+    const patient = this.messagingService.getExamplePatient()
+    return this.messagingService.getMessageTransformedKeyword(template, patient).value as string
+  }
+
+  get getPopoverHelpInfoToSend () : string {
+    console.log('message templat:', this.selectedMessageTemplate)
+    if (this.messageRecipients.length !== 0 && this.selectedMessageTemplate === null) {
+      this.isValidToSendMessages = false
+      return 'Please select a message template before sending messages'
+    } else if (this.messageRecipients.length === 0 && this.selectedMessageTemplate !== null) {
+      this.isValidToSendMessages = false
+      return 'Please load the recipient list by either selecting an appointment day while in Appointment Date Mode and Loading Recipients or by selecting recipient(s)'
+    } else if (this.messageRecipients.length === 0 && this.selectedMessageTemplate === null) {
+      this.isValidToSendMessages = false
+      return 'Please load the recipient list by either selecting an appointment day while in Appointment Date Mode and Loading Recipients or by selecting recipient(s). Afterwards, please select a message template. You will be free to send messages at that point!'
+    } else {
+      this.isValidToSendMessages = true
+      return 'Click to send messages to recipients'
+    }
   }
 }
 </script>

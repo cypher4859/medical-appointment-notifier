@@ -121,7 +121,7 @@ export default class MessagingService extends Vue implements IMessagingService {
       .then(() => {
         return [
           {
-            id: '397092ca-e7a2-48e9-b808-cb9badd5ab22', value: null, text: 'Please Select You Message Template'
+            id: '397092ca-e7a2-48e9-b808-cb9badd5ab22', value: null, text: 'Please Select A Message Template'
           },
           {
             id: '8369f97e-b96c-40f7-92ab-3bd5f4948a60', value: 'You have an appointment at %APPT_TIME% on %APPT_DATE%', text: 'Default - You have an appointment'
