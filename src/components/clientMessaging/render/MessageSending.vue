@@ -198,7 +198,7 @@
                 <b-card-text class="mt-4">
                   Example:
                   <h4>
-                    {{ getExampleMessageTemplate }}
+                    {{ getExampleMessageTemplateValue.value }}
                   </h4>
                 </b-card-text>
               </b-collapse>
@@ -484,8 +484,17 @@ export default class SmsMessageSending extends Mixins(ServiceMixin) {
   }
 
   // getMessageTransformedKeyword
-  get getExampleMessageTemplate () : string {
-    return this.selectedMessageTemplate?.value ? this.selectedMessageTemplate.value : ''
+  get getExampleMessageTemplateValue () : ISmsMessageTemplate {
+    console.log('Message template: ', this.selectedMessageTemplate)
+    console.log('Patient: ', this.messagingService.getExamplePatient())
+    let x = { value: '' } as ISmsMessageTemplate
+    this.$nextTick(() => {
+      if (this.selectedMessageTemplate) {
+        x = this.messagingService.getMessageTransformedKeyword(this.selectedMessageTemplate, this.messagingService.getExamplePatient())
+        console.log('Transformed message:', x)
+      }
+    })
+    return x
   }
 }
 </script>
