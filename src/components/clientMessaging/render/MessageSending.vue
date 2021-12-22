@@ -94,6 +94,7 @@
                   <b-form-input
                     id="message-sending-data-table-search"
                     v-model="addressBookTableSearchCriteria"
+                    v-mask="addressBookMask"
                     class="mb-2"
                     type="search"
                     placeholder="Search the address book"
@@ -341,6 +342,7 @@ import ISmsMessageTemplate from '@/components/clientMessaging/types/ISmsMessageT
 import IClientContactWithAppointment from '@/components/clientMessaging/types/IClientContactWithAppointment'
 import CustomPopoverTarget from '@/components/utilityComponents/CustomPopoverTarget.vue'
 import ServiceMixin from '@/mixins/service-mixin'
+import VMaskMixin from '@/mixins/vmask-mixin'
 
 const mockData = require('@/assets/MockPatientData.json')
 
@@ -356,7 +358,7 @@ enum AppointmentModes {
     'custom-popover-target': CustomPopoverTarget
   }
 })
-export default class SmsMessageSending extends Mixins(ServiceMixin) {
+export default class SmsMessageSending extends Mixins(ServiceMixin, VMaskMixin) {
   private appointmentModes = AppointmentModes
   private recipientModes: object[] = []
   private addressBookTableHeaders: object[] = []

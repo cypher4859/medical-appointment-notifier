@@ -38,6 +38,7 @@
                       <b-form-input
                         id="edit-selected-message-template-text"
                         v-model="messageTemplateWorkingCopy.text"
+                        v-mask="messagingSettingsMask"
                         :disabled="!selectedMessageTemplate"
                       />
                     </b-form-group>
@@ -62,6 +63,7 @@
                       <b-form-input
                         id="edit-selected-message-template-value"
                         v-model="messageTemplateWorkingCopy.value"
+                        v-mask="messagingSettingsMask"
                         :disabled="!selectedMessageTemplate"
                       />
                     </b-form-group>
@@ -250,11 +252,12 @@ import SettingsMixin from '@/mixins/settings-mixin'
 import ServiceMixin from '@/mixins/service-mixin'
 import type ISmsMessageTemplate from '@/components/clientMessaging/types/ISmsMessageTemplate'
 import { cloneDeep } from 'lodash'
+import VMaskMixin from '@/mixins/vmask-mixin'
 
 @Component({
   name: 'SettingsMessaging'
 })
-export default class SettingsMessaging extends Mixins(SettingsMixin, ServiceMixin) {
+export default class SettingsMessaging extends Mixins(SettingsMixin, ServiceMixin, VMaskMixin) {
   private messageTemplates: ISmsMessageTemplate[] = []
   private selectedMessageTemplate: ISmsMessageTemplate | null = null
   private messageTemplateWorkingCopy: ISmsMessageTemplate | null = null

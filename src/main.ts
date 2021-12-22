@@ -7,12 +7,14 @@ import 'reflect-metadata'
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import 'bootstrap/dist/css/bootstrap.css'
+import VueTheMask from 'vue-the-mask'
 
 // css
 require('@mdi/font/css/materialdesignicons.css')
 
 Vue.use(BootstrapVue)
 Vue.use(IconsPlugin)
+Vue.use(VueTheMask)
 
 class AppSetup {
   constructor () {
