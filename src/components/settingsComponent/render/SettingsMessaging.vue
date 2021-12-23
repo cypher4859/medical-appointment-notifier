@@ -253,6 +253,7 @@ import ServiceMixin from '@/mixins/service-mixin'
 import type ISmsMessageTemplate from '@/components/clientMessaging/types/ISmsMessageTemplate'
 import { cloneDeep } from 'lodash'
 import VMaskMixin from '@/mixins/vmask-mixin'
+import IClientContactWithAppointment from '@/components/clientMessaging/types/IClientContactWithAppointment'
 
 @Component({
   name: 'SettingsMessaging'
@@ -263,6 +264,7 @@ export default class SettingsMessaging extends Mixins(SettingsMixin, ServiceMixi
   private messageTemplateWorkingCopy: ISmsMessageTemplate | null = null
   private showDeleteTemplateWarning: boolean = false
   private showKeywordsHelp: boolean = false
+  private examplePatient: IClientContactWithAppointment = {} as IClientContactWithAppointment
 
   @Watch('selectedMessageTemplate', { immediate: true, deep: true })
   onSelectedMessageTemplateChange (newMessageTemplate: ISmsMessageTemplate, oldMessageTemplate: ISmsMessageTemplate) {
@@ -279,10 +281,17 @@ export default class SettingsMessaging extends Mixins(SettingsMixin, ServiceMixi
         ])
       })
       .then(() => {
-        this.messageTemplates = this.messagingService
-          .getMessageTemplates()
-          .filter((template) => {
-            return template.value !== null
+        return this.messagingService.getMessageTemplates()
+          .then((templates) => {
+            this.messageTemplates = templates.filter((template) => {
+              return template.value !== null
+            })
+          })
+      })
+      .then(() => {
+        return this.messagingService.getExamplePatient()
+          .then((examplePatient) => {
+            this.examplePatient = examplePatient
           })
       })
   }
@@ -369,8 +378,7 @@ export default class SettingsMessaging extends Mixins(SettingsMixin, ServiceMixi
   }
 
   get selectedMessageTemplateExample () : ISmsMessageTemplate | null {
-    const examplePatient = this.messagingService.getExamplePatient()
-    return this.messagingService.getMessageTransformedKeyword(this.messageTemplateWorkingCopy as ISmsMessageTemplate, examplePatient)
+    return this.messagingService.getMessageTransformedKeyword(this.messageTemplateWorkingCopy as ISmsMessageTemplate, this.examplePatient)
   }
 }
 </script>

@@ -6,7 +6,11 @@ interface IRegistryTypes {
 
 const TYPES : IRegistryTypes = {
   IMessagingService: Symbol('IMessagingService'),
-  IPatientService: Symbol('IPatientService')
+  IVuexMessagingService: Symbol('IVuexMessagingService'),
+  IApiMessagingService: Symbol('IApiMessagingService'),
+  IPatientService: Symbol('IPatientService'),
+  IVuexPatientService: Symbol('IVuexPatientService'),
+  IApiPatientService: Symbol('IApiPatientService')
 }
 
 export default TYPES

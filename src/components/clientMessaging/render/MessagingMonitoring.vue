@@ -257,14 +257,31 @@ export default class MessagingMonitoringDashboard extends Mixins(ServiceMixin, V
         ])
       })
       .then(() => {
-        this.patientList = this.messagingService.getAddressBook()
-        this.messagesReceivedList = this.messagingService.getMessagesReceivedList()
-        this.messagesSentList = this.messagingService.getMessagesSentList()
-        this.messagesReceivedFields = this.messagingService.getMessageDetailsTableFields()
-
-        this.messagesSentList.forEach((message) => {
-          message.phoneNumber = '304-444-5555'
-        })
+        return this.messagingService.getAddressBook()
+          .then((addressBook) => {
+            this.patientList = addressBook
+          })
+      })
+      .then(() => {
+        return this.messagingService.getMessagesReceivedList()
+          .then((messagesReceived) => {
+            this.messagesReceivedList = messagesReceived
+          })
+      })
+      .then(() => {
+        return this.messagingService.getMessagesSentList()
+          .then((messagesSent) => {
+            this.messagesSentList = messagesSent
+            this.messagesSentList.forEach((message) => {
+              message.phoneNumber = '304-444-5555'
+            })
+          })
+      })
+      .then(() => {
+        return Promise.resolve()
+          .then(() => {
+            this.messagesReceivedFields = this.messagingService.getMessageDetailsTableFields()
+          })
       })
       .then(() => {
         this.numberOfMessagesRecievedInTimeInterval = this.getNumberOfMessagesReceivedInTimeInterval().reverse()

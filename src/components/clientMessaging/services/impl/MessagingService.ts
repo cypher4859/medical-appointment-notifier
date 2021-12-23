@@ -10,9 +10,7 @@ import TYPES from '@/InjectableTypes/types'
 import type IPatientService from '../IPatientService'
 import { v4 as uuidv4 } from 'uuid'
 import { cloneDeep } from 'lodash'
-
-const mockMessagesReceived = require('@/assets/MockMessagesReceived.json') as IMessageSmsDetails[]
-const mockMessagesSent = require('@/assets/MockMessagesSent.json') as IMessageSmsDetails[]
+import type IVuexMessagingService from '../IVuexMessagingService'
 
 enum MessagingTemplateKeywords {
   APPT_TIME='appointmentTime',
@@ -27,18 +25,11 @@ export default class MessagingService extends Vue implements IMessagingService {
   @inject(TYPES.IPatientService)
   protected patientService!: IPatientService
 
-  private _addressBook: IClientContactWithAppointment[] = []
-  private _messagesReceived: IMessageSmsDetails[] = []
-  private _messagesSent: IMessageSmsDetails[] = []
-  private _messageTemplates: ISmsMessageTemplate[] = []
+  @inject(TYPES.IVuexMessagingService)
+  protected vuexMessagingService!: IVuexMessagingService
 
-  getMessageTemplates () : ISmsMessageTemplate[] {
-    if (!this._messageTemplates.length) {
-      this.loadMessageTemplates()
-      return this._messageTemplates
-    } else {
-      return this._messageTemplates
-    }
+  async getMessageTemplates () : Promise<ISmsMessageTemplate[]> {
+    return this.vuexMessagingService.getMessageTemplates()
   }
 
   getRecipientModes () : object[] {
@@ -50,13 +41,8 @@ export default class MessagingService extends Vue implements IMessagingService {
     ]
   }
 
-  getAddressBook () : IClientContactWithAppointment[] {
-    if (!this._addressBook.length) {
-      this.loadAddressBook()
-      return this._addressBook
-    } else {
-      return this._addressBook
-    }
+  async getAddressBook () : Promise<IClientContactWithAppointment[]> {
+    return this.vuexMessagingService.getAddressBook()
   }
 
   getAddressBookTableHeaders () : object[] {
@@ -70,28 +56,15 @@ export default class MessagingService extends Vue implements IMessagingService {
   }
 
   async sendMessages () : Promise<void> {
-    return Promise.resolve()
-      .then(() => {
-        console.log('Sending message')
-      })
+    return this.vuexMessagingService.sendMessages()
   }
 
-  getMessagesReceivedList () : IMessageSmsDetails[] {
-    if (!this._messagesReceived.length) {
-      this.loadMessagesReceived()
-      return this._messagesReceived
-    } else {
-      return this._messagesReceived
-    }
+  async getMessagesReceivedList () : Promise<IMessageSmsDetails[]> {
+    return this.vuexMessagingService.getMessagesReceivedList()
   }
 
-  getMessagesSentList () : IMessageSmsDetails[] {
-    if (!this._messagesSent.length) {
-      this.loadMessagesSent()
-      return this._messagesSent
-    } else {
-      return this._messagesSent
-    }
+  async getMessagesSentList () : Promise<IMessageSmsDetails[]> {
+    return this.vuexMessagingService.getMessagesSentList()
   }
 
   getMessageDetailsTableFields () : string[] {
@@ -105,37 +78,6 @@ export default class MessagingService extends Vue implements IMessagingService {
     ]
   }
 
-  private async getAddressBookFromApi () : Promise<IClientContactWithAppointment[]> {
-    return Promise.resolve(await this.patientService.getListOfPatients())
-  }
-
-  private async getMessagesReceivedListFromApi () : Promise<IMessageSmsDetails[]> {
-    return Promise.resolve()
-      .then(() => {
-        return mockMessagesReceived
-      })
-  }
-
-  private async getMessageTemplatesListFromApi () : Promise<ISmsMessageTemplate[]> {
-    return Promise.resolve()
-      .then(() => {
-        return [
-          {
-            id: '397092ca-e7a2-48e9-b808-cb9badd5ab22', value: null, text: 'Please Select A Message Template'
-          },
-          {
-            id: '8369f97e-b96c-40f7-92ab-3bd5f4948a60', value: 'You have an appointment at %APPT_TIME% on %APPT_DATE%', text: 'Default - You have an appointment'
-          },
-          {
-            id: '4f012025-dfbb-44e5-ac69-e12e8c0a00ec', value: 'Happy Halloween! Get your vaccines before Trick Or Treat!', text: 'Happy Halloween!'
-          },
-          {
-            id: '30c6fd1e-a78c-40a5-a8b5-fef47b694b7e', value: 'Get Prepared for the Holiday Spirit!', text: 'Merry Christmas!'
-          }
-        ] as ISmsMessageTemplate[]
-      })
-  }
-
   getDefaultMessagingTemplate () : ISmsMessageTemplate {
     // Generate an ID
     const defaultTemplate = {
@@ -143,31 +85,10 @@ export default class MessagingService extends Vue implements IMessagingService {
       text: 'Default Template Name - Change me!',
       value: 'Default Template Definition - Change me!'
     }
-    this.addDefaultMessagingTemplateToStore(defaultTemplate)
+    this.vuexMessagingService.addToMessageTemplates(defaultTemplate)
     return defaultTemplate
     // Add the default template with ID to the store
     // on submit then add it to the API
-  }
-
-  private addDefaultMessagingTemplateToStore (defaultTemplate: ISmsMessageTemplate) : Promise<void> {
-    return Promise.resolve()
-      .then(() => {
-        // return this.vuexMessagingService.addToMessageTemplates(defaultTemplate)
-      })
-  }
-
-  private async getMessagesSentListFromApi () : Promise<IMessageSmsDetails[]> {
-    return Promise.resolve()
-      .then(() => {
-        return mockMessagesSent
-      })
-  }
-
-  private async sendMessagesByApi () : Promise<void> {
-    return Promise.resolve()
-      .then(() => {
-        console.log('Sending message')
-      })
   }
 
   getMessageTransformedKeyword (message: ISmsMessageTemplate, patient: IClientContactWithAppointment) : ISmsMessageTemplate {
@@ -177,14 +98,16 @@ export default class MessagingService extends Vue implements IMessagingService {
         const clientPropertyAccessor = MessagingTemplateKeywords[keyword as keyof typeof MessagingTemplateKeywords]
         const clientProperty = patient[clientPropertyAccessor as unknown as keyof IClientContactWithAppointment]?.toString()
         transformedMessage.value = transformedMessage.value?.replaceAll(`%${keyword}%`, clientProperty as string)
-        console.log('transformed: ', transformedMessage.value)
       }
     })
     return transformedMessage
   }
 
-  getExamplePatient () : IClientContactWithAppointment {
-    return this.getAddressBook()[0]
+  async getExamplePatient () : Promise<IClientContactWithAppointment> {
+    return this.getAddressBook()
+      .then((addressBook) => {
+        return addressBook[0]
+      })
   }
 
   getMessageTemplateKeywords () : string[] {
@@ -199,18 +122,18 @@ export default class MessagingService extends Vue implements IMessagingService {
   }
 
   async loadAddressBook () : Promise<void> {
-    this._addressBook = await this.getAddressBookFromApi()
+    return this.vuexMessagingService.loadAddressBook()
   }
 
   async loadMessagesReceived () : Promise<void> {
-    this._messagesReceived = await this.getMessagesReceivedListFromApi()
+    return this.vuexMessagingService.loadMessagesReceived()
   }
 
   async loadMessagesSent () : Promise<void> {
-    this._messagesSent = await this.getMessagesSentListFromApi()
+    return this.vuexMessagingService.loadMessagesSent()
   }
 
   async loadMessageTemplates () : Promise<void> {
-    this._messageTemplates = await this.getMessageTemplatesListFromApi()
+    return this.vuexMessagingService.loadMessageTemplates()
   }
 }

@@ -4,12 +4,17 @@ import { Vue, Component } from 'vue-property-decorator'
 import type IClientContactWithAppointment from '../../types/IClientContactWithAppointment'
 import type IPatientService from '../IPatientService'
 import type IAppointment from '../../types/IAppointment'
+import { inject } from 'inversify'
+import TYPES from '@/InjectableTypes/types'
+import type IVuexPatientService from '../IVuexPatientService'
 
 const patientDataMockData = require('@/assets/MockPatientData.json')
 
 @injectable()
 export default class PatientService extends Vue implements IPatientService {
-  private _patientList: IClientContactWithAppointment[] = []
+  // private _patientList: IClientContactWithAppointment[] = []
+  @inject(TYPES.IVuexPatientService)
+  private vuexPatientService!: IVuexPatientService
 
   getNextAppointmentOfPatient (patient: IClientContactWithAppointment) : IAppointment {
     return {} as IAppointment
@@ -24,22 +29,16 @@ export default class PatientService extends Vue implements IPatientService {
   }
 
   async getListOfPatients () : Promise<IClientContactWithAppointment[]> {
-    if (!this._patientList.length) {
-      await this.loadPatientList()
-      return this._patientList
-    } else {
-      return this._patientList
-    }
-  }
-
-  private async getListOfPatientsFromApi () : Promise<IClientContactWithAppointment[]> {
     return Promise.resolve()
       .then(() => {
-        return patientDataMockData
+        return this.vuexPatientService.getListOfPatients()
       })
   }
 
-  async loadPatientList () : Promise<void> {
-    this._patientList = await this.getListOfPatientsFromApi()
+  async loadPatientList () : Promise<IClientContactWithAppointment[]> {
+    return Promise.resolve()
+      .then(() => {
+        return this.vuexPatientService.loadPatientList()
+      })
   }
 }

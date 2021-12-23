@@ -380,6 +380,7 @@ export default class SmsMessageSending extends Mixins(ServiceMixin, VMaskMixin) 
   private previewRecipientsPerPage: number = 7
   private previewCurrentRecipientListPage: number = 1
   private isValidToSendMessages: boolean = false
+  private examplePatient: IClientContactWithAppointment = {} as IClientContactWithAppointment
 
   async beforeMount () {
     return Promise.resolve()
@@ -390,10 +391,34 @@ export default class SmsMessageSending extends Mixins(ServiceMixin, VMaskMixin) 
         ])
       })
       .then(() => {
-        this.messageTemplates = this.messagingService.getMessageTemplates()
-        this.recipientModes = this.messagingService.getRecipientModes()
-        this.addressBook = this.messagingService.getAddressBook()
-        this.addressBookTableHeaders = this.messagingService.getAddressBookTableHeaders()
+        return this.messagingService.getMessageTemplates()
+          .then((templates) => {
+            this.messageTemplates = templates
+          })
+      })
+      .then(() => {
+        return Promise.resolve()
+          .then(() => {
+            this.recipientModes = this.messagingService.getRecipientModes()
+          })
+      })
+      .then(() => {
+        return this.messagingService.getAddressBook()
+          .then((addressBook) => {
+            this.addressBook = addressBook
+          })
+      })
+      .then(() => {
+        return this.messagingService.getExamplePatient()
+          .then((examplePatient) => {
+            this.examplePatient = examplePatient
+          })
+      })
+      .then(() => {
+        return Promise.resolve()
+          .then(() => {
+            this.addressBookTableHeaders = this.messagingService.getAddressBookTableHeaders()
+          })
       })
   }
 
@@ -525,8 +550,7 @@ export default class SmsMessageSending extends Mixins(ServiceMixin, VMaskMixin) 
     const template = this.messageTemplates.find((templ) => {
       return templ.value === this.selectedMessageTemplate
     }) as ISmsMessageTemplate
-    const patient = this.messagingService.getExamplePatient()
-    return this.messagingService.getMessageTransformedKeyword(template, patient).value as string
+    return this.messagingService.getMessageTransformedKeyword(template, this.examplePatient).value as string
   }
 
   get getPopoverHelpInfoToSend () : string {
