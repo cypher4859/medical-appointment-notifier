@@ -8,5 +8,7 @@ export default interface IApiMessagingService {
   getMessageTemplatesListFromApi () : Promise<ISmsMessageTemplate[]>
   getMessagesSentListFromApi () : Promise<IMessageSmsDetails[]>
   addMessageTemplatesByApi () : Promise<void>
+  modifyMessageTemplatesByApi () : Promise<void>
+  deleteMessageTemplateByApi () : Promise<void>
   sendMessagesByApi () : Promise<void>
 }

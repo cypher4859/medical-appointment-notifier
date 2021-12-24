@@ -59,7 +59,21 @@ export default class ApiMessagingService extends Vue implements IApiMessagingSer
   addMessageTemplatesByApi () : Promise<void> {
     return Promise.resolve()
       .then(() => {
-        console.log('TODO: Add message template via api')
+        return this.api.post(`${this.smsMessageUri}/message-templates-add`)
+      })
+  }
+
+  modifyMessageTemplatesByApi () : Promise<void> {
+    return Promise.resolve()
+      .then(() => {
+        return this.api.put(`${this.smsMessageUri}/message-templates-modify`)
+      })
+  }
+
+  deleteMessageTemplateByApi () : Promise<void> {
+    return Promise.resolve()
+      .then(() => {
+        return this.api.delete(`${this.smsMessageUri}/message-templates-delete`)
       })
   }
 
