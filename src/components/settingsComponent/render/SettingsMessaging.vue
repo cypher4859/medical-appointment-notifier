@@ -275,11 +275,11 @@ export default class SettingsMessaging extends Mixins(SettingsMixin, ServiceMixi
 
   async beforeMount () {
     return Promise.resolve()
-      .then(() => {
-        return Promise.all([
-          this.messagingService.loadMessageTemplates()
-        ])
-      })
+      // .then(() => {
+      //   return Promise.all([
+      //     this.messagingService.loadMessageTemplates()
+      //   ])
+      // })
       .then(() => {
         return this.messagingService.getMessageTemplates()
           .then((templates) => {

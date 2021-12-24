@@ -83,7 +83,7 @@ export default class VuexMessagingService extends Vue implements IVuexMessagingS
   loadMessagesSent () : Promise<void> {
     return this.apiMessagingService.getMessagesSentListFromApi()
       .then((messagesSent) => {
-        messagingStore.loadMessagesReceived(messagesSent)
+        messagingStore.loadMessagesSent(messagesSent)
       })
   }
 

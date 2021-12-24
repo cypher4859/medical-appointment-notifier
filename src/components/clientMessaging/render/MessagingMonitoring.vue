@@ -251,12 +251,6 @@ export default class MessagingMonitoringDashboard extends Mixins(ServiceMixin, V
   async beforeMount () {
     return Promise.resolve()
       .then(() => {
-        return Promise.all([
-          this.messagingService.loadMessagesReceived(),
-          this.messagingService.loadMessagesSent()
-        ])
-      })
-      .then(() => {
         return this.messagingService.getAddressBook()
           .then((addressBook) => {
             this.patientList = addressBook

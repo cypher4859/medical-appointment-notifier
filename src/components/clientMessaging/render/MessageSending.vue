@@ -385,12 +385,6 @@ export default class SmsMessageSending extends Mixins(ServiceMixin, VMaskMixin) 
   async beforeMount () {
     return Promise.resolve()
       .then(() => {
-        return Promise.all([
-          this.messagingService.loadAddressBook(),
-          this.messagingService.loadMessageTemplates()
-        ])
-      })
-      .then(() => {
         return this.messagingService.getMessageTemplates()
           .then((templates) => {
             this.messageTemplates = templates

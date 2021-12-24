@@ -3,17 +3,22 @@ import { inject } from 'inversify'
 import { injectable } from 'inversify-props'
 import 'reflect-metadata'
 import { Vue } from 'vue-property-decorator'
+import axios from 'axios'
 import type IClientContactWithAppointment from '../../types/IClientContactWithAppointment'
 import type IMessageSmsDetails from '../../types/IMessageSmsDetails'
 import type ISmsMessageTemplate from '../../types/ISmsMessageTemplate'
 import type IApiMessagingService from '../IApiMessagingService'
 import type IPatientService from '../IPatientService'
 
-const mockMessagesReceived = require('@/assets/MockMessagesReceived.json') as IMessageSmsDetails[]
-const mockMessagesSent = require('@/assets/MockMessagesSent.json') as IMessageSmsDetails[]
-
 @injectable()
 export default class ApiMessagingService extends Vue implements IApiMessagingService {
+  private baseUrl: string = process.env.APPOINTMENT_NOTIFIER_BASE_URL ? process.env.APPOINTMENT_NOTIFIER_BASE_URL : 'http://localhost:3000'
+  private smsMessageUri: string = '/messaging/sms'
+  private api = axios.create({
+    baseURL: this.baseUrl,
+    timeout: 15000
+  })
+
   @inject(TYPES.IPatientService)
   private patientService!: IPatientService
 
@@ -21,37 +26,33 @@ export default class ApiMessagingService extends Vue implements IApiMessagingSer
     return Promise.resolve(this.patientService.getListOfPatients())
   }
 
-  getMessagesReceivedListFromApi () : Promise<IMessageSmsDetails[]> {
+  async getMessagesReceivedListFromApi () : Promise<IMessageSmsDetails[]> {
     return Promise.resolve()
       .then(() => {
-        return mockMessagesReceived
+        return this.api.get(`${this.smsMessageUri}/message-received-list`)
+          .then((res) => {
+            return res.data as IMessageSmsDetails[]
+          })
       })
   }
 
-  getMessageTemplatesListFromApi () : Promise<ISmsMessageTemplate[]> {
+  async getMessageTemplatesListFromApi () : Promise<ISmsMessageTemplate[]> {
     return Promise.resolve()
       .then(() => {
-        return [
-          {
-            id: '397092ca-e7a2-48e9-b808-cb9badd5ab22', value: null, text: 'Please Select A Message Template'
-          },
-          {
-            id: '8369f97e-b96c-40f7-92ab-3bd5f4948a60', value: 'You have an appointment at %APPT_TIME% on %APPT_DATE%', text: 'Default - You have an appointment'
-          },
-          {
-            id: '4f012025-dfbb-44e5-ac69-e12e8c0a00ec', value: 'Happy Halloween! Get your vaccines before Trick Or Treat!', text: 'Happy Halloween!'
-          },
-          {
-            id: '30c6fd1e-a78c-40a5-a8b5-fef47b694b7e', value: 'Get Prepared for the Holiday Spirit!', text: 'Merry Christmas!'
-          }
-        ] as ISmsMessageTemplate[]
+        return this.api.get(`${this.smsMessageUri}/message-templates-list`)
+          .then((res) => {
+            return res.data as ISmsMessageTemplate[]
+          })
       })
   }
 
-  getMessagesSentListFromApi () : Promise<IMessageSmsDetails[]> {
+  async getMessagesSentListFromApi () : Promise<IMessageSmsDetails[]> {
     return Promise.resolve()
       .then(() => {
-        return mockMessagesSent
+        return this.api.get(`${this.smsMessageUri}/message-sent-list`)
+          .then((res) => {
+            return res.data as IMessageSmsDetails[]
+          })
       })
   }
 
