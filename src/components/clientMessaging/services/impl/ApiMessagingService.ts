@@ -56,28 +56,28 @@ export default class ApiMessagingService extends Vue implements IApiMessagingSer
       })
   }
 
-  addMessageTemplatesByApi () : Promise<void> {
+  async addMessageTemplatesByApi (newMessageTemplate: ISmsMessageTemplate) : Promise<void> {
     return Promise.resolve()
       .then(() => {
-        return this.api.post(`${this.smsMessageUri}/message-templates-add`)
+        return this.api.post(`${this.smsMessageUri}/message-templates-add`, newMessageTemplate)
       })
   }
 
-  modifyMessageTemplatesByApi () : Promise<void> {
+  async modifyMessageTemplatesByApi (template: ISmsMessageTemplate) : Promise<void> {
     return Promise.resolve()
       .then(() => {
-        return this.api.put(`${this.smsMessageUri}/message-templates-modify`)
+        return this.api.put(`${this.smsMessageUri}/message-templates-modify`, template)
       })
   }
 
-  deleteMessageTemplateByApi () : Promise<void> {
+  async deleteMessageTemplateByApi (template: ISmsMessageTemplate) : Promise<void> {
     return Promise.resolve()
       .then(() => {
-        return this.api.delete(`${this.smsMessageUri}/message-templates-delete`)
+        return this.api.post(`${this.smsMessageUri}/message-templates-delete`, template)
       })
   }
 
-  sendMessagesByApi () : Promise<void> {
+  async sendMessagesByApi () : Promise<void> {
     return Promise.resolve()
       .then(() => {
         console.log('Sending message')

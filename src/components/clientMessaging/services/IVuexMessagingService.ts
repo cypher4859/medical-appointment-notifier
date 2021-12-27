@@ -13,5 +13,7 @@ export default interface IVuexMessagingService {
   loadMessagesSent () : Promise<void>
   loadMessageTemplates () : Promise<void>
   addToMessageTemplates (messageTemplate: ISmsMessageTemplate) : Promise<void>
+  updateMessageTemplate (newMessageTemplate: ISmsMessageTemplate) : Promise<void>
+  deleteMessageTemplate (template: ISmsMessageTemplate) : Promise<void>
   sendMessages () : Promise<void>
 }

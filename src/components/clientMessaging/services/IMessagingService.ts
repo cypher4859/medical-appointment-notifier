@@ -19,4 +19,7 @@ export default interface IMessagingService {
   loadMessagesReceived () : Promise<void>
   loadMessagesSent () : Promise<void>
   loadMessageTemplates () : Promise<void>
+  addMessageTemplate (newMessageTemplate: ISmsMessageTemplate) : Promise<void>
+  deleteMessageTemplate (template: ISmsMessageTemplate) : Promise<void>
+  updateMessageTemplate (newMessageTemplate: ISmsMessageTemplate) : Promise<void>
 }

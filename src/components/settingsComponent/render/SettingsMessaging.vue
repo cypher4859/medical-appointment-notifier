@@ -275,11 +275,6 @@ export default class SettingsMessaging extends Mixins(SettingsMixin, ServiceMixi
 
   async beforeMount () {
     return Promise.resolve()
-      // .then(() => {
-      //   return Promise.all([
-      //     this.messagingService.loadMessageTemplates()
-      //   ])
-      // })
       .then(() => {
         return this.messagingService.getMessageTemplates()
           .then((templates) => {
@@ -318,7 +313,13 @@ export default class SettingsMessaging extends Mixins(SettingsMixin, ServiceMixi
       return template.id === this.messageTemplateWorkingCopy?.id
     })
     if (templateToChangeIndex > -1) {
-      Vue.set(this.messageTemplates, templateToChangeIndex, this.messageTemplateWorkingCopy)
+      Promise.resolve()
+        .then(() => {
+          return Vue.set(this.messageTemplates, templateToChangeIndex, this.messageTemplateWorkingCopy)
+        })
+        .then(() => {
+          return this.messagingService.updateMessageTemplate(this.messageTemplates[templateToChangeIndex])
+        })
       this.onResetChangesToMessageTemplate()
     }
   }

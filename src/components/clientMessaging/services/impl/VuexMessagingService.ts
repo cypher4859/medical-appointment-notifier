@@ -102,11 +102,19 @@ export default class VuexMessagingService extends Vue implements IVuexMessagingS
     })
     if (!isMessageTemplateDuplicate) {
       // do the API call here THEN do the store addition
-      await this.apiMessagingService.addMessageTemplatesByApi()
+      await this.apiMessagingService.addMessageTemplatesByApi(messageTemplate)
         .then(() => {
           return messagingStore.addMessageTemplate(messageTemplate)
         })
     }
+  }
+
+  async updateMessageTemplate (newMessageTemplate: ISmsMessageTemplate) : Promise<void> {
+    return this.apiMessagingService.modifyMessageTemplatesByApi(newMessageTemplate)
+  }
+
+  async deleteMessageTemplate (template: ISmsMessageTemplate) : Promise<void> {
+    return this.apiMessagingService.deleteMessageTemplateByApi(template)
   }
 
   sendMessages () : Promise<void> {
