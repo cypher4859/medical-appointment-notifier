@@ -81,7 +81,7 @@ export default class MessagingService extends Vue implements IMessagingService {
   getDefaultMessagingTemplate () : ISmsMessageTemplate {
     // Generate an ID
     const defaultTemplate = {
-      id: uuidv4(),
+      id: 'MT' + uuidv4(),
       text: 'Default Template Name - Change me!',
       value: 'Default Template Definition - Change me!'
     }
@@ -135,5 +135,17 @@ export default class MessagingService extends Vue implements IMessagingService {
 
   async loadMessageTemplates () : Promise<void> {
     return this.vuexMessagingService.loadMessageTemplates()
+  }
+
+  async addMessageTemplate (newMessageTemplate: ISmsMessageTemplate) : Promise<void> {
+    return this.vuexMessagingService.addToMessageTemplates(newMessageTemplate)
+  }
+
+  async updateMessageTemplate (newMessageTemplate: ISmsMessageTemplate) : Promise<void> {
+    return this.vuexMessagingService.updateMessageTemplate(newMessageTemplate)
+  }
+
+  async deleteMessageTemplate (template: ISmsMessageTemplate) : Promise<void> {
+    return this.vuexMessagingService.deleteMessageTemplate(template)
   }
 }
