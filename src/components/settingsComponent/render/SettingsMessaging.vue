@@ -362,7 +362,12 @@ export default class SettingsMessaging extends Mixins(SettingsMixin, ServiceMixi
             return template.id === templateToDelete.id
           })
           this.$data.messageTemplates.splice(indexOfTemplateToDelete, 1)
-          console.log(this.messageTemplates)
+          return templateToDelete
+        }
+      })
+      .then((template) => {
+        if (template) {
+          return this.messagingService.deleteMessageTemplate(template)
         }
       })
       .then(() => {
