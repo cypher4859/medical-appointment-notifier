@@ -9,6 +9,7 @@ import type IMessageSmsDetails from '../../types/IMessageSmsDetails'
 import type ISmsMessageTemplate from '../../types/ISmsMessageTemplate'
 import type IApiMessagingService from '../IApiMessagingService'
 import type IPatientService from '../IPatientService'
+import { camelCase } from 'lodash'
 
 @injectable()
 export default class ApiMessagingService extends Vue implements IApiMessagingService {
@@ -22,6 +23,14 @@ export default class ApiMessagingService extends Vue implements IApiMessagingSer
   @inject(TYPES.IPatientService)
   private patientService!: IPatientService
 
+  private mapTwilioMessageProperties (message: object) : IMessageSmsDetails {
+    const cleanedMessage = {} as any
+    Object.keys(message).forEach((property) => {
+      cleanedMessage[camelCase(property)] = (message as any)[property]
+    })
+    return cleanedMessage as IMessageSmsDetails
+  }
+
   getAddressBookFromApi () : Promise<IClientContactWithAppointment[]> {
     return Promise.resolve(this.patientService.getListOfPatients())
   }
@@ -32,6 +41,18 @@ export default class ApiMessagingService extends Vue implements IApiMessagingSer
         return this.api.get(`${this.smsMessageUri}/message-received-list`)
           .then((res) => {
             return res.data as IMessageSmsDetails[]
+          })
+          .then((messages) => {
+            messages.forEach((message) => {
+              message.to = message.to.replace(/\s/g, '')
+              message.from = message.to.replace(/\s/g, '')
+            })
+            return messages
+          })
+          .then((messages) => {
+            return messages.map((message) => {
+              return this.mapTwilioMessageProperties(message)
+            })
           })
       })
   }
@@ -52,6 +73,18 @@ export default class ApiMessagingService extends Vue implements IApiMessagingSer
         return this.api.get(`${this.smsMessageUri}/message-sent-list`)
           .then((res) => {
             return res.data as IMessageSmsDetails[]
+          })
+          .then((messages) => {
+            messages.forEach((message) => {
+              message.to = message.to.replace(/\s/g, '')
+              message.from = message.to.replace(/\s/g, '')
+            })
+            return messages
+          })
+          .then((messages) => {
+            return messages.map((message) => {
+              return this.mapTwilioMessageProperties(message)
+            })
           })
       })
   }

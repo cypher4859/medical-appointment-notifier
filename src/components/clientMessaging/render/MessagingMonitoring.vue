@@ -157,7 +157,7 @@
                       sticky-header
                       select-mode="single"
                       selectable
-                      sort-by="messageTimeStampDate"
+                      sort-by="dateSent"
                       :fields="messagesReceivedFields"
                       :current-page="currentMessageListPage"
                       :per-page="messagesPerPage"
@@ -267,7 +267,7 @@ export default class MessagingMonitoringDashboard extends Mixins(ServiceMixin, V
           .then((messagesSent) => {
             this.messagesSentList = messagesSent
             this.messagesSentList.forEach((message) => {
-              message.phoneNumber = '304-444-5555'
+              message.from = '304-444-5555'
             })
           })
       })
@@ -406,8 +406,10 @@ export default class MessagingMonitoringDashboard extends Mixins(ServiceMixin, V
 
   getMessagesFromDate (onDate: Date, messageList: IMessageSmsDetails[]) : IMessageSmsDetails[] {
     return messageList.filter((message: IMessageSmsDetails) => {
-      const parsedmessageReceivedOnDate = DateAndTime.parse(message.messageTimeStampDate, 'MM/DD/YYYY')
-      return DateAndTime.isSameDay(parsedmessageReceivedOnDate, onDate)
+      const parsedmessageReceivedOnDate = DateAndTime.format(new Date(message.dateSent), 'MM/DD/YYYY')
+      const x = DateAndTime.isSameDay(new Date(message.dateSent), onDate)
+      console.log(x)
+      return x
     })
   }
 
@@ -492,15 +494,15 @@ export default class MessagingMonitoringDashboard extends Mixins(ServiceMixin, V
   }
 
   isMessageTextAppointmentStatusAccepted (message: IMessageSmsDetails) : boolean {
-    return message.messageText === 'y'
+    return message.body === 'y'
   }
 
   isMessageTextAppointmentStatusCancelled (message: IMessageSmsDetails) : boolean {
-    return message.messageText === 'n'
+    return message.body === 'n'
   }
 
   isMessageTextAppointmentStatusUnknown (message: IMessageSmsDetails) : boolean {
-    return (message.messageText !== 'y' && message.messageText !== 'n')
+    return (message.body !== 'y' && message.body !== 'n')
   }
 
   get preprocessMessagesList () : (messageList: IMessageSmsDetails[]) => IMessageSmsDetails[] {
@@ -509,10 +511,20 @@ export default class MessagingMonitoringDashboard extends Mixins(ServiceMixin, V
         .map((message) => {
           return this.preprocessMessagesGetAppointmentStatusResponse(message)
         })
-        // .map((message) => {
-        //   return this.preprocessMessagesGetPatientName(message)
-        // })
+        .map((message) => {
+          return this.preprocessMessagesGetPatientName(message)
+        })
+        .map((message) => {
+          return this.preprocessMessagesGetConvertedTime(message)
+        })
     }
+  }
+
+  preprocessMessagesGetConvertedTime (message: IMessageSmsDetails) : IMessageSmsDetails {
+    message.dateCreated = DateAndTime.format(new Date(message.dateCreated), 'MM/DD/YYYY')
+    message.dateSent = DateAndTime.format(new Date(message.dateSent), 'MM/DD/YYYY')
+    message.dateUpdated = DateAndTime.format(new Date(message.dateUpdated), 'MM/DD/YYYY')
+    return message
   }
 
   preprocessMessagesGetAppointmentStatusResponse (message: IMessageSmsDetails) : IMessageSmsDetails {
@@ -529,11 +541,13 @@ export default class MessagingMonitoringDashboard extends Mixins(ServiceMixin, V
   preprocessMessagesGetPatientName (message: IMessageSmsDetails) : IMessageSmsDetails {
     const patientName = this.patientList
       .find((patient) => {
-        return patient.phoneNumber === message.phoneNumber
+        return patient.phoneNumber === message.from
       })
 
     if (patientName) {
       message.fullName = patientName.fullName
+    } else {
+      message.fullName = 'Unknown'
     }
     return message
   }
@@ -580,6 +594,11 @@ export default class MessagingMonitoringDashboard extends Mixins(ServiceMixin, V
       pointBorderColor: 'white',
       data: this.numberOfCancelledAppointmentsInTimeInterval
     }
+  }
+
+  correctDisplayDateAndTime (date: string) : string {
+    console.log(date)
+    return DateAndTime.format(new Date(date), 'MM/DD/YYYY')
   }
 }
 </script>

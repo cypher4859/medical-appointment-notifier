@@ -49,7 +49,7 @@ export default class MessagingService extends Vue implements IMessagingService {
     return [
       { key: 'fullName', sortable: true, label: 'Name' },
       { key: 'dateOfBirth', sortable: false, label: 'Date of Birth' },
-      { key: 'phoneNumber', sortable: false, label: 'Phone Number' },
+      { key: 'from', sortable: false, label: 'Phone Number' },
       { key: 'appointmentTime', sortable: false, label: 'Appointment Time' },
       { key: 'appointmentDate', sortable: false, label: 'Appointment Date' }
     ]
@@ -69,11 +69,10 @@ export default class MessagingService extends Vue implements IMessagingService {
 
   getMessageDetailsTableFields () : string[] {
     return [
-      'messageTimeStampDate',
-      'messageTimeStampTime',
-      'phoneNumber',
+      'dateSent',
+      'from',
       'fullName',
-      'messageText',
+      'body',
       'appointmentStatusResponse'
     ]
   }

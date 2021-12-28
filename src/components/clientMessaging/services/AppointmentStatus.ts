@@ -1,7 +1,7 @@
 enum AppointmentStatus {
-  ACCEPTED='accepted',
-  CANCELLED='cancelled',
-  UNKNOWN='unknown'
+  ACCEPTED='Accepted',
+  CANCELLED='Cancelled',
+  UNKNOWN='Pending'
 }
 
 export default AppointmentStatus
