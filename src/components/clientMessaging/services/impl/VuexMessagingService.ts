@@ -10,6 +10,7 @@ import type IVuexMessagingService from '../IVuexMessagingService'
 import type ISmsMessageTemplate from '../../types/ISmsMessageTemplate'
 import type IMessageSmsDetails from '../../types/IMessageSmsDetails'
 import type IApiMessagingService from '../IApiMessagingService'
+import IMessageSmsPayload from '../../types/IMessageSmsPayload'
 
 const messagingStore = getModule(MessagingStore)
 
@@ -117,7 +118,7 @@ export default class VuexMessagingService extends Vue implements IVuexMessagingS
     return this.apiMessagingService.deleteMessageTemplateByApi(template)
   }
 
-  sendMessages () : Promise<void> {
-    return this.apiMessagingService.sendMessagesByApi()
+  async sendMessages (recipients: IMessageSmsPayload[]) : Promise<void> {
+    return this.apiMessagingService.sendMessagesByApi(recipients)
   }
 }

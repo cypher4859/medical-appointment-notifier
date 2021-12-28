@@ -1,19 +1,22 @@
 import ISmsMessageTemplate from '@/components/clientMessaging/types/ISmsMessageTemplate'
 import IClientContactWithAppointment from '../types/IClientContactWithAppointment'
 import IMessageSmsDetails from '../types/IMessageSmsDetails'
+import IMessageSmsPayload from '../types/IMessageSmsPayload'
 
 export default interface IMessagingService {
   getMessageTemplates () : Promise<ISmsMessageTemplate[]>
   getRecipientModes () : object[]
   getAddressBook () : Promise<IClientContactWithAppointment[]>
   getAddressBookTableHeaders () : object[]
-  sendMessages () : Promise<void>
+  sendMessages (recipients: IMessageSmsPayload[]) : Promise<void>
+  compileMessages (recipients: IClientContactWithAppointment[], messageTemplate: string) : IMessageSmsPayload[]
+  getMessageTransformedKeyword (messageTemplate: string, recipient: IClientContactWithAppointment) : string
   getMessagesReceivedList () : Promise<IMessageSmsDetails[]>
   getMessagesSentList () : Promise<IMessageSmsDetails[]>
   getMessageDetailsTableFields () : string[]
   getDefaultMessagingTemplate () : ISmsMessageTemplate
   getMessageTemplateKeywords () : string[]
-  getMessageTransformedKeyword (message: ISmsMessageTemplate, patient: IClientContactWithAppointment) : ISmsMessageTemplate
+  getMessageTransformedKeywordFromTemplate (message: ISmsMessageTemplate, patient: IClientContactWithAppointment) : ISmsMessageTemplate
   getExamplePatient () : Promise<IClientContactWithAppointment>
   loadAddressBook () : Promise<void>
   loadMessagesReceived () : Promise<void>

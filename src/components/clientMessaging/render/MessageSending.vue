@@ -343,6 +343,7 @@ import IClientContactWithAppointment from '@/components/clientMessaging/types/IC
 import CustomPopoverTarget from '@/components/utilityComponents/CustomPopoverTarget.vue'
 import ServiceMixin from '@/mixins/service-mixin'
 import VMaskMixin from '@/mixins/vmask-mixin'
+import IMessageSmsPayload from '../types/IMessageSmsPayload'
 
 const mockData = require('@/assets/MockPatientData.json')
 
@@ -507,7 +508,10 @@ export default class SmsMessageSending extends Mixins(ServiceMixin, VMaskMixin) 
         this.showMessagePreviewOverlay = true
       })
       .then(() => {
-        this.messagingService.sendMessages()
+        return this.messagingService.compileMessages(this.messageRecipients, this.selectedMessageTemplate as string)
+      })
+      .then((messages: IMessageSmsPayload[]) => {
+        this.messagingService.sendMessages(messages)
       })
       .then(() => {
         this.showAlertCountdown = this.alertDefaultCountdown
@@ -539,12 +543,12 @@ export default class SmsMessageSending extends Mixins(ServiceMixin, VMaskMixin) 
     }
   }
 
-  // getMessageTransformedKeyword
+  // getMessageTransformedKeywordFromTemplate
   get getExampleMessageTemplateValue () : string {
     const template = this.messageTemplates.find((templ) => {
       return templ.value === this.selectedMessageTemplate
     }) as ISmsMessageTemplate
-    return this.messagingService.getMessageTransformedKeyword(template, this.examplePatient).value as string
+    return this.messagingService.getMessageTransformedKeywordFromTemplate(template, this.examplePatient).value as string
   }
 
   get getPopoverHelpInfoToSend () : string {

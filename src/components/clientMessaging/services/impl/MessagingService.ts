@@ -11,6 +11,7 @@ import type IPatientService from '../IPatientService'
 import { v4 as uuidv4 } from 'uuid'
 import { cloneDeep } from 'lodash'
 import type IVuexMessagingService from '../IVuexMessagingService'
+import IMessageSmsPayload from '../../types/IMessageSmsPayload'
 
 enum MessagingTemplateKeywords {
   APPT_TIME='appointmentTime',
@@ -49,14 +50,29 @@ export default class MessagingService extends Vue implements IMessagingService {
     return [
       { key: 'fullName', sortable: true, label: 'Name' },
       { key: 'dateOfBirth', sortable: false, label: 'Date of Birth' },
-      { key: 'from', sortable: false, label: 'Phone Number' },
+      { key: 'phoneNumber', sortable: false, label: 'Phone Number' },
       { key: 'appointmentTime', sortable: false, label: 'Appointment Time' },
       { key: 'appointmentDate', sortable: false, label: 'Appointment Date' }
     ]
   }
 
-  async sendMessages () : Promise<void> {
-    return this.vuexMessagingService.sendMessages()
+  async sendMessages (recipients: IMessageSmsPayload[]) : Promise<void> {
+    return this.vuexMessagingService.sendMessages(recipients)
+  }
+
+  compileMessages (recipients: IClientContactWithAppointment[], messageTemplate: string) : IMessageSmsPayload[] {
+    // make a new interface
+    const payload: IMessageSmsPayload[] = []
+    recipients.forEach((recipient) => {
+      const tempPayload: IMessageSmsPayload = {
+        id: uuidv4(),
+        apiKey: recipient.apiKey,
+        phoneNumber: recipient.phoneNumber as string,
+        messageBody: this.getMessageTransformedKeyword(messageTemplate, recipient)
+      }
+      payload.push(tempPayload)
+    })
+    return payload
   }
 
   async getMessagesReceivedList () : Promise<IMessageSmsDetails[]> {
@@ -90,7 +106,18 @@ export default class MessagingService extends Vue implements IMessagingService {
     // on submit then add it to the API
   }
 
-  getMessageTransformedKeyword (message: ISmsMessageTemplate, patient: IClientContactWithAppointment) : ISmsMessageTemplate {
+  getMessageTransformedKeyword (message: string, recipient: IClientContactWithAppointment) : string {
+    this.getMessageTemplateKeywords().forEach((keyword) => {
+      if (message.includes(keyword)) {
+        const clientPropertyAccessor = MessagingTemplateKeywords[keyword as keyof typeof MessagingTemplateKeywords]
+        const clientProperty = recipient[clientPropertyAccessor as unknown as keyof IClientContactWithAppointment]?.toString()
+        message = message.replaceAll(`%${keyword}%`, clientProperty as string)
+      }
+    })
+    return message
+  }
+
+  getMessageTransformedKeywordFromTemplate (message: ISmsMessageTemplate, patient: IClientContactWithAppointment) : ISmsMessageTemplate {
     let transformedMessage: ISmsMessageTemplate = cloneDeep(message)
     this.getMessageTemplateKeywords().forEach((keyword) => {
       if (message.value?.includes(keyword)) {

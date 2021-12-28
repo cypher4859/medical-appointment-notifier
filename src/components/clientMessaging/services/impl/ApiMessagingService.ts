@@ -10,6 +10,7 @@ import type ISmsMessageTemplate from '../../types/ISmsMessageTemplate'
 import type IApiMessagingService from '../IApiMessagingService'
 import type IPatientService from '../IPatientService'
 import { camelCase } from 'lodash'
+import IMessageSmsPayload from '../../types/IMessageSmsPayload'
 
 @injectable()
 export default class ApiMessagingService extends Vue implements IApiMessagingService {
@@ -110,10 +111,11 @@ export default class ApiMessagingService extends Vue implements IApiMessagingSer
       })
   }
 
-  async sendMessagesByApi () : Promise<void> {
+  async sendMessagesByApi (recipients: IMessageSmsPayload[]) : Promise<void> {
     return Promise.resolve()
       .then(() => {
         console.log('Sending message')
+        return this.api.post(`${this.smsMessageUri}/message-send-to-recipients`, recipients)
       })
   }
 }
