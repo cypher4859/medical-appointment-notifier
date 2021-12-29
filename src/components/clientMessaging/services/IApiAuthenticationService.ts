@@ -1,4 +1,4 @@
 
 export default interface IApiAuthenticationService {
-  submitApiKey (key: string) : Promise<boolean>
+  validateApiKey (key: string) : Promise<boolean>
 }

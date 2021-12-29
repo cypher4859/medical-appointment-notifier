@@ -13,7 +13,6 @@ export default class LineChart extends Mixins(Line, VueCharts.mixins.reactivePro
 
   @Watch('chartData', { deep: true })
   onChartDataChange (newChange: any, oldChange: any) {
-    console.log('Chart Data changed:', this.chartData)
     this.renderChart(this.chartData, this.options)
   }
 

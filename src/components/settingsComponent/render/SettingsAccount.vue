@@ -36,7 +36,7 @@
           </b-form>
           <b-button
             :disabled="userInputApiKey === ''"
-            @click="submitApiKey()"
+            @click="validateApiKey()"
           >
             Submit
           </b-button>
@@ -58,20 +58,24 @@ import ServiceMixin from '@/mixins/service-mixin'
 })
 export default class SettingsAccount extends Mixins(ServiceMixin) {
   private userInputApiKey: string = ''
+  private apiValidationState: boolean = false
 
   async beforeMount () {
     await Promise.resolve()
       .then(() => {
         this.authenticationService.getApiKey()
           .then((keyFromStore) => {
-            console.log(keyFromStore)
             this.userInputApiKey = keyFromStore
           })
       })
   }
 
   get validationState () : boolean {
-    return this.userInputApiKey !== null && this.userInputApiKey !== ''
+    if (this.userInputApiKey) {
+      return true
+    } else {
+      return false
+    }
   }
 
   get invalidFeedback () : string {
@@ -82,9 +86,14 @@ export default class SettingsAccount extends Mixins(ServiceMixin) {
   // onUserInputApiKeyChange (newApiKey, oldApiKey) {
   // }
 
-  private async submitApiKey () : Promise<void> {
+  private async validateApiKey () : Promise<void> {
     if (this.validationState) {
-      return this.authenticationService.submitApiKey(this.userInputApiKey)
+      return this.authenticationService.validateApiKey(this.userInputApiKey)
+        .then((state) => {
+          if (this.userInputApiKey) {
+            this.apiValidationState = state
+          }
+        })
     }
   }
 }

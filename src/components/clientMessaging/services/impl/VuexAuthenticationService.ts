@@ -15,27 +15,21 @@ export default class VuexAuthenticationService extends Vue implements IVuexAuthe
   @inject(TYPES.IApiAuthenticationService)
   private apiAuthenticationService!: IApiAuthenticationService
 
-  async submitApiKey (key: string) : Promise<void> {
-    return this.apiAuthenticationService.submitApiKey(key)
-      .then((isValidKey: boolean) => {
-        if (isValidKey && key !== settingsStore.getCurrentApiKey) {
+  async validateApiKey (key: string) : Promise<boolean> {
+    return this.apiAuthenticationService.validateApiKey(key)
+      .then((isValidKey) => {
+        if (isValidKey) {
           settingsStore.loadApiKey(key)
-          return key
-        } else {
-          return null
+          localStorage.setItem('medical-notifier-api-key', key)
         }
-      })
-      .then((key) => {
-        if (key) {
-          return localStorage.setItem('medical-notifier-api-key', key)
-        }
+        return isValidKey
       })
   }
 
   async loadApiKeyFromLocalStorage () : Promise<void> {
     const key: string | null = localStorage.getItem('medical-notifier-api-key')
     if (key) {
-      return this.submitApiKey(key)
+      this.validateApiKey(key)
     }
   }
 

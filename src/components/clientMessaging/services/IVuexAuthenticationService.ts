@@ -1,6 +1,6 @@
 
 export default interface IVuexAuthenticationService {
-  submitApiKey (key: string) : Promise<void>
+  validateApiKey (key: string) : Promise<boolean>
   loadApiKeyFromLocalStorage () : Promise<void>
   getApiKey () : Promise<string>
 }

@@ -10,10 +10,8 @@ export default class AuthenticationService extends Vue implements IAuthenticatio
   @inject(TYPES.IVuexAuthenticationService)
   private vuexAuthenticationService!: IVuexAuthenticationService
 
-  async submitApiKey (key: string) : Promise<void> {
-    if (this.isValidApiKey(key)) {
-      this.vuexAuthenticationService.submitApiKey(key)
-    }
+  async validateApiKey (key: string) : Promise<boolean> {
+    return this.isValidApiKey(key) && this.vuexAuthenticationService.validateApiKey(key)
   }
 
   async loadApiKeyFromLocalStorage () : Promise<void> {

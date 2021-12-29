@@ -408,7 +408,6 @@ export default class MessagingMonitoringDashboard extends Mixins(ServiceMixin, V
     return messageList.filter((message: IMessageSmsDetails) => {
       const parsedmessageReceivedOnDate = DateAndTime.format(new Date(message.dateSent), 'MM/DD/YYYY')
       const x = DateAndTime.isSameDay(new Date(message.dateSent), onDate)
-      console.log(x)
       return x
     })
   }
@@ -597,7 +596,6 @@ export default class MessagingMonitoringDashboard extends Mixins(ServiceMixin, V
   }
 
   correctDisplayDateAndTime (date: string) : string {
-    console.log(date)
     return DateAndTime.format(new Date(date), 'MM/DD/YYYY')
   }
 }

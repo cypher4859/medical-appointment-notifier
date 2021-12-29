@@ -552,7 +552,6 @@ export default class SmsMessageSending extends Mixins(ServiceMixin, VMaskMixin) 
   }
 
   get getPopoverHelpInfoToSend () : string {
-    console.log('message templat:', this.selectedMessageTemplate)
     if (this.messageRecipients.length !== 0 && this.selectedMessageTemplate === null) {
       this.isValidToSendMessages = false
       return 'Please select a message template before sending messages'

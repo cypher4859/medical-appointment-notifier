@@ -7,7 +7,7 @@ import BaseApiService from './BaseApiService'
 
 @injectable()
 export default class ApiAuthenticationService extends BaseApiService implements IApiAuthenticationService {
-  async submitApiKey (key: string) : Promise<boolean> {
+  async validateApiKey (key: string) : Promise<boolean> {
     return Promise.resolve()
       .then(() => {
         const payload: object = {

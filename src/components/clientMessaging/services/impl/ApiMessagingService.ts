@@ -10,13 +10,17 @@ import type ISmsMessageTemplate from '../../types/ISmsMessageTemplate'
 import type IApiMessagingService from '../IApiMessagingService'
 import type IPatientService from '../IPatientService'
 import { camelCase } from 'lodash'
-import IMessageSmsPayload from '../../types/IMessageSmsPayload'
+import type IMessageSmsPayload from '../../types/IMessageSmsPayload'
 import BaseApiService from './BaseApiService'
+import type IAuthenticationService from '../IAuthenticationService'
 
 @injectable()
 export default class ApiMessagingService extends BaseApiService implements IApiMessagingService {
   @inject(TYPES.IPatientService)
   private patientService!: IPatientService
+
+  @inject(TYPES.IAuthenticationService)
+  private authenticationService!: IAuthenticationService
 
   private mapTwilioMessageProperties (message: object) : IMessageSmsDetails {
     const cleanedMessage = {} as any
@@ -108,8 +112,13 @@ export default class ApiMessagingService extends BaseApiService implements IApiM
   async sendMessagesByApi (recipients: IMessageSmsPayload[]) : Promise<void> {
     return Promise.resolve()
       .then(() => {
-        console.log('Sending message')
-        return this.api.post(`${this.smsMessageUri}/message-send-to-recipients`, recipients)
+        return this.authenticationService.getApiKey()
+          .then((key) => {
+            return this.setApiKeyHeader(key)
+          })
+          .then(() => {
+            return this.api.post(`${this.smsMessageUri}/message-send-to-recipients`, recipients)
+          })
       })
   }
 
