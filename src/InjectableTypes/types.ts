@@ -10,7 +10,11 @@ const TYPES : IRegistryTypes = {
   IApiMessagingService: Symbol('IApiMessagingService'),
   IPatientService: Symbol('IPatientService'),
   IVuexPatientService: Symbol('IVuexPatientService'),
-  IApiPatientService: Symbol('IApiPatientService')
+  IApiPatientService: Symbol('IApiPatientService'),
+  IAuthenticationService: Symbol('IAuthenticationService'),
+  IVuexAuthenticationService: Symbol('IVuexAuthenticationService'),
+  IApiAuthenticationService: Symbol('IApiAuthenticationService'),
+  IBaseApiService: Symbol('IBaseApiService')
 }
 
 export default TYPES

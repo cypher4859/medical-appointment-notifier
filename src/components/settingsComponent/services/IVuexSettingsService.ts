@@ -1,2 +1,2 @@
-export default interface IVuexChildService {
+export default interface IVuexSettingsService {
 }

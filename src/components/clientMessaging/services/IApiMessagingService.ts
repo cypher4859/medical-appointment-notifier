@@ -12,4 +12,5 @@ export default interface IApiMessagingService {
   modifyMessageTemplatesByApi (template: ISmsMessageTemplate) : Promise<void>
   deleteMessageTemplateByApi (template: ISmsMessageTemplate) : Promise<void>
   sendMessagesByApi (recipients: IMessageSmsPayload[]) : Promise<void>
+  setApiKey (key: string) : void
 }

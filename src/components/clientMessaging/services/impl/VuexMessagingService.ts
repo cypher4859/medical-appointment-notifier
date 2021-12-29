@@ -121,4 +121,8 @@ export default class VuexMessagingService extends Vue implements IVuexMessagingS
   async sendMessages (recipients: IMessageSmsPayload[]) : Promise<void> {
     return this.apiMessagingService.sendMessagesByApi(recipients)
   }
+
+  setApiKey (key: string) : void {
+    this.apiMessagingService.setApiKey(key)
+  }
 }

@@ -8,8 +8,9 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { Component } from 'vue-property-decorator'
+import { Component, Mixins } from 'vue-property-decorator'
 import PrimaryView from './components/PrimaryView.vue'
+import ServiceMixin from './mixins/service-mixin'
 
 @Component({
   name: 'app',
@@ -17,7 +18,15 @@ import PrimaryView from './components/PrimaryView.vue'
     'primary-view': PrimaryView
   }
 })
-export default class App extends Vue {
-  //
+export default class App extends Mixins(ServiceMixin) {
+  async beforeMount () {
+    Promise.resolve()
+      .then(() => {
+        return this.authenticationService.getApiKey()
+          .then((key) => {
+            return this.messagingService.setApiKey(key)
+          })
+      })
+  }
 }
 </script>

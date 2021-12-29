@@ -3,7 +3,43 @@
     <b-container>
       <b-row>
         <b-col>
-          Account. This should detail the settings for an account credentials for various integrations
+          <b-card-title>
+            Account
+          </b-card-title>
+        </b-col>
+      </b-row>
+      <b-row>
+        <b-col>
+          <b-card-sub-title>
+            Account Credentials
+          </b-card-sub-title>
+        </b-col>
+      </b-row>
+      <b-row class="mt-4">
+        <b-col>
+          <b-form>
+            <b-form-group
+              id="fieldApiKey-1"
+              description="Enter your API Key from your system administrator"
+              label="API Key"
+              valid-feedback="Thank you!"
+              :invalid-feedback="invalidFeedback"
+              :state="validationState"
+            >
+              <b-form-input
+                id="apiKeyInput-1"
+                v-model="userInputApiKey"
+                placeholder="Please enter your API key..."
+                :state="validationState"
+              />
+            </b-form-group>
+          </b-form>
+          <b-button
+            :disabled="userInputApiKey === ''"
+            @click="submitApiKey()"
+          >
+            Submit
+          </b-button>
         </b-col>
       </b-row>
     </b-container>
@@ -13,25 +49,43 @@
 <script lang="ts">
 import Vue from 'vue'
 import Component from 'vue-class-component'
-import { Watch } from 'vue-property-decorator'
+import { Mixins, Watch } from 'vue-property-decorator'
 import { cloneDeep } from 'lodash'
+import ServiceMixin from '@/mixins/service-mixin'
 
 @Component({
   name: 'SettingsAccount'
 })
-export default class SettingsAccount extends Vue {
-  private modelCopy: object = {}
-  private workingCopy: object = {}
+export default class SettingsAccount extends Mixins(ServiceMixin) {
+  private userInputApiKey: string = ''
 
-  @Watch('modelCopy', { immediate: true, deep: true })
-  onModelChange () {
-    if (this.workingCopy !== this.modelCopy) {
-      this.workingCopy = cloneDeep(this.modelCopy)
-    }
+  async beforeMount () {
+    await Promise.resolve()
+      .then(() => {
+        this.authenticationService.getApiKey()
+          .then((keyFromStore) => {
+            console.log(keyFromStore)
+            this.userInputApiKey = keyFromStore
+          })
+      })
   }
 
-  saveSettings () {
-    this.modelCopy = cloneDeep(this.workingCopy)
+  get validationState () : boolean {
+    return this.userInputApiKey !== null && this.userInputApiKey !== ''
+  }
+
+  get invalidFeedback () : string {
+    return 'Error: That API Key appears invalid'
+  }
+
+  // @Watch('userInputApiKey', { immediate: true })
+  // onUserInputApiKeyChange (newApiKey, oldApiKey) {
+  // }
+
+  private async submitApiKey () : Promise<void> {
+    if (this.validationState) {
+      return this.authenticationService.submitApiKey(this.userInputApiKey)
+    }
   }
 }
 </script>

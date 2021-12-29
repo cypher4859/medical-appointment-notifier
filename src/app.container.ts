@@ -13,6 +13,14 @@ import type IVuexMessagingService from './components/clientMessaging/services/IV
 import VuexMessagingService from './components/clientMessaging/services/impl/VuexMessagingService'
 import ApiMessagingService from './components/clientMessaging/services/impl/ApiMessagingService'
 import type IApiMessagingService from './components/clientMessaging/services/IApiMessagingService'
+import type IAuthenticationService from './components/clientMessaging/services/IAuthenticationService'
+import AuthenticationService from './components/clientMessaging/services/impl/AuthenticationService'
+import BaseApiService from './components/clientMessaging/services/impl/BaseApiService'
+import type IBaseApiService from './components/clientMessaging/services/IBaseApiService'
+import type IVuexAuthenticationService from './components/clientMessaging/services/IVuexAuthenticationService'
+import VuexAuthenticationService from './components/clientMessaging/services/impl/VuexAuthenticationService'
+import type IApiAuthenticationService from './components/clientMessaging/services/IApiAuthenticationService'
+import ApiAuthenticationService from './components/clientMessaging/services/impl/ApiAuthenticationService'
 
 export default function registerContainerServices () {
   container.options.skipBaseClassChecks = true
@@ -24,4 +32,8 @@ export default function registerContainerServices () {
   container.bind<IPatientService>(TYPES.IPatientService).to(PatientService)
   container.bind<IVuexPatientService>(TYPES.IVuexPatientService).to(VuexPatientService)
   container.bind<IApiPatientService>(TYPES.IApiPatientService).to(ApiPatientService)
+  container.bind<IAuthenticationService>(TYPES.IAuthenticationService).to(AuthenticationService)
+  container.bind<IVuexAuthenticationService>(TYPES.IVuexAuthenticationService).to(VuexAuthenticationService)
+  container.bind<IApiAuthenticationService>(TYPES.IApiAuthenticationService).to(ApiAuthenticationService)
+  container.bind<IBaseApiService>(TYPES.IBaseApiService).to(BaseApiService)
 }

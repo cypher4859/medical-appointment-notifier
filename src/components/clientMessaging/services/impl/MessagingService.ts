@@ -174,4 +174,8 @@ export default class MessagingService extends Vue implements IMessagingService {
   async deleteMessageTemplate (template: ISmsMessageTemplate) : Promise<void> {
     return this.vuexMessagingService.deleteMessageTemplate(template)
   }
+
+  setApiKey (key: string) : void {
+    return this.vuexMessagingService.setApiKey(key)
+  }
 }

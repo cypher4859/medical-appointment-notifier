@@ -11,16 +11,10 @@ import type IApiMessagingService from '../IApiMessagingService'
 import type IPatientService from '../IPatientService'
 import { camelCase } from 'lodash'
 import IMessageSmsPayload from '../../types/IMessageSmsPayload'
+import BaseApiService from './BaseApiService'
 
 @injectable()
-export default class ApiMessagingService extends Vue implements IApiMessagingService {
-  private baseUrl: string = process.env.APPOINTMENT_NOTIFIER_BASE_URL ? process.env.APPOINTMENT_NOTIFIER_BASE_URL : 'http://localhost:3000'
-  private smsMessageUri: string = '/messaging/sms'
-  private api = axios.create({
-    baseURL: this.baseUrl,
-    timeout: 15000
-  })
-
+export default class ApiMessagingService extends BaseApiService implements IApiMessagingService {
   @inject(TYPES.IPatientService)
   private patientService!: IPatientService
 
@@ -117,5 +111,9 @@ export default class ApiMessagingService extends Vue implements IApiMessagingSer
         console.log('Sending message')
         return this.api.post(`${this.smsMessageUri}/message-send-to-recipients`, recipients)
       })
+  }
+
+  setApiKey (key: string) : void {
+    this.setApiKeyHeader(key)
   }
 }
