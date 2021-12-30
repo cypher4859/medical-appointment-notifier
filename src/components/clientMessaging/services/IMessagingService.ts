@@ -25,5 +25,5 @@ export default interface IMessagingService {
   addMessageTemplate (newMessageTemplate: ISmsMessageTemplate) : Promise<void>
   deleteMessageTemplate (template: ISmsMessageTemplate) : Promise<void>
   updateMessageTemplate (newMessageTemplate: ISmsMessageTemplate) : Promise<void>
-  setApiKey (key: string) : void
+  setApiKey (key: string) : Promise<void>
 }

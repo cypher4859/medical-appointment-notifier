@@ -31,27 +31,42 @@ export default class ApiMessagingService extends BaseApiService implements IApiM
   }
 
   getAddressBookFromApi () : Promise<IClientContactWithAppointment[]> {
-    return Promise.resolve(this.patientService.getListOfPatients())
+    return Promise.resolve()
+      .then(() => {
+        return this.authenticationService.getApiKey()
+          .then((key) => {
+            return this.setApiKeyHeader(key)
+          })
+          .then(() => {
+            return this.patientService.getListOfPatients()
+          })
+      })
   }
 
   async getMessagesReceivedListFromApi () : Promise<IMessageSmsDetails[]> {
     return Promise.resolve()
       .then(() => {
-        return this.api.get(`${this.smsMessageUri}/message-received-list`)
-          .then((res) => {
-            return res.data as IMessageSmsDetails[]
+        return this.authenticationService.getApiKey()
+          .then((key) => {
+            return this.setApiKeyHeader(key)
           })
-          .then((messages) => {
-            messages.forEach((message) => {
-              message.to = message.to.replace(/\s/g, '')
-              message.from = message.to.replace(/\s/g, '')
-            })
-            return messages
-          })
-          .then((messages) => {
-            return messages.map((message) => {
-              return this.mapTwilioMessageProperties(message)
-            })
+          .then(() => {
+            return this.api.get(`${this.smsMessageUri}/message-received-list`)
+              .then((res) => {
+                return res.data as IMessageSmsDetails[]
+              })
+              .then((messages) => {
+                messages.forEach((message) => {
+                  message.to = message.to.replace(/\s/g, '')
+                  message.from = message.to.replace(/\s/g, '')
+                })
+                return messages
+              })
+              .then((messages) => {
+                return messages.map((message) => {
+                  return this.mapTwilioMessageProperties(message)
+                })
+              })
           })
       })
   }
@@ -59,9 +74,15 @@ export default class ApiMessagingService extends BaseApiService implements IApiM
   async getMessageTemplatesListFromApi () : Promise<ISmsMessageTemplate[]> {
     return Promise.resolve()
       .then(() => {
-        return this.api.get(`${this.smsMessageUri}/message-templates-list`)
-          .then((res) => {
-            return res.data as ISmsMessageTemplate[]
+        return this.authenticationService.getApiKey()
+          .then((key) => {
+            return this.setApiKeyHeader(key)
+          })
+          .then(() => {
+            return this.api.get(`${this.smsMessageUri}/message-templates-list`)
+              .then((res) => {
+                return res.data as ISmsMessageTemplate[]
+              })
           })
       })
   }
@@ -69,21 +90,27 @@ export default class ApiMessagingService extends BaseApiService implements IApiM
   async getMessagesSentListFromApi () : Promise<IMessageSmsDetails[]> {
     return Promise.resolve()
       .then(() => {
-        return this.api.get(`${this.smsMessageUri}/message-sent-list`)
-          .then((res) => {
-            return res.data as IMessageSmsDetails[]
+        return this.authenticationService.getApiKey()
+          .then((key) => {
+            return this.setApiKeyHeader(key)
           })
-          .then((messages) => {
-            messages.forEach((message) => {
-              message.to = message.to.replace(/\s/g, '')
-              message.from = message.to.replace(/\s/g, '')
-            })
-            return messages
-          })
-          .then((messages) => {
-            return messages.map((message) => {
-              return this.mapTwilioMessageProperties(message)
-            })
+          .then(() => {
+            return this.api.get(`${this.smsMessageUri}/message-sent-list`)
+              .then((res) => {
+                return res.data as IMessageSmsDetails[]
+              })
+              .then((messages) => {
+                messages.forEach((message) => {
+                  message.to = message.to.replace(/\s/g, '')
+                  message.from = message.to.replace(/\s/g, '')
+                })
+                return messages
+              })
+              .then((messages) => {
+                return messages.map((message) => {
+                  return this.mapTwilioMessageProperties(message)
+                })
+              })
           })
       })
   }
@@ -91,21 +118,39 @@ export default class ApiMessagingService extends BaseApiService implements IApiM
   async addMessageTemplatesByApi (newMessageTemplate: ISmsMessageTemplate) : Promise<void> {
     return Promise.resolve()
       .then(() => {
-        return this.api.post(`${this.smsMessageUri}/message-templates-add`, newMessageTemplate)
+        return this.authenticationService.getApiKey()
+          .then((key) => {
+            return this.setApiKeyHeader(key)
+          })
+          .then(() => {
+            return this.api.post(`${this.smsMessageUri}/message-templates-add`, newMessageTemplate)
+          })
       })
   }
 
   async modifyMessageTemplatesByApi (template: ISmsMessageTemplate) : Promise<void> {
     return Promise.resolve()
       .then(() => {
-        return this.api.put(`${this.smsMessageUri}/message-templates-modify`, template)
+        return this.authenticationService.getApiKey()
+          .then((key) => {
+            return this.setApiKeyHeader(key)
+          })
+          .then(() => {
+            return this.api.put(`${this.smsMessageUri}/message-templates-modify`, template)
+          })
       })
   }
 
   async deleteMessageTemplateByApi (template: ISmsMessageTemplate) : Promise<void> {
     return Promise.resolve()
       .then(() => {
-        return this.api.post(`${this.smsMessageUri}/message-templates-delete`, template)
+        return this.authenticationService.getApiKey()
+          .then((key) => {
+            return this.setApiKeyHeader(key)
+          })
+          .then(() => {
+            return this.api.post(`${this.smsMessageUri}/message-templates-delete`, template)
+          })
       })
   }
 
@@ -122,7 +167,7 @@ export default class ApiMessagingService extends BaseApiService implements IApiM
       })
   }
 
-  setApiKey (key: string) : void {
-    this.setApiKeyHeader(key)
+  async setApiKey (key: string) : Promise<void> {
+    return this.setApiKeyHeader(key)
   }
 }

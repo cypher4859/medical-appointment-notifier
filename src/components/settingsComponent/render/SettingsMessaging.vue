@@ -320,7 +320,9 @@ export default class SettingsMessaging extends Mixins(SettingsMixin, ServiceMixi
         .then(() => {
           return this.messagingService.updateMessageTemplate(this.messageTemplates[templateToChangeIndex])
         })
-      this.onResetChangesToMessageTemplate()
+        .then(() => {
+          return this.onResetChangesToMessageTemplate()
+        })
     }
   }
 

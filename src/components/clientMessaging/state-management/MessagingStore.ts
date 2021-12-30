@@ -38,6 +38,11 @@ export default class MessagingStore extends VuexModule {
     return template
   }
 
+  @Action({ commit: 'modifyMessageTemplateInStore' })
+  modifyMessageTemplate (newTemplate: ISmsMessageTemplate) {
+    return newTemplate
+  }
+
   @Action({ commit: 'loadAddressBookIntoStore' })
   loadAddressBook (addressBook: IClientContactWithAppointment[]) {
     return addressBook
@@ -71,6 +76,11 @@ export default class MessagingStore extends VuexModule {
   @Mutation
   addMessageTemplateToStore (messageTemplate: ISmsMessageTemplate) {
     this._messageTemplates.push(messageTemplate)
+  }
+
+  @Mutation
+  modifyMessageTemplateInStore (newMessageTemplate: ISmsMessageTemplate) {
+    (this._messageTemplates as any)[newMessageTemplate.id] = cloneDeep(newMessageTemplate)
   }
 
   @Mutation

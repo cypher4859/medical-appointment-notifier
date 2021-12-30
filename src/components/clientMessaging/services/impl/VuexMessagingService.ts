@@ -112,17 +112,23 @@ export default class VuexMessagingService extends Vue implements IVuexMessagingS
 
   async updateMessageTemplate (newMessageTemplate: ISmsMessageTemplate) : Promise<void> {
     return this.apiMessagingService.modifyMessageTemplatesByApi(newMessageTemplate)
+      .then(() => {
+        return this.loadMessageTemplates()
+      })
   }
 
   async deleteMessageTemplate (template: ISmsMessageTemplate) : Promise<void> {
     return this.apiMessagingService.deleteMessageTemplateByApi(template)
+      .then(() => {
+        return this.loadMessageTemplates()
+      })
   }
 
   async sendMessages (recipients: IMessageSmsPayload[]) : Promise<void> {
     return this.apiMessagingService.sendMessagesByApi(recipients)
   }
 
-  setApiKey (key: string) : void {
-    this.apiMessagingService.setApiKey(key)
+  async setApiKey (key: string) : Promise<void> {
+    return this.apiMessagingService.setApiKey(key)
   }
 }

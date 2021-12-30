@@ -20,7 +20,10 @@ export default class BaseApiService extends Vue implements IBaseApiService {
     })
   }
 
-  protected setApiKeyHeader (apiKey: string) : void {
-    (this.apiKeyHeader as any)[this.mapKey] = apiKey
+  protected async setApiKeyHeader (apiKey: string) : Promise<void> {
+    return Promise.resolve()
+      .then(() => {
+        (this.apiKeyHeader as any)[this.mapKey] = apiKey
+      })
   }
 }
