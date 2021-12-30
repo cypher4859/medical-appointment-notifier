@@ -11,11 +11,14 @@ export default class BaseApiService extends Vue implements IBaseApiService {
   protected authenticationUri: string = '/messaging/account/api'
   protected mapKey: string = 'medical-notifier-api-key'
   protected apiKeyHeader = {}
-  protected api = axios.create({
-    baseURL: this.baseUrl,
-    timeout: 15000,
-    headers: this.apiKeyHeader
-  })
+
+  get api () {
+    return axios.create({
+      baseURL: this.baseUrl,
+      timeout: 15000,
+      headers: this.apiKeyHeader
+    })
+  }
 
   protected setApiKeyHeader (apiKey: string) : void {
     (this.apiKeyHeader as any)[this.mapKey] = apiKey

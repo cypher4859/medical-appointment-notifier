@@ -29,7 +29,7 @@ export default class VuexAuthenticationService extends Vue implements IVuexAuthe
   async loadApiKeyFromLocalStorage () : Promise<void> {
     const key: string | null = localStorage.getItem('medical-notifier-api-key')
     if (key) {
-      this.validateApiKey(key)
+      await this.validateApiKey(key)
     }
   }
 

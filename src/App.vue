@@ -20,7 +20,7 @@ import ServiceMixin from './mixins/service-mixin'
 })
 export default class App extends Mixins(ServiceMixin) {
   async beforeMount () {
-    await Promise.resolve()
+    return Promise.resolve()
       .then(() => {
         return this.authenticationService.getApiKey()
           .then((key) => {
