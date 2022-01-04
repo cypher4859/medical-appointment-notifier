@@ -8,8 +8,6 @@ import { inject } from 'inversify'
 import TYPES from '@/InjectableTypes/types'
 import type IVuexPatientService from '../IVuexPatientService'
 
-const patientDataMockData = require('@/assets/MockPatientData.json')
-
 @injectable()
 export default class PatientService extends Vue implements IPatientService {
   // private _patientList: IClientContactWithAppointment[] = []

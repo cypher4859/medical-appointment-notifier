@@ -1,2 +1,8 @@
-# vueTsTemplate
-A template for a quick vue typescript project setup that can be used to quickly scaffold out new projects.
+## DAMAN - Delivery Automated Medical Appointment Notifier
+
+
+### Setting up twilio for customer
+1. An admin or owner must be signed in.
+2. Traverse to the subaccount page.
+3. Add a new subaccount that represents that customer
+4. 

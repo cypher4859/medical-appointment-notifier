@@ -114,7 +114,7 @@
                 </div>
                 <div>
                   <b-button
-                    :disabled="selectedRecipientRows.length === 0"
+                    :disabled="(selectedRecipientMode !== appointmentModes.BY_APPOINTMENT && selectedRecipientRows.length === 0) || (selectedRecipientMode === appointmentModes.BY_APPOINTMENT && selectedDateToLoadRecipients === '')"
                     @click="clearRecipientList()"
                   >
                     Clear Selection
@@ -129,6 +129,24 @@
                       Load Recipients
                     </span>
                   </b-button>
+                  <b-alert
+                    class="mt-3"
+                    :show="showNotificationOfLoadedSuccessfulRecipients"
+                    variant="success"
+                    @dismissed="showNotificationOfLoadedSuccessfulRecipients = 0"
+                    @dismiss-count-down="showAlertSuccessfulLoadedRecipientChange"
+                  >
+                    Recipients have been loaded for the selected date! ... {{ showNotificationOfLoadedSuccessfulRecipients }}
+                  </b-alert>
+                  <b-alert
+                    class="mt-3"
+                    :show="showNotificationOfFailedLoadedRecipients"
+                    variant="warning"
+                    @dismissed="showNotificationOfFailedLoadedRecipients = 0"
+                    @dismiss-count-down="showAlertFailedLoadedRecipientChange"
+                  >
+                    No Recipients have been loaded for the selected date! ... {{ showNotificationOfFailedLoadedRecipients }}
+                  </b-alert>
                 </div>
               </b-collapse>
             </b-card>
@@ -345,8 +363,6 @@ import ServiceMixin from '@/mixins/service-mixin'
 import VMaskMixin from '@/mixins/vmask-mixin'
 import IMessageSmsPayload from '../types/IMessageSmsPayload'
 
-const mockData = require('@/assets/MockPatientData.json')
-
 enum AppointmentModes {
   BY_APPOINTMENT='byAppointment',
   SINGLE_CONTACT='singleContact',
@@ -371,6 +387,8 @@ export default class SmsMessageSending extends Mixins(ServiceMixin, VMaskMixin) 
   private selectedRecipientRows: IClientContactWithAppointment[] = []
   private showMessagePreview: boolean = false
   private showAlertCountdown: number = 0
+  private showNotificationOfLoadedSuccessfulRecipients: number = 0
+  private showNotificationOfFailedLoadedRecipients: number = 0
   private alertDefaultCountdown: number = 5
   private showMessagePreviewOverlay: boolean = false
   private selectedMessageTemplate: string | null = null
@@ -429,8 +447,12 @@ export default class SmsMessageSending extends Mixins(ServiceMixin, VMaskMixin) 
 
   get getMessageRecipientsOnAppointmentDate () : (dateToLoadAppointments: string) => IClientContactWithAppointment[] {
     return (dateToLoadAppointments) => {
+      console.log('Address Book: ', this.addressBook)
       return this.addressBook.filter((contact: IClientContactWithAppointment) => {
-        return DateAndTime.isSameDay(DateAndTime.parse(contact.nextAppointment?.appointmentDate!, 'MM/DD/YYYY'), DateAndTime.parse(dateToLoadAppointments, 'YYYY-MM-DD'))
+        const x = DateAndTime.parse(contact.nextAppointment?.appointmentDate!, 'MM/DD/YYYY')
+        const z = DateAndTime.parse(dateToLoadAppointments, 'YYYY-MM-DD')
+        console.log('Date:', z, dateToLoadAppointments)
+        return DateAndTime.isSameDay(x, z)
       })
     }
   }
@@ -464,6 +486,12 @@ export default class SmsMessageSending extends Mixins(ServiceMixin, VMaskMixin) 
         case this.appointmentModes.BY_APPOINTMENT:
           if (this.selectedDateToLoadRecipients) {
             this.messageRecipients = this.getMessageRecipientsOnAppointmentDate(this.selectedDateToLoadRecipients)
+            if (this.messageRecipients.length) {
+              this.showNotificationOfLoadedSuccessfulRecipients = this.alertDefaultCountdown
+            } else {
+              this.showNotificationOfFailedLoadedRecipients = this.alertDefaultCountdown
+            }
+            console.log(this.messageRecipients)
           } else {
             this.messageRecipients = []
           }
@@ -529,6 +557,14 @@ export default class SmsMessageSending extends Mixins(ServiceMixin, VMaskMixin) 
 
   private showAlertChanged (showAlertCounter: number) {
     this.showAlertCountdown = showAlertCounter
+  }
+
+  private showAlertSuccessfulLoadedRecipientChange (counter: number) {
+    this.showNotificationOfLoadedSuccessfulRecipients = counter
+  }
+
+  private showAlertFailedLoadedRecipientChange (counter: number) {
+    this.showNotificationOfFailedLoadedRecipients = counter
   }
 
   get getContactSelectionHelpMessage () : string {

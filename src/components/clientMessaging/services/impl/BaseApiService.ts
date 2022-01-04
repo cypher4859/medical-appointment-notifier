@@ -15,7 +15,7 @@ export default class BaseApiService extends Vue implements IBaseApiService {
   get api () {
     return axios.create({
       baseURL: this.baseUrl,
-      timeout: 15000,
+      timeout: 1500000,
       headers: this.apiKeyHeader
     })
   }

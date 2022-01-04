@@ -33,6 +33,7 @@ export default class VuexPatientService extends Vue implements IVuexPatientServi
   async loadPatientList () : Promise<IClientContactWithAppointment[]> {
     return this.apiPatientService.getListOfPatientsFromApi()
       .then((patientsFromApi) => {
+        console.log('Patients: ', patientsFromApi)
         return patientStore.loadPatientList(patientsFromApi)
       })
   }

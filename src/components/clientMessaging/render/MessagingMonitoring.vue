@@ -211,10 +211,6 @@ import IClientContact from '../types/IClientContact'
 import ServiceMixin from '@/mixins/service-mixin'
 import VMaskMixin from '@/mixins/vmask-mixin'
 
-const mockMessagesReceived = require('@/assets/MockMessagesReceived.json') as IMessageSmsDetails[]
-const mockMessagesSent = require('@/assets/MockMessagesSent.json') as IMessageSmsDetails[]
-const mockPatientData = require('@/assets/MockPatientData.json') as IClientContact[]
-
 @Component({
   name: 'messaging-monitor-dashboard',
   components: {

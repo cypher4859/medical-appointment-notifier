@@ -53,19 +53,23 @@ export default class ApiMessagingService extends BaseApiService implements IApiM
           .then(() => {
             return this.api.get(`${this.smsMessageUri}/message-received-list`)
               .then((res) => {
+                console.log('res:', res)
                 return res.data as IMessageSmsDetails[]
               })
               .then((messages) => {
-                messages.forEach((message) => {
-                  message.to = message.to.replace(/\s/g, '')
-                  message.from = message.to.replace(/\s/g, '')
-                })
+                if (messages.length) {
+                  messages.forEach((message) => {
+                    message.to = message.to.replace(/\s/g, '')
+                    message.from = message.to.replace(/\s/g, '')
+                  })
+                }
                 return messages
               })
               .then((messages) => {
-                return messages.map((message) => {
+                console.log('Messages:', messages)
+                return messages.length ? messages.map((message) => {
                   return this.mapTwilioMessageProperties(message)
-                })
+                }) : []
               })
           })
       })
@@ -97,19 +101,22 @@ export default class ApiMessagingService extends BaseApiService implements IApiM
           .then(() => {
             return this.api.get(`${this.smsMessageUri}/message-sent-list`)
               .then((res) => {
+                console.log('res:', res)
                 return res.data as IMessageSmsDetails[]
               })
               .then((messages) => {
-                messages.forEach((message) => {
-                  message.to = message.to.replace(/\s/g, '')
-                  message.from = message.to.replace(/\s/g, '')
-                })
-                return messages
+                if (messages.length) {
+                  messages.forEach((message) => {
+                    message.to = message.to.replace(/\s/g, '')
+                    message.from = message.to.replace(/\s/g, '')
+                  })
+                  return messages
+                }
               })
               .then((messages) => {
-                return messages.map((message) => {
+                return messages?.length ? messages.map((message) => {
                   return this.mapTwilioMessageProperties(message)
-                })
+                }) : []
               })
           })
       })

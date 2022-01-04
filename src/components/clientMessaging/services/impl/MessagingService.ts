@@ -12,6 +12,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { cloneDeep } from 'lodash'
 import type IVuexMessagingService from '../IVuexMessagingService'
 import IMessageSmsPayload from '../../types/IMessageSmsPayload'
+import IAppointment from '../../types/IAppointment'
 
 enum MessagingTemplateKeywords {
   APPT_TIME='appointmentTime',
@@ -51,8 +52,8 @@ export default class MessagingService extends Vue implements IMessagingService {
       { key: 'fullName', sortable: true, label: 'Name' },
       { key: 'dateOfBirth', sortable: false, label: 'Date of Birth' },
       { key: 'phoneNumber', sortable: false, label: 'Phone Number' },
-      { key: 'appointmentTime', sortable: false, label: 'Appointment Time' },
-      { key: 'appointmentDate', sortable: false, label: 'Appointment Date' }
+      { key: 'nextAppointment.appointmentTime', sortable: false, label: 'Appointment Time' },
+      { key: 'nextAppointment.appointmentDate', sortable: false, label: 'Appointment Date' }
     ]
   }
 
@@ -110,7 +111,7 @@ export default class MessagingService extends Vue implements IMessagingService {
     this.getMessageTemplateKeywords().forEach((keyword) => {
       if (message.includes(keyword)) {
         const clientPropertyAccessor = MessagingTemplateKeywords[keyword as keyof typeof MessagingTemplateKeywords]
-        const clientProperty = recipient[clientPropertyAccessor as unknown as keyof IClientContactWithAppointment]?.toString()
+        const clientProperty = (recipient.nextAppointment as IAppointment)[clientPropertyAccessor as unknown as keyof IAppointment]?.toString()
         message = message.replaceAll(`%${keyword}%`, clientProperty as string)
       }
     })
@@ -122,7 +123,9 @@ export default class MessagingService extends Vue implements IMessagingService {
     this.getMessageTemplateKeywords().forEach((keyword) => {
       if (message.value?.includes(keyword)) {
         const clientPropertyAccessor = MessagingTemplateKeywords[keyword as keyof typeof MessagingTemplateKeywords]
-        const clientProperty = patient[clientPropertyAccessor as unknown as keyof IClientContactWithAppointment]?.toString()
+        console.log('Accessor: ', clientPropertyAccessor)
+        console.log('Next Appointment', patient.nextAppointment)
+        const clientProperty = (patient.nextAppointment as IAppointment)[clientPropertyAccessor as unknown as keyof IAppointment]?.toString()
         transformedMessage.value = transformedMessage.value?.replaceAll(`%${keyword}%`, clientProperty as string)
       }
     })
