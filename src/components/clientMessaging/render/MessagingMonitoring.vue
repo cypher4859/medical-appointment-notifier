@@ -200,7 +200,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import { ref } from '@vue/composition-api'
-import { Component, Mixins, Watch } from 'vue-property-decorator'
+import { Component, Mixins, Prop, Watch } from 'vue-property-decorator'
 import LineChart from '@/components/utilityComponents/LineChartCustom.vue'
 import DateAndTime from 'date-and-time'
 // import IMessageSms from '@/components/clientMessaging/types/IMessageSms'
@@ -218,6 +218,8 @@ import VMaskMixin from '@/mixins/vmask-mixin'
   }
 })
 export default class MessagingMonitoringDashboard extends Mixins(ServiceMixin, VMaskMixin) {
+  @Prop({ type: Boolean, default: false }) private isAuthorized!: boolean
+
   private selectedMessageRows = []
   private messagesReceivedList: IMessageSmsDetails[] = []
   private messagesSentList: IMessageSmsDetails[] = []

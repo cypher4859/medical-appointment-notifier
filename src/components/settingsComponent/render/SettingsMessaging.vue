@@ -1,182 +1,190 @@
 <template>
   <div>
     <b-container>
-      <b-row>
-        <b-col>
-          <b-card-title>
-            Messaging
-          </b-card-title>
-        </b-col>
-      </b-row>
-      <b-row>
-        <b-col>
-          <b-card-sub-title>
-            Message Templates
-          </b-card-sub-title>
-          <b-table
-            ref="messagingTemplatesTable"
-            sticky-header
-            hover
-            select-mode="single"
-            selectable
-            per-page="10"
-            current-page="1"
-            :items="messageTemplates"
-            :fields="messageTemplateFields"
-            @row-selected="onRowSelected"
-          >
-            <template
-              v-if="selectedMessageTemplate"
-              #cell(text)="row"
+      <b-overlay
+        :show="!isAuthorized"
+        rounded="sm"
+      >
+        <b-row>
+          <b-col>
+            <b-card-title>
+              Messaging
+            </b-card-title>
+          </b-col>
+        </b-row>
+        <b-row>
+          <b-col>
+            <b-card-sub-title>
+              Message Templates
+            </b-card-sub-title>
+            <b-table
+              ref="messagingTemplatesTable"
+              sticky-header
+              hover
+              select-mode="single"
+              selectable
+              per-page="10"
+              current-page="1"
+              :items="messageTemplates"
+              :fields="messageTemplateFields"
+              @row-selected="onRowSelected"
             >
-              <b-row
-                v-if="row.rowSelected"
+              <template
+                v-if="selectedMessageTemplate"
+                #cell(text)="row"
               >
-                <b-col>
-                  <b-form>
-                    <b-form-group>
-                      <b-form-input
-                        id="edit-selected-message-template-text"
-                        v-model="messageTemplateWorkingCopy.text"
-                        v-mask="messagingSettingsMask"
-                        :disabled="!selectedMessageTemplate"
-                      />
-                    </b-form-group>
-                  </b-form>
-                </b-col>
-              </b-row>
-              <div v-else>
-                {{ row.item.text }}
-              </div>
-            </template>
+                <b-row
+                  v-if="row.rowSelected"
+                >
+                  <b-col>
+                    <b-form>
+                      <b-form-group>
+                        <b-form-input
+                          id="edit-selected-message-template-text"
+                          v-model="messageTemplateWorkingCopy.text"
+                          v-mask="messagingSettingsMask"
+                          :disabled="!selectedMessageTemplate"
+                        />
+                      </b-form-group>
+                    </b-form>
+                  </b-col>
+                </b-row>
+                <div v-else>
+                  {{ row.item.text }}
+                </div>
+              </template>
 
-            <template
-              v-if="selectedMessageTemplate"
-              #cell(value)="row"
-            >
-              <b-form
-                v-if="row.rowSelected"
+              <template
+                v-if="selectedMessageTemplate"
+                #cell(value)="row"
+              >
+                <b-form
+                  v-if="row.rowSelected"
+                >
+                  <b-row>
+                    <b-col>
+                      <b-form-group>
+                        <b-form-input
+                          id="edit-selected-message-template-value"
+                          v-model="messageTemplateWorkingCopy.value"
+                          v-mask="messagingSettingsMask"
+                          :disabled="!selectedMessageTemplate"
+                        />
+                      </b-form-group>
+                    </b-col>
+                    <b-col cols="auto">
+                      <b-button
+                        class="mx-1"
+                        @click="onSubmitChangesToMessageTemplate()"
+                      >
+                        Submit
+                      </b-button>
+                      <b-button
+                        @click="onResetChangesToMessageTemplate()"
+                      >
+                        Reset
+                      </b-button>
+                      <b-button
+                        class="mx-1"
+                        variant="danger"
+                        @click="showDeleteTemplateModal()"
+                      >
+                        Delete
+                      </b-button>
+                    </b-col>
+                  </b-row>
+                </b-form>
+                <div v-else>
+                  {{ row.item.value }}
+                </div>
+              </template>
+            </b-table>
+          </b-col>
+        </b-row>
+        <b-row align-h="end">
+          <b-col>
+            <b-card>
+              <div
+                v-if="selectedMessageTemplate"
               >
                 <b-row>
                   <b-col>
-                    <b-form-group>
-                      <b-form-input
-                        id="edit-selected-message-template-value"
-                        v-model="messageTemplateWorkingCopy.value"
-                        v-mask="messagingSettingsMask"
-                        :disabled="!selectedMessageTemplate"
-                      />
-                    </b-form-group>
-                  </b-col>
-                  <b-col cols="auto">
-                    <b-button
-                      class="mx-1"
-                      @click="onSubmitChangesToMessageTemplate()"
-                    >
-                      Submit
-                    </b-button>
-                    <b-button
-                      @click="onResetChangesToMessageTemplate()"
-                    >
-                      Reset
-                    </b-button>
-                    <b-button
-                      class="mx-1"
-                      variant="danger"
-                      @click="showDeleteTemplateModal()"
-                    >
-                      Delete
-                    </b-button>
+                    <b-card-sub-title>
+                      {{ selectedMessageTemplateExample.text }}
+                    </b-card-sub-title>
                   </b-col>
                 </b-row>
-              </b-form>
-              <div v-else>
-                {{ row.item.value }}
+                <b-row align-h="center">
+                  <b-col>
+                    <b>{{ selectedMessageTemplateExample.value }}</b>
+                  </b-col>
+                </b-row>
               </div>
-            </template>
-          </b-table>
-        </b-col>
-      </b-row>
-      <b-row align-h="end">
-        <b-col>
-          <b-card>
-            <div
-              v-if="selectedMessageTemplate"
+              <div v-else>
+                <b-row>
+                  <b-col>
+                    <b>
+                      Please select a message template to view an example message
+                    </b>
+                  </b-col>
+                </b-row>
+              </div>
+            </b-card>
+          </b-col>
+          <b-col cols="auto">
+            <b-button
+              @click="addNewDefaultTemplate()"
             >
-              <b-row>
-                <b-col>
-                  <b-card-sub-title>
-                    {{ selectedMessageTemplateExample.text }}
-                  </b-card-sub-title>
-                </b-col>
-              </b-row>
-              <b-row align-h="center">
-                <b-col>
-                  <b>{{ selectedMessageTemplateExample.value }}</b>
-                </b-col>
-              </b-row>
-            </div>
-            <div v-else>
-              <b-row>
-                <b-col>
-                  <b>
-                    Please select a message template to view an example message
-                  </b>
-                </b-col>
-              </b-row>
-            </div>
-          </b-card>
-        </b-col>
-        <b-col cols="auto">
-          <b-button
-            @click="addNewDefaultTemplate()"
-          >
-            Add Template
-          </b-button>
-        </b-col>
-        <b-col cols="auto">
-          <b-button
-            id="popover-help-message-template-settings-list-keywords"
-          >
-            Keywords
-          </b-button>
-        </b-col>
-        <b-col cols="auto">
-          <b-button
-            @click="openKeywordHelpModal()"
-          >
-            More Info
-          </b-button>
-        </b-col>
-      </b-row>
-      <b-popover
-        target="popover-help-message-template-settings-list-keywords"
-        triggers="click"
-        placement="righttop"
-      >
-        <template #title>
-          Message Template Keywords
-        </template>
-        <b-row>
-          <b-col>
-            <b-alert
-              show
-              variant="info"
+              Add Template
+            </b-button>
+          </b-col>
+          <b-col cols="auto">
+            <b-button
+              id="popover-help-message-template-settings-list-keywords"
             >
-              <span>The following a list of special keywords to use in the message template. When using a template containing keywords to send messages the keyword will be replaced by it's corresponding value in the final message to be sent.</span>
-              <br>
-              <ul>
-                <li
-                  v-for="(keyword, index) in messageTemplateKeywords"
-                  :key="index"
-                >
-                  %{{ keyword }}%
-                </li>
-              </ul>
-            </b-alert>
+              Keywords
+            </b-button>
+          </b-col>
+          <b-col cols="auto">
+            <b-button
+              @click="openKeywordHelpModal()"
+            >
+              More Info
+            </b-button>
           </b-col>
         </b-row>
-      </b-popover>
+        <b-popover
+          target="popover-help-message-template-settings-list-keywords"
+          triggers="click"
+          placement="righttop"
+        >
+          <template #title>
+            Message Template Keywords
+          </template>
+          <b-row>
+            <b-col>
+              <b-alert
+                show
+                variant="info"
+              >
+                <span>The following a list of special keywords to use in the message template. When using a template containing keywords to send messages the keyword will be replaced by it's corresponding value in the final message to be sent.</span>
+                <br>
+                <ul>
+                  <li
+                    v-for="(keyword, index) in messageTemplateKeywords"
+                    :key="index"
+                  >
+                    %{{ keyword }}%
+                  </li>
+                </ul>
+              </b-alert>
+            </b-col>
+          </b-row>
+        </b-popover>
+        <template #overlay>
+          No Api Key has been added
+        </template>
+      </b-overlay>
     </b-container>
     <b-modal
       v-if="selectedMessageTemplate"
@@ -259,6 +267,7 @@ import IClientContactWithAppointment from '@/components/clientMessaging/types/IC
   name: 'SettingsMessaging'
 })
 export default class SettingsMessaging extends Mixins(SettingsMixin, ServiceMixin, VMaskMixin) {
+  private isAuthorized: boolean = false
   private messageTemplates: ISmsMessageTemplate[] = []
   private selectedMessageTemplate: ISmsMessageTemplate | null = null
   private messageTemplateWorkingCopy: ISmsMessageTemplate | null = null
@@ -273,8 +282,30 @@ export default class SettingsMessaging extends Mixins(SettingsMixin, ServiceMixi
     }
   }
 
+  async getIsAuthorized () : Promise<boolean> {
+    return this.authenticationService.getApiKey()
+      .then((apiKey) => {
+        if (apiKey) {
+          console.log('API Key: ', apiKey)
+          return this.authenticationService.validateAndSetApiKey(apiKey)
+            .then((status) => {
+              console.log('Status: ', status)
+              return status
+            })
+        } else {
+          return false
+        }
+      })
+  }
+
   async beforeMount () {
     return Promise.resolve()
+      .then(() => {
+        return this.getIsAuthorized()
+      })
+      .then((isAuthorized) => {
+        this.isAuthorized = isAuthorized
+      })
       .then(() => {
         return this.messagingService.getMessageTemplates()
           .then((templates) => {

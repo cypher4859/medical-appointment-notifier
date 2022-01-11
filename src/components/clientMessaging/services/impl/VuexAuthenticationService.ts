@@ -17,12 +17,13 @@ export default class VuexAuthenticationService extends Vue implements IVuexAuthe
 
   async validateApiKey (key: string) : Promise<boolean> {
     return this.apiAuthenticationService.validateApiKey(key)
-      .then((isValidKey) => {
-        if (isValidKey) {
-          settingsStore.loadApiKey(key)
-          localStorage.setItem('medical-notifier-api-key', key)
-        }
-        return isValidKey
+  }
+
+  async setValidApiKey (key: string) : Promise<void> {
+    return Promise.resolve()
+      .then(() => {
+        settingsStore.loadApiKey(key)
+        localStorage.setItem('medical-notifier-api-key', key)
       })
   }
 
@@ -30,6 +31,11 @@ export default class VuexAuthenticationService extends Vue implements IVuexAuthe
     const key: string | null = localStorage.getItem('medical-notifier-api-key')
     if (key) {
       await this.validateApiKey(key)
+        .then((status) => {
+          if (status) {
+            this.setValidApiKey(key)
+          }
+        })
     }
   }
 

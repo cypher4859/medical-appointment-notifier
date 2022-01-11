@@ -181,4 +181,8 @@ export default class MessagingService extends Vue implements IMessagingService {
   async setApiKey (key: string) : Promise<void> {
     return this.vuexMessagingService.setApiKey(key)
   }
+
+  async clearStore (): Promise<void> {
+    return this.vuexMessagingService.clearStore()
+  }
 }

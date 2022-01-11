@@ -306,6 +306,7 @@
       hide-header-close
       title="Message Preview"
       hide-footer
+      size="lg"
     >
       <b-overlay
         :show="showMessagePreviewOverlay"
@@ -354,7 +355,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Mixins, Watch } from 'vue-property-decorator'
+import { Component, Mixins, Prop, Watch } from 'vue-property-decorator'
 import DateAndTime from 'date-and-time'
 import ISmsMessageTemplate from '@/components/clientMessaging/types/ISmsMessageTemplate'
 import IClientContactWithAppointment from '@/components/clientMessaging/types/IClientContactWithAppointment'
@@ -376,6 +377,8 @@ enum AppointmentModes {
   }
 })
 export default class SmsMessageSending extends Mixins(ServiceMixin, VMaskMixin) {
+  @Prop({ type: Boolean, default: false }) private isAuthorized!: boolean
+
   private appointmentModes = AppointmentModes
   private recipientModes: object[] = []
   private addressBookTableHeaders: object[] = []
@@ -401,7 +404,7 @@ export default class SmsMessageSending extends Mixins(ServiceMixin, VMaskMixin) 
   private isValidToSendMessages: boolean = false
   private examplePatient: IClientContactWithAppointment = {} as IClientContactWithAppointment
 
-  async beforeMount () {
+  async created () {
     return Promise.resolve()
       .then(() => {
         return this.messagingService.getMessageTemplates()
@@ -432,6 +435,9 @@ export default class SmsMessageSending extends Mixins(ServiceMixin, VMaskMixin) 
           .then(() => {
             this.addressBookTableHeaders = this.messagingService.getAddressBookTableHeaders()
           })
+      })
+      .catch((e) => {
+        throw new Error(e)
       })
   }
 

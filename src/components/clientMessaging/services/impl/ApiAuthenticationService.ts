@@ -10,10 +10,10 @@ export default class ApiAuthenticationService extends BaseApiService implements 
   async validateApiKey (key: string) : Promise<boolean> {
     return Promise.resolve()
       .then(() => {
-        const payload: object = {
-          'key': key
-        }
-        return this.api.post(`${this.authenticationUri}/validate-api-key`, payload)
+        return this.setApiKeyHeader(key)
+      })
+      .then(() => {
+        return this.api.post(`${this.authenticationUri}/validate-api-key`)
       })
       .then((result) => {
         return result.data as boolean

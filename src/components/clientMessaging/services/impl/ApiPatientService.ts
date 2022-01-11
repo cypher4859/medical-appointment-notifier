@@ -6,33 +6,44 @@ import type IApiPatientService from '@/components/clientMessaging/services/IApiP
 import { map } from 'lodash'
 import AppointmentStatus from '../AppointmentStatus'
 import axios from 'axios'
-
-const patientDataMockData = require('@/assets/MockPatientData.json')
+import PatientDatabaseEnvironments from '../PatientDatabaseEnvironments'
+import { inject } from 'inversify'
+import TYPES from '@/InjectableTypes/types'
+import type IPatientDatabaseOdbcService from '../IPatientDatabaseOdbcService'
+import type IPatientDatabaseJconnService from '../IPatientDatabaseJconnService'
 
 @injectable()
 export default class ApiPatientService extends Vue implements IApiPatientService {
-  private baseUrl: string = ' https://my.api.mockaroo.com/'
-  private patientUri: string = 'mock-patient-data.json'
-  private apiHeaders: any = { 'X-API-Key': 'cf7bbbd0' }
+  @inject(TYPES.IPatientDatabaseOdbcService)
+  private patientDatabaseOdbcService!: IPatientDatabaseOdbcService
 
-  private api = axios.create({
-    baseURL: this.baseUrl,
-    timeout: 13000,
-    headers: this.apiHeaders
-  })
+  @inject(TYPES.IPatientDatabaseJconnService)
+  private patientDatabaseJconnService!: IPatientDatabaseJconnService
+
+  private environment: string = ''
 
   async getListOfPatientsFromApi () : Promise<IClientContactWithAppointment[]> {
     return Promise.resolve()
       .then(() => {
-        return this.api.get(this.patientUri, this.apiHeaders)
-          .then((res) => {
-            return res.data as IClientContactWithAppointment[]
-          })
+        return this.getDatabaseEnvironmentService()
       })
-      // .then((patientData) => {
-      //   // preprocess patient data
-      //   return this.mapPropertiesToPatientData(patientData)
-      // })
+      .then((patientDatabaseService: IPatientDatabaseJconnService|IPatientDatabaseOdbcService|undefined) => {
+        if (patientDatabaseService) {
+          return patientDatabaseService.getListOfPatients()
+        } else {
+          return []
+        }
+      })
+  }
+
+  private getDatabaseEnvironmentService () : IPatientDatabaseOdbcService|IPatientDatabaseJconnService|undefined {
+    if (this.environment === PatientDatabaseEnvironments.ADVANTAGE_ODBC) {
+      return this.patientDatabaseOdbcService
+    } else if (this.environment === PatientDatabaseEnvironments.ADVANTAGE_JCONN) {
+      return this.patientDatabaseJconnService
+    } else {
+      return undefined
+    }
   }
 
   private async mapPropertiesToPatientData (patientData: any[]) : Promise<IClientContactWithAppointment[]> {

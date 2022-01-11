@@ -36,9 +36,37 @@
           </b-form>
           <b-button
             :disabled="userInputApiKey === ''"
-            @click="validateApiKey()"
+            @click="validateAndSetApiKey()"
           >
             Submit
+          </b-button>
+          <b-button
+            class="mx-3"
+            :disabled="userInputApiKey === ''"
+            @click="clearApiKey()"
+          >
+            Clear
+          </b-button>
+          <b-alert
+            class="mt-3"
+            :show="showNotificationOfValidApiKey"
+            variant="success"
+            @dismissed="showNotificationOfValidApiKey = 0"
+            @dismiss-count-down="showNotificationCountdownChange"
+          >
+            API Key successfully set ... {{ showNotificationOfValidApiKey }}
+          </b-alert>
+        </b-col>
+      </b-row>
+      <b-row>
+        <b-col>
+          <b-button
+            class="mt-3"
+            variant="danger"
+            :disabled="userInputApiKey === ''"
+            @click="resetApiKey()"
+          >
+            Reset API Key
           </b-button>
         </b-col>
       </b-row>
@@ -59,6 +87,7 @@ import ServiceMixin from '@/mixins/service-mixin'
 export default class SettingsAccount extends Mixins(ServiceMixin) {
   private userInputApiKey: string = ''
   private apiValidationState: boolean = false
+  private showNotificationOfValidApiKey: number = 0
 
   async beforeMount () {
     await Promise.resolve()
@@ -86,15 +115,42 @@ export default class SettingsAccount extends Mixins(ServiceMixin) {
   // onUserInputApiKeyChange (newApiKey, oldApiKey) {
   // }
 
-  private async validateApiKey () : Promise<void> {
+  private async validateAndSetApiKey () : Promise<void> {
     if (this.validationState) {
-      return this.authenticationService.validateApiKey(this.userInputApiKey)
+      console.log('Doing key validation')
+      return this.authenticationService.validateAndSetApiKey(this.userInputApiKey)
         .then((state) => {
-          if (this.userInputApiKey) {
-            this.apiValidationState = state
+          this.apiValidationState = state
+          return state
+        })
+        .then((state) => {
+          if (state) {
+            this.showNotificationOfValidApiKey = 5
           }
         })
     }
+  }
+
+  private clearApiKey () : void {
+    this.userInputApiKey = ''
+  }
+
+  private async resetApiKey () : Promise<void> {
+    // clear the vuex store of messages, templates, everything
+    return Promise.resolve()
+      .then(() => {
+        return this.clearApiKey()
+      })
+      .then(() => {
+        return this.authenticationService.setApiKey('')
+      })
+      .then(() => {
+        return this.messagingService.clearStore()
+      })
+  }
+
+  private showNotificationCountdownChange (countdown: number) {
+    this.showNotificationOfValidApiKey = countdown
   }
 }
 </script>

@@ -10,8 +10,22 @@ export default class AuthenticationService extends Vue implements IAuthenticatio
   @inject(TYPES.IVuexAuthenticationService)
   private vuexAuthenticationService!: IVuexAuthenticationService
 
+  async validateAndSetApiKey (key: string) : Promise<boolean> {
+    return this.validateApiKey(key)
+      .then((status) => {
+        if (status) {
+          this.setApiKey(key)
+        }
+        return status
+      })
+  }
+
+  async setApiKey (key: string) : Promise<void> {
+    return this.vuexAuthenticationService.setValidApiKey(key)
+  }
+
   async validateApiKey (key: string) : Promise<boolean> {
-    return this.isValidApiKey(key) && this.vuexAuthenticationService.validateApiKey(key)
+    return this.vuexAuthenticationService.validateApiKey(key)
   }
 
   async loadApiKeyFromLocalStorage () : Promise<void> {
@@ -20,9 +34,5 @@ export default class AuthenticationService extends Vue implements IAuthenticatio
 
   async getApiKey () : Promise<string> {
     return this.vuexAuthenticationService.getApiKey()
-  }
-
-  private isValidApiKey (key: string) : boolean {
-    return true
   }
 }

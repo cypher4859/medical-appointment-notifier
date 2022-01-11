@@ -21,6 +21,10 @@ import type IVuexAuthenticationService from './components/clientMessaging/servic
 import VuexAuthenticationService from './components/clientMessaging/services/impl/VuexAuthenticationService'
 import type IApiAuthenticationService from './components/clientMessaging/services/IApiAuthenticationService'
 import ApiAuthenticationService from './components/clientMessaging/services/impl/ApiAuthenticationService'
+import IPatientDatabaseOdbcService from './components/clientMessaging/services/IPatientDatabaseOdbcService'
+import PatientDatabaseOdbcService from './components/clientMessaging/services/impl/PatientDatabaseOdbcService'
+import IPatientDatabaseJconnService from './components/clientMessaging/services/IPatientDatabaseJconnService'
+import PatientDatabaseJconnService from './components/clientMessaging/services/impl/PatientDatabaseJconnService'
 
 export default function registerContainerServices () {
   container.options.skipBaseClassChecks = true
@@ -36,4 +40,6 @@ export default function registerContainerServices () {
   container.bind<IVuexAuthenticationService>(TYPES.IVuexAuthenticationService).to(VuexAuthenticationService)
   container.bind<IApiAuthenticationService>(TYPES.IApiAuthenticationService).to(ApiAuthenticationService)
   container.bind<IBaseApiService>(TYPES.IBaseApiService).to(BaseApiService)
+  container.bind<IPatientDatabaseOdbcService>(TYPES.IPatientDatabaseOdbcService).to(PatientDatabaseOdbcService)
+  container.bind<IPatientDatabaseJconnService>(TYPES.IPatientDatabaseJconnService).to(PatientDatabaseJconnService)
 }

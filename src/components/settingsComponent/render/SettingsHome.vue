@@ -61,8 +61,10 @@
 </template>
 
 <script lang="ts">
+import ServiceMixin from '@/mixins/service-mixin'
 import Vue from 'vue'
 import Component from 'vue-class-component'
+import { Mixins } from 'vue-property-decorator'
 import SettingsAccount from './SettingsAccount.vue'
 import SettingsDataSources from './SettingsDataSources.vue'
 import SettingsMessaging from './SettingsMessaging.vue'
@@ -81,7 +83,7 @@ enum SettingsSections {
     'data-source-settings': SettingsDataSources
   }
 })
-export default class SettingsHomeCard extends Vue {
+export default class SettingsHomeCard extends Mixins(ServiceMixin) {
   private settingsSections = SettingsSections
   private currentlySelectedSettings: SettingsSections = this.settingsSections.MESSAGING
 

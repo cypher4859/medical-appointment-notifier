@@ -68,9 +68,17 @@ export default class MessagingStore extends VuexModule {
     return messagesTemplateKeywords
   }
 
-  @Action({ commit: 'clearPatientListInStore' })
-  clearPatientList () {
+  @Action({ commit: 'clearMessagesInStore' })
+  clearStore () {
     return undefined
+  }
+
+  @Mutation
+  clearMessagesInStore () {
+    this._messagesReceived = []
+    this._addressBook = []
+    this._messagesSent = []
+    this._messageTemplates = []
   }
 
   @Mutation

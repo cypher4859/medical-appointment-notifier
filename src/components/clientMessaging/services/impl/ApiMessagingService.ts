@@ -80,7 +80,9 @@ export default class ApiMessagingService extends BaseApiService implements IApiM
       .then(() => {
         return this.authenticationService.getApiKey()
           .then((key) => {
-            return this.setApiKeyHeader(key)
+            if (key) {
+              return this.setApiKeyHeader(key)
+            }
           })
           .then(() => {
             return this.api.get(`${this.smsMessageUri}/message-templates-list`)

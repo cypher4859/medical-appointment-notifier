@@ -17,4 +17,5 @@ export default interface IVuexMessagingService {
   deleteMessageTemplate (template: ISmsMessageTemplate) : Promise<void>
   sendMessages (recipients: IMessageSmsPayload[]) : Promise<void>
   setApiKey (key: string) : Promise<void>
+  clearStore () : Promise<void>
 }
