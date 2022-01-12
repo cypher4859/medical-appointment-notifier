@@ -134,7 +134,7 @@
                 <b-row align-h="end">
                   <b-col
                     cols="4"
-                    class="d-flex"
+                    class="d-flex mb-2"
                   >
                     <h5
                       class="align-center mx-3 pt-2"
