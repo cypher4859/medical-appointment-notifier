@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-container>
+    <b-container fluid>
       <b-overlay
         :show="!isAuthorized"
         rounded="sm"
