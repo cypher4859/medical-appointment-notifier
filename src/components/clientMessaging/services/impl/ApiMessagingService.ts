@@ -52,11 +52,11 @@ export default class ApiMessagingService extends BaseApiService implements IApiM
           })
           .then(() => {
             return this.api.get(`${this.smsMessageUri}/message-received-list`)
-              .then((res) => {
+              .then((res: any) => {
                 console.log('res:', res)
                 return res.data as IMessageSmsDetails[]
               })
-              .then((messages) => {
+              .then((messages: IMessageSmsDetails[]) => {
                 if (messages.length) {
                   messages.forEach((message) => {
                     message.to = message.to.replace(/\s/g, '')
