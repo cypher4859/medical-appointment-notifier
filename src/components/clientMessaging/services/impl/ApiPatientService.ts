@@ -20,7 +20,8 @@ export default class ApiPatientService extends Vue implements IApiPatientService
   @inject(TYPES.IPatientDatabaseJconnService)
   private patientDatabaseJconnService!: IPatientDatabaseJconnService
 
-  private environment: string = ''
+  // This needs to be setup before use
+  private environment: string = PatientDatabaseEnvironments.ADVANTAGE_ODBC
 
   async getListOfPatientsFromApi () : Promise<IClientContactWithAppointment[]> {
     return Promise.resolve()
@@ -29,8 +30,10 @@ export default class ApiPatientService extends Vue implements IApiPatientService
       })
       .then((patientDatabaseService: IPatientDatabaseJconnService|IPatientDatabaseOdbcService|undefined) => {
         if (patientDatabaseService) {
+          console.log('Service: ', patientDatabaseService)
           return patientDatabaseService.getListOfPatients()
         } else {
+          console.log('No patients loaded')
           return []
         }
       })
