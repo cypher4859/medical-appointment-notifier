@@ -3,8 +3,10 @@ import 'reflect-metadata'
 import { Vue } from 'vue-property-decorator'
 import type IClientContactWithAppointment from '../../types/IClientContactWithAppointment'
 import type IPatientDatabaseOdbcService from '../IPatientDatabaseOdbcService'
-// import oledb from 'oledb-electron'
 import axios from 'axios'
+// import adt from 'node_adt'
+// import oledb from 'oledb-electron'
+import odbc from 'odbc'
 
 @injectable()
 export default class PatientDatabaseOdbcService extends Vue implements IPatientDatabaseOdbcService {
@@ -18,17 +20,28 @@ export default class PatientDatabaseOdbcService extends Vue implements IPatientD
     headers: this.apiHeaders
   })
 
-  // private dbInstance = oledb.oledbConnection(this.getConnectionString)
-  private dbInstance = ''
+  // private dbInstance = odbc.connect(this.getConnectionString)
+  // private dbInstance = ''
 
   private get getConnectionString () {
-    return ''
+    // the oledb connection string = return 'Driver=SQLOLEDB;Network Library=DBMSSOCN;Data Source=127.0.0.1,3306;Initial Catalog=patientListDatabase;User id=root;Password=root'
+    // return 'DRIVER={MariaDB ODBC 3.1};TCPIP=1;SERVER=localhost;USER=root;PASSWORD=root;DATABASE=patientListDatabase;PORT=3306'
+    return 'DSN=test-mariadb-odbc'
   }
 
   async getListOfPatients () : Promise<IClientContactWithAppointment[]> {
+    this.testGetListOfPatients()
     return this.api.get(`${this.patientUri}`)
       .then((res) => {
         return res.data as IClientContactWithAppointment[]
       })
+  }
+
+  private async testGetListOfPatients () : Promise<any> {
+    console.log('Initializing', this.getConnectionString)
+    const dbInstance = await odbc.connect(this.getConnectionString)
+    console.log(dbInstance)
+    const x = await dbInstance.query('SELECT * FROM PATIENTLIST')
+    console.log('Results:', x)
   }
 }

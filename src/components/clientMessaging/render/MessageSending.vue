@@ -453,11 +453,9 @@ export default class SmsMessageSending extends Mixins(ServiceMixin, VMaskMixin) 
 
   get getMessageRecipientsOnAppointmentDate () : (dateToLoadAppointments: string) => IClientContactWithAppointment[] {
     return (dateToLoadAppointments) => {
-      console.log('Address Book: ', this.addressBook)
       return this.addressBook.filter((contact: IClientContactWithAppointment) => {
         const x = DateAndTime.parse(contact.nextAppointment?.appointmentDate!, 'MM/DD/YYYY')
         const z = DateAndTime.parse(dateToLoadAppointments, 'YYYY-MM-DD')
-        console.log('Date:', z, dateToLoadAppointments)
         return DateAndTime.isSameDay(x, z)
       })
     }
@@ -497,7 +495,6 @@ export default class SmsMessageSending extends Mixins(ServiceMixin, VMaskMixin) 
             } else {
               this.showNotificationOfFailedLoadedRecipients = this.alertDefaultCountdown
             }
-            console.log(this.messageRecipients)
           } else {
             this.messageRecipients = []
           }

@@ -286,10 +286,8 @@ export default class SettingsMessaging extends Mixins(SettingsMixin, ServiceMixi
     return this.authenticationService.getApiKey()
       .then((apiKey) => {
         if (apiKey) {
-          console.log('API Key: ', apiKey)
           return this.authenticationService.validateAndSetApiKey(apiKey)
             .then((status) => {
-              console.log('Status: ', status)
               return status
             })
         } else {

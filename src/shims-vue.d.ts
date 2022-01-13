@@ -6,3 +6,7 @@ declare module '*.vue' {
 declare module 'sybase';
 
 declare module 'oledb-electron';
+
+declare module 'oledb';
+
+declare module 'node_adt';

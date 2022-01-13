@@ -53,7 +53,6 @@ export default class ApiMessagingService extends BaseApiService implements IApiM
           .then(() => {
             return this.api.get(`${this.smsMessageUri}/message-received-list`)
               .then((res: any) => {
-                console.log('res:', res)
                 return res.data as IMessageSmsDetails[]
               })
               .then((messages: IMessageSmsDetails[]) => {
@@ -66,7 +65,6 @@ export default class ApiMessagingService extends BaseApiService implements IApiM
                 return messages
               })
               .then((messages) => {
-                console.log('Messages:', messages)
                 return messages.length ? messages.map((message) => {
                   return this.mapTwilioMessageProperties(message)
                 }) : []
@@ -103,7 +101,6 @@ export default class ApiMessagingService extends BaseApiService implements IApiM
           .then(() => {
             return this.api.get(`${this.smsMessageUri}/message-sent-list`)
               .then((res) => {
-                console.log('res:', res)
                 return res.data as IMessageSmsDetails[]
               })
               .then((messages) => {

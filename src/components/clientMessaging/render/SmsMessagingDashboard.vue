@@ -61,10 +61,8 @@ export default class SmsMessagingDashboard extends Mixins(ServiceMixin) {
     return this.authenticationService.getApiKey()
       .then((apiKey) => {
         if (apiKey) {
-          console.log('API Key: ', apiKey)
           return this.authenticationService.validateAndSetApiKey(apiKey)
             .then((status) => {
-              console.log('Status: ', status)
               return status
             })
         } else {

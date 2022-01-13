@@ -30,10 +30,8 @@ export default class ApiPatientService extends Vue implements IApiPatientService
       })
       .then((patientDatabaseService: IPatientDatabaseJconnService|IPatientDatabaseOdbcService|undefined) => {
         if (patientDatabaseService) {
-          console.log('Service: ', patientDatabaseService)
           return patientDatabaseService.getListOfPatients()
         } else {
-          console.log('No patients loaded')
           return []
         }
       })

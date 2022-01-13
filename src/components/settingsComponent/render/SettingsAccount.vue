@@ -117,7 +117,6 @@ export default class SettingsAccount extends Mixins(ServiceMixin) {
 
   private async validateAndSetApiKey () : Promise<void> {
     if (this.validationState) {
-      console.log('Doing key validation')
       return this.authenticationService.validateAndSetApiKey(this.userInputApiKey)
         .then((state) => {
           this.apiValidationState = state

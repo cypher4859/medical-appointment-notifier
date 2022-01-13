@@ -1,5 +1,5 @@
 import IClientContactWithAppointment from '../types/IClientContactWithAppointment'
 
 export default interface IPatientDatabaseService {
-  getListOfPatients() : Promise<IClientContactWithAppointment[]>
+  getListOfPatients() : Promise<any[]>
 }

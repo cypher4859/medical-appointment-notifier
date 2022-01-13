@@ -123,8 +123,6 @@ export default class MessagingService extends Vue implements IMessagingService {
     this.getMessageTemplateKeywords().forEach((keyword) => {
       if (message.value?.includes(keyword)) {
         const clientPropertyAccessor = MessagingTemplateKeywords[keyword as keyof typeof MessagingTemplateKeywords]
-        console.log('Accessor: ', clientPropertyAccessor)
-        console.log('Next Appointment', patient.nextAppointment)
         const clientProperty = (patient.nextAppointment as IAppointment)[clientPropertyAccessor as unknown as keyof IAppointment]?.toString()
         transformedMessage.value = transformedMessage.value?.replaceAll(`%${keyword}%`, clientProperty as string)
       }

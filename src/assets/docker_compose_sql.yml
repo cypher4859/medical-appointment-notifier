@@ -1,0 +1,7 @@
+---
+version: "3.9"
+services:
+  medical-database:
+    image: medical-appointment-notifier-patient-database-dev:latest
+    ports:
+      - 3306:3306
