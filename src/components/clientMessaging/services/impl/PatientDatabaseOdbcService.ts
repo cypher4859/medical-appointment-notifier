@@ -30,18 +30,17 @@ export default class PatientDatabaseOdbcService extends Vue implements IPatientD
   }
 
   async getListOfPatients () : Promise<IClientContactWithAppointment[]> {
-    this.testGetListOfPatients()
-    return this.api.get(`${this.patientUri}`)
-      .then((res) => {
-        return res.data as IClientContactWithAppointment[]
-      })
+    return this.testGetListOfPatients()
+    // return this.api.get(`${this.patientUri}`)
+    //   .then((res) => {
+    //     return res.data as IClientContactWithAppointment[]
+    //   })
   }
 
   private async testGetListOfPatients () : Promise<any> {
-    console.log('Initializing', this.getConnectionString)
     const dbInstance = await odbc.connect(this.getConnectionString)
-    console.log(dbInstance)
     const x = await dbInstance.query('SELECT * FROM PATIENTLIST')
     console.log('Results:', x)
+    return x
   }
 }
