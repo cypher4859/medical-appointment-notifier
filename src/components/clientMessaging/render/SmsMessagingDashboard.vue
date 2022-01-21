@@ -5,7 +5,6 @@
         :show="!isAuthorized"
         rounded="sm"
       >
-        {{ isAuthorized }}
         <div>
           <b-row class="mb-5">
             <b-col>

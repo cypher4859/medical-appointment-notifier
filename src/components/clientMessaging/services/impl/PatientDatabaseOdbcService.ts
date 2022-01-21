@@ -65,30 +65,33 @@ export default class PatientDatabaseOdbcService extends Vue implements IPatientD
       })
       .then((patients: IPatientBasicInfo[]) => {
         // beginning of fix the appointments to the patients
-        const patientcodes = appointments.map((appt) => {
-          return appt.patient
+        const patientcodes = appointments.map((appt: any) => {
+          return appt['PATIENT']
         })
 
-        patients.forEach((patient, index) => {
+        patients.forEach((patient: any, index) => {
           if (patientcodes[index]) {
-            patient.client = patientcodes[index] as string
-            patient.code = patient.client
+            patient['CLIENT'] = patientcodes[index] as string
+            patient['CODE'] = patient['CLIENT']
           }
         })
         // end the fix here
 
-        return appointments.map((appointment) => {
+        const z = appointments.map((appointment) => {
           const mappedPatient = {} as IPatient
           this.mapAppointment(mappedPatient, appointment)
-          // console.log('The patients: ', patients)
           const patientBasicInfo = patients.find((patient: any) => {
             return mappedPatient.patient !== null && mappedPatient.patient === patient['CLIENT']
           })
           if (patientBasicInfo) {
             this.mapBasicInfo(mappedPatient, patientBasicInfo)
+          } else {
+            console.error('Could not find patient basic info')
           }
           return mappedPatient
-        })
+        }) as IPatient[]
+        console.log('OUTPUT: ', z)
+        return z
       })
   }
 

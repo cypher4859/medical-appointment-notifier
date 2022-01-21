@@ -63,6 +63,7 @@ export default class ApiPatientService extends Vue implements IApiPatientService
     return Promise.resolve()
       .then(() => {
         return patientData.map((patient) => {
+          // console.log('Patient in particular: ', patient)
           return {
             id: uuidv4(),
             fullName: patient.fullname,
