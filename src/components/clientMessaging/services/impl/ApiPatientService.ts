@@ -11,6 +11,9 @@ import { inject } from 'inversify'
 import TYPES from '@/InjectableTypes/types'
 import type IPatientDatabaseOdbcService from '../IPatientDatabaseOdbcService'
 import type IPatientDatabaseJconnService from '../IPatientDatabaseJconnService'
+import IPatient from '../../types/IPatient'
+import { v4 as uuidv4, v4 } from 'uuid'
+import IPatientBasicInfo from '../../types/IPatientBasicInfo'
 
 @injectable()
 export default class ApiPatientService extends Vue implements IApiPatientService {
@@ -32,7 +35,16 @@ export default class ApiPatientService extends Vue implements IApiPatientService
         if (patientDatabaseService) {
           return patientDatabaseService.getListOfPatients()
         } else {
+          console.error('Error! The configured patient database API Service does not exist!')
           return []
+        }
+      })
+      .then((listOfPatients: IPatient[]) => {
+        if (listOfPatients.length) {
+          return this.mapPatientToClientProperties(listOfPatients)
+        } else {
+          console.error('No patients have been loaded into the application. Please confirm that this application can communicate with the patient database API Service')
+          return [] as IClientContactWithAppointment[]
         }
       })
   }
@@ -47,25 +59,25 @@ export default class ApiPatientService extends Vue implements IApiPatientService
     }
   }
 
-  private async mapPropertiesToPatientData (patientData: any[]) : Promise<IClientContactWithAppointment[]> {
+  private async mapPatientToClientProperties (patientData: IPatient[]) : Promise<IClientContactWithAppointment[]> {
     return Promise.resolve()
       .then(() => {
         return patientData.map((patient) => {
           return {
-            id: patient.id,
-            fullName: patient.fullName,
-            firstName: patient.firstName,
-            lastName: patient.lastName,
+            id: uuidv4(),
+            fullName: patient.fullname,
+            firstName: patient.firstname,
+            lastName: patient.lastname,
             email: patient.email,
-            dateOfBirth: patient.dateOfBirth,
-            mailingAddress: patient.mailingAddress,
-            phoneNumber: patient.phoneNumber,
+            dateOfBirth: patient.birthdate,
+            mailingAddress: patient.address1,
+            phoneNumber: patient.phoneCell,
             appointmentList: [],
             nextAppointment: {
-              appointmentDate: patient.appointmentDate ? patient.appointmentDate : '',
-              appointmentTime: patient.appointmentTime ? patient.appointmentTime : '',
+              appointmentDate: patient.date ? patient.date : '',
+              appointmentTime: patient.time ? patient.time : '',
               appointmentStatusResponse: AppointmentStatus.UNKNOWN,
-              _patientId: ''
+              _patientId: patient.code
             }
           } as IClientContactWithAppointment
         })
@@ -79,4 +91,37 @@ export default class ApiPatientService extends Vue implements IApiPatientService
         return mappedPatientData
       })
   }
+}
+
+export function getBasicPatient () : IPatient {
+  const patient: IPatient = {
+    code: '',
+    client: '',
+    fullname: '',
+    firstname: '',
+    middle: '',
+    lastname: '',
+    address1: '',
+    address2: '',
+    email: '',
+    city: '',
+    state: '',
+    zip: '',
+    inactive: false,
+    phoneCell: '',
+    phoneHome: '',
+    provider: '',
+    birthdate: '',
+    firstDate: '',
+    lastDate: '',
+    providerName: '',
+    date: '',
+    time: '',
+    dateTime: '',
+    patient: '',
+    visitType: '',
+    appointmentId: ''
+  }
+
+  return patient
 }

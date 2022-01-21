@@ -1,0 +1,21 @@
+export default interface IPatientBasicInfo {
+  code: string,
+  client: string,
+  fullname: string,
+  firstname: string,
+  middle: string,
+  lastname: string,
+  address1: string,
+  address2?: string,
+  email: string,
+  city: string,
+  state: string,
+  zip: string,
+  inactive: boolean,
+  phoneCell: string,
+  phoneHome: string,
+  provider: string,
+  birthdate: string,
+  firstDate: string,
+  lastDate: string
+}

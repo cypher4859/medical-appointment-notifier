@@ -3,6 +3,4 @@ import type IClientContactWithAppointment from '../types/IClientContactWithAppoi
 import IPatientDatabaseService from './IPatientDatabaseService'
 
 export default interface IPatientDatabaseJconnService extends IPatientDatabaseService {
-  checkConnection () : void
-  testConnectionToDatabase () : Promise<void>
 }

@@ -7,6 +7,10 @@ import axios from 'axios'
 // import adt from 'node_adt'
 // import oledb from 'oledb-electron'
 import odbc from 'odbc'
+import IPatientBasicInfo from '../../types/IPatientBasicInfo'
+import IPatient from '../../types/IPatient'
+import IPatientAppointment from '../../types/IPatientAppointment'
+import { assign, property } from 'lodash'
 
 @injectable()
 export default class PatientDatabaseOdbcService extends Vue implements IPatientDatabaseOdbcService {
@@ -20,27 +24,109 @@ export default class PatientDatabaseOdbcService extends Vue implements IPatientD
     headers: this.apiHeaders
   })
 
-  // private dbInstance = odbc.connect(this.getConnectionString)
-  // private dbInstance = ''
-
   private get getConnectionString () {
-    // the oledb connection string = return 'Driver=SQLOLEDB;Network Library=DBMSSOCN;Data Source=127.0.0.1,3306;Initial Catalog=patientListDatabase;User id=root;Password=root'
-    // return 'DRIVER={MariaDB ODBC 3.1};TCPIP=1;SERVER=localhost;USER=root;PASSWORD=root;DATABASE=patientListDatabase;PORT=3306'
     return 'DSN=test-mariadb-odbc'
   }
 
-  async getListOfPatients () : Promise<IClientContactWithAppointment[]> {
-    return this.testGetListOfPatients()
-    // return this.api.get(`${this.patientUri}`)
-    //   .then((res) => {
-    //     return res.data as IClientContactWithAppointment[]
-    //   })
+  async getListOfPatients () : Promise<IPatient[]> {
+    return Promise.resolve()
+      .then(() => {
+        return this.getAppointmentsFromDatabase()
+      })
+      .then((appointments) => {
+        return this.mapAppointmentToPatient(appointments)
+          .then((patientList) => {
+            console.log('Total patient list: ', patientList)
+            return patientList
+          })
+      })
   }
 
-  private async testGetListOfPatients () : Promise<any> {
+  async getPatientsFromDatabase () : Promise<IPatientBasicInfo[]> {
     const dbInstance = await odbc.connect(this.getConnectionString)
-    const x = await dbInstance.query('SELECT * FROM PATIENTLIST')
-    console.log('Results:', x)
-    return x
+    const x = await dbInstance.query('SELECT CODE, CLIENT, FULLNAME, FIRSTNAME, MIDDLE, LASTNAME, ADDRESS1, ADDRESS2, EMAIL, CITY, STATE, ZIP, INACTIVE, PHONE_CELL, PHONE_HOME, PROVIDER, BIRTHDATE, FIRST_DATE, LAST_DATE FROM PATIENTLIST')
+    // console.log('Patients:', x)
+    dbInstance.close()
+    return x as IPatientBasicInfo[]
+  }
+
+  async getAppointmentsFromDatabase () : Promise<IPatientAppointment[]> {
+    const dbInstance = await odbc.connect(this.getConnectionString)
+    const x = await dbInstance.query('SELECT PROVIDER_NAME, DATE, TIME, DATE_TIME, PATIENT, VISIT_TYPE, GUID FROM APPOINTMENTLIST')
+    dbInstance.close()
+    // console.log('Appointemnts:', x)
+    return x as IPatientAppointment[]
+  }
+
+  mapAppointmentToPatient (appointments: IPatientAppointment[]) : Promise<IPatient[]> {
+    return Promise.resolve()
+      .then(() => {
+        return this.getPatientsFromDatabase()
+      })
+      .then((patients: IPatientBasicInfo[]) => {
+        // beginning of fix the appointments to the patients
+        const patientcodes = appointments.map((appt) => {
+          return appt.patient
+        })
+
+        patients.forEach((patient, index) => {
+          if (patientcodes[index]) {
+            patient.client = patientcodes[index] as string
+            patient.code = patient.client
+          }
+        })
+        // end the fix here
+
+        return appointments.map((appointment) => {
+          const mappedPatient = {} as IPatient
+          this.mapAppointment(mappedPatient, appointment)
+          // console.log('The patients: ', patients)
+          const patientBasicInfo = patients.find((patient: any) => {
+            return mappedPatient.patient !== null && mappedPatient.patient === patient['CLIENT']
+          })
+          if (patientBasicInfo) {
+            this.mapBasicInfo(mappedPatient, patientBasicInfo)
+          }
+          return mappedPatient
+        })
+      })
+  }
+
+  private mapAppointment (patient: IPatient, appointment: any) : IPatient {
+    if (appointment) {
+      patient.providerName = appointment['PROVIDER_NAME']
+      patient.date = appointment['DATE']
+      patient.time = appointment['TIME']
+      patient.dateTime = appointment['DATE_TIME']
+      patient.visitType = appointment['VISIT_TYPE']
+      patient.appointmentId = appointment['GUID']
+      patient.patient = appointment['PATIENT']
+    }
+    return patient
+  }
+
+  private mapBasicInfo (patient: IPatient, patientBasicInfo: any) {
+    if (patientBasicInfo) {
+      patient.code = patientBasicInfo['CODE']
+      patient.client = patientBasicInfo['CLIENT']
+      patient.fullname = patientBasicInfo['FULLNAME']
+      patient.firstname = patientBasicInfo['FIRSTNAME']
+      patient.middle = patientBasicInfo['MIDDLE']
+      patient.lastname = patientBasicInfo['LASTNAME']
+      patient.address1 = patientBasicInfo['ADDRESS1']
+      patient.address2 = patientBasicInfo['ADDRESS2']
+      patient.email = patientBasicInfo['EMAIL']
+      patient.city = patientBasicInfo['CITY']
+      patient.state = patientBasicInfo['STATE']
+      patient.zip = patientBasicInfo['ZIP']
+      patient.inactive = patientBasicInfo['INACTIVE']
+      patient.phoneCell = patientBasicInfo['PHONE_CELL']
+      patient.phoneHome = patientBasicInfo['PHONE_HOME']
+      patient.provider = patientBasicInfo['PROVIDER']
+      patient.birthdate = patientBasicInfo['BIRTHDATE']
+      patient.firstDate = patientBasicInfo['FIRST_DATE']
+      patient.lastDate = patientBasicInfo['LAST_DATE']
+    }
+    return patient
   }
 }
