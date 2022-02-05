@@ -6,9 +6,19 @@ import IClientContactWithAppointment from '../types/IClientContactWithAppointmen
 @Module({ dynamic: true, store: store, name: 'PatientStore' })
 export default class PatientStore extends VuexModule {
   private _patientList: IClientContactWithAppointment[] = []
+  private _selectedConnectionType: string = ''
 
   get getListOfPatients () : IClientContactWithAppointment[] {
     return this._patientList
+  }
+
+  get getSelectedConnectionType () : string {
+    return this._selectedConnectionType
+  }
+
+  @Action({ commit: 'setConnectionTypeInStore' })
+  setConnectionType (type: string) {
+    return type
   }
 
   @Action({ commit: 'loadPatientListIntoStore' })
@@ -19,6 +29,11 @@ export default class PatientStore extends VuexModule {
   @Action({ commit: 'clearPatientListInStore' })
   clearPatientList () {
     return undefined
+  }
+
+  @Mutation
+  setConnectionTypeInStore (type: string) {
+    this._selectedConnectionType = type
   }
 
   @Mutation

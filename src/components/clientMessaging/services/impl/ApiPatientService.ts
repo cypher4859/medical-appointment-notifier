@@ -3,33 +3,24 @@ import 'reflect-metadata'
 import { Vue } from 'vue-property-decorator'
 import type IClientContactWithAppointment from '../../types/IClientContactWithAppointment'
 import type IApiPatientService from '@/components/clientMessaging/services/IApiPatientService'
-import { map } from 'lodash'
 import AppointmentStatus from '../AppointmentStatus'
-import axios from 'axios'
-import PatientDatabaseEnvironments from '../PatientDatabaseEnvironments'
 import { inject } from 'inversify'
 import TYPES from '@/InjectableTypes/types'
 import type IPatientDatabaseOdbcService from '../IPatientDatabaseOdbcService'
 import type IPatientDatabaseJconnService from '../IPatientDatabaseJconnService'
 import IPatient from '../../types/IPatient'
 import { v4 as uuidv4, v4 } from 'uuid'
-import IPatientBasicInfo from '../../types/IPatientBasicInfo'
+import type IPatientDatabaseService from '../IPatientDatabaseService'
 
 @injectable()
 export default class ApiPatientService extends Vue implements IApiPatientService {
-  @inject(TYPES.IPatientDatabaseOdbcService)
-  private patientDatabaseOdbcService!: IPatientDatabaseOdbcService
-
-  @inject(TYPES.IPatientDatabaseJconnService)
-  private patientDatabaseJconnService!: IPatientDatabaseJconnService
-
-  // This needs to be setup before use
-  private environment: string = PatientDatabaseEnvironments.ADVANTAGE_ODBC
+  @inject(TYPES.IPatientDatabaseService)
+  private patientDatabaseService!: IPatientDatabaseService
 
   async getListOfPatientsFromApi () : Promise<IClientContactWithAppointment[]> {
     return Promise.resolve()
       .then(() => {
-        return this.getDatabaseEnvironmentService()
+        return this.patientDatabaseService.getDatabaseEnvironmentService()
       })
       .then((patientDatabaseService: IPatientDatabaseJconnService|IPatientDatabaseOdbcService|undefined) => {
         if (patientDatabaseService) {
@@ -47,16 +38,6 @@ export default class ApiPatientService extends Vue implements IApiPatientService
           return [] as IClientContactWithAppointment[]
         }
       })
-  }
-
-  private getDatabaseEnvironmentService () : IPatientDatabaseOdbcService|IPatientDatabaseJconnService|undefined {
-    if (this.environment === PatientDatabaseEnvironments.ADVANTAGE_ODBC) {
-      return this.patientDatabaseOdbcService
-    } else if (this.environment === PatientDatabaseEnvironments.ADVANTAGE_JCONN) {
-      return this.patientDatabaseJconnService
-    } else {
-      return undefined
-    }
   }
 
   private async mapPatientToClientProperties (patientData: IPatient[]) : Promise<IClientContactWithAppointment[]> {

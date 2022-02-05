@@ -39,4 +39,17 @@ export default class PatientService extends Vue implements IPatientService {
         return this.vuexPatientService.loadPatientList()
       })
   }
+
+  async setConnectionType (type: string) : Promise<void> {
+    return this.getConnectionType()
+      .then((connectionType) => {
+        if (connectionType !== type) {
+          return this.vuexPatientService.setConnectionType(type)
+        }
+      })
+  }
+
+  async getConnectionType () : Promise<string> {
+    return this.vuexPatientService.getConnectionType()
+  }
 }

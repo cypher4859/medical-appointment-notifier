@@ -15,6 +15,7 @@ const patientStore = getModule(PatientStore)
 
 @injectable()
 export default class VuexPatientService extends Vue implements IVuexPatientService {
+  private localStorageDsnKey: string = 'medical-notifier-dsn-key'
   @inject(TYPES.IApiPatientService)
   private apiPatientService!: IApiPatientService
 
@@ -33,8 +34,40 @@ export default class VuexPatientService extends Vue implements IVuexPatientServi
   async loadPatientList () : Promise<IClientContactWithAppointment[]> {
     return this.apiPatientService.getListOfPatientsFromApi()
       .then((patientsFromApi) => {
-        console.log('Patients:', patientsFromApi)
+        // console.log('Patients:', patientsFromApi)
         return patientStore.loadPatientList(patientsFromApi)
       })
+  }
+
+  async setConnectionType (type: string) : Promise<void> {
+    return Promise.resolve()
+      .then(() => {
+        return patientStore.setConnectionType(type)
+      })
+      .then(() => {
+        return localStorage.setItem(this.localStorageDsnKey, type)
+      })
+  }
+
+  async getConnectionType () : Promise<string> {
+    return Promise.resolve()
+      .then(() => {
+        const key = patientStore.getSelectedConnectionType
+        if (!key) {
+          return this.loadConnectionTypeFromLocalStorage()
+            .then(() => {
+              return patientStore.getSelectedConnectionType
+            })
+        } else {
+          return key
+        }
+      })
+  }
+
+  async loadConnectionTypeFromLocalStorage () : Promise<void> {
+    const key: string | null = localStorage.getItem(this.localStorageDsnKey)
+    if (key) {
+      await this.setConnectionType(key)
+    }
   }
 }
