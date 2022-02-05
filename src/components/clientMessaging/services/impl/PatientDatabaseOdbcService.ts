@@ -36,26 +36,28 @@ export default class PatientDatabaseOdbcService extends Vue implements IPatientD
       .then((appointments) => {
         return this.mapAppointmentToPatient(appointments)
           .then((patientList) => {
-            console.log('Total patient list: ', patientList)
-            return patientList
+            return this.validatePatients(patientList)
           })
+      })
+      .then((patients) => {
+        console.log('Valid patients: ', patients)
+        return patients
       })
   }
 
   async getPatientsFromDatabase () : Promise<IPatientBasicInfo[]> {
     const dbInstance = await odbc.connect(this.getConnectionString)
-    const x = await dbInstance.query('SELECT CODE, CLIENT, FULLNAME, FIRSTNAME, MIDDLE, LASTNAME, ADDRESS1, ADDRESS2, EMAIL, CITY, STATE, ZIP, INACTIVE, PHONE_CELL, PHONE_HOME, PROVIDER, BIRTHDATE, FIRST_DATE, LAST_DATE FROM PATIENTLIST')
-    // console.log('Patients:', x)
+    const results = await dbInstance.query('SELECT CODE, CLIENT, FULLNAME, FIRSTNAME, MIDDLE, LASTNAME, ADDRESS1, ADDRESS2, EMAIL, CITY, STATE, ZIP, INACTIVE, PHONE_CELL, PHONE_HOME, PROVIDER, BIRTHDATE, FIRST_DATE, LAST_DATE FROM PATIENTLIST')
     dbInstance.close()
-    return x as IPatientBasicInfo[]
+    // return results as IPatientBasicInfo[]
+    return this.validatePatientBasicInfoFromDatabase(results) as IPatientBasicInfo[]
   }
 
   async getAppointmentsFromDatabase () : Promise<IPatientAppointment[]> {
     const dbInstance = await odbc.connect(this.getConnectionString)
-    const x = await dbInstance.query('SELECT PROVIDER_NAME, DATE, TIME, DATE_TIME, PATIENT, VISIT_TYPE, GUID FROM APPOINTMENTLIST')
+    const results = await dbInstance.query('SELECT PROVIDER_NAME, DATE, TIME, DATE_TIME, PATIENT, VISIT_TYPE, GUID FROM APPOINTMENTLIST')
     dbInstance.close()
-    // console.log('Appointemnts:', x)
-    return x as IPatientAppointment[]
+    return this.validateAppointmentsFromDatabase(results) as IPatientAppointment[]
   }
 
   mapAppointmentToPatient (appointments: IPatientAppointment[]) : Promise<IPatient[]> {
@@ -77,7 +79,7 @@ export default class PatientDatabaseOdbcService extends Vue implements IPatientD
         })
         // end the fix here
 
-        const z = appointments.map((appointment) => {
+        return appointments.map((appointment) => {
           const mappedPatient = {} as IPatient
           this.mapAppointment(mappedPatient, appointment)
           const patientBasicInfo = patients.find((patient: any) => {
@@ -90,8 +92,6 @@ export default class PatientDatabaseOdbcService extends Vue implements IPatientD
           }
           return mappedPatient
         }) as IPatient[]
-        console.log('OUTPUT: ', z)
-        return z
       })
   }
 
@@ -131,5 +131,39 @@ export default class PatientDatabaseOdbcService extends Vue implements IPatientD
       patient.lastDate = patientBasicInfo['LAST_DATE']
     }
     return patient
+  }
+
+  private validatePatientBasicInfoFromDatabase (patientBasicInfoList: any) {
+    const propertiesToValidate = ['CODE', 'CLIENT', 'FULLNAME', 'PHONE_CELL', 'PROVIDER']
+    return patientBasicInfoList.filter((basicInfo: any) => {
+      return this.isValid(basicInfo, propertiesToValidate)
+    })
+  }
+
+  private validateAppointmentsFromDatabase (appointmentList: any) {
+    const propertiesToValidate = ['PROVIDER_NAME', 'DATE_TIME', 'PATIENT', 'GUID']
+    const x = appointmentList.filter((appointment: any) => {
+      return this.isValid(appointment, propertiesToValidate)
+    })
+    console.log('validation result:', x.length, appointmentList.length)
+    return x
+  }
+
+  private validatePatients (patientList: IPatient[]) : IPatient[] {
+    const propertiesToValidate = ['phoneCell', 'fullname', 'patient', 'client', 'code', 'appointmentId', 'provider', 'providerName', 'dateTime']
+    return patientList.filter((patient) => {
+      return this.isValid(patient, propertiesToValidate)
+    })
+  }
+
+  private isValid (item: any, propertiesToValidate: string[]) : boolean {
+    let result = false
+    result = propertiesToValidate.every((prop) => {
+      if (item[`${prop}`] !== null && item[`${prop}`] !== '' && item[`${prop}`] !== undefined) {
+        return true
+      }
+    })
+    console.log('Exiting isValid:', result)
+    return result
   }
 }
