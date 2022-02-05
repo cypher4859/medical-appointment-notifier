@@ -15,6 +15,7 @@ const TYPES : IRegistryTypes = {
   IVuexAuthenticationService: Symbol('IVuexAuthenticationService'),
   IApiAuthenticationService: Symbol('IApiAuthenticationService'),
   IBaseApiService: Symbol('IBaseApiService'),
+  IPatientDatabaseService: Symbol('IPatientDatabaseService'),
   IPatientDatabaseOdbcService: Symbol('IPatientDatabaseOdbcService'),
   IPatientDatabaseJconnService: Symbol('IPatientDatabaseJconnService')
 }

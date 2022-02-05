@@ -4,4 +4,6 @@ import type IClientContactWithAppointment from '../types/IClientContactWithAppoi
 export default interface IVuexPatientService {
   getListOfPatients () : Promise<IClientContactWithAppointment[]>
   loadPatientList () : Promise<IClientContactWithAppointment[]>
+  setConnectionType (type: string) : Promise<void>
+  getConnectionType () : Promise<string>
 }

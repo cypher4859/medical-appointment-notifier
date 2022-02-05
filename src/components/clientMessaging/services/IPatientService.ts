@@ -7,4 +7,6 @@ export default interface IPatientService {
   getPatientByNameAndBirthDate (name: string) : IClientContactWithAppointment | undefined
   getListOfPatients () : Promise<IClientContactWithAppointment[]>
   loadPatientList () : Promise<IClientContactWithAppointment[]>
+  setConnectionType (type: string) : Promise<void>
+  getConnectionType () : Promise<string>
 }

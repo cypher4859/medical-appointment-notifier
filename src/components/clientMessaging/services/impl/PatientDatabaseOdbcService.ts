@@ -11,6 +11,7 @@ import IPatientBasicInfo from '../../types/IPatientBasicInfo'
 import IPatient from '../../types/IPatient'
 import IPatientAppointment from '../../types/IPatientAppointment'
 import { assign, property } from 'lodash'
+import PatientDatabaseService from './PatientDatabaseService'
 
 @injectable()
 export default class PatientDatabaseOdbcService extends Vue implements IPatientDatabaseOdbcService {
