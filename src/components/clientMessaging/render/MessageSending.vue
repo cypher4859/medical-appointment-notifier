@@ -583,7 +583,7 @@ export default class SmsMessageSending extends Mixins(ServiceMixin, VMaskMixin) 
         this.showMessagePreviewOverlay = true
       })
       .then(() => {
-        return this.messagingService.compileMessages(this.messageRecipients, this.selectedMessageTemplate as string)
+        return this.messagingService.compileMessages(this.messageRecipients, this.messageToSend)
       })
       .then((messages: IMessageSmsPayload[]) => {
         this.messagingService.sendMessages(messages)
