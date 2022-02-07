@@ -70,6 +70,7 @@
                     id="example-datepicker"
                     v-model="selectedDateToLoadRecipients"
                     class="mb-3"
+                    :min="minimumDate"
                   />
                 </div>
                 <div v-if="selectedRecipientMode === appointmentModes.SINGLE_CONTACT || selectedRecipientMode === appointmentModes.MULTIPLE_CONTACTS">
@@ -604,6 +605,12 @@ export default class SmsMessageSending extends Mixins(ServiceMixin, VMaskMixin) 
       this.isValidToSendMessages = true
       return 'Click to send messages to recipients'
     }
+  }
+
+  get minimumDate () : Date {
+    const now = new Date()
+    const minDate = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    return minDate
   }
 }
 </script>
