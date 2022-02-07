@@ -195,7 +195,7 @@
               <b-card-sub-title>
                 <b-row>
                   <b-col>
-                    Message Template
+                    Define the Message
                   </b-col>
                   <b-col cols="auto">
                     <b-button
@@ -210,52 +210,106 @@
                 id="toggle-sending-messages-message-template-collapse"
                 visible
               >
-                <b-row>
-                  <b-col>
-                    <b-form-select
-                      v-model="selectedMessageTemplate"
-                      class="mt-2"
-                      :options="messageTemplates"
-                    />
-                  </b-col>
-                </b-row>
-                <b-row>
-                  <b-col>
-                    <b-card-text class="mt-4">
-                      Example:
-                      <h4>
-                        <div v-if="selectedMessageTemplate">
-                          {{ getExampleMessageTemplateValue }}
-                        </div>
-                        <div v-else>
-                          {{ 'Please select a template' }}
-                        </div>
-                      </h4>
-                    </b-card-text>
-                  </b-col>
-                </b-row>
-                <b-row v-if="selectedMessageTemplate">
-                  <b-col>
-                    <div class="mb-3">
-                      <custom-popover-target
-                        :popover-id="'send-messages-message-template-info'"
+                <b-nav
+                  tabs
+                  class="mb-3"
+                >
+                  <b-nav-item
+                    :active="selectedMessageDefinitionMode === messageDefinitionModes.TEMPLATE"
+                    @click="setMessageMode(messageDefinitionModes.TEMPLATE)"
+                  >
+                    Use Template
+                  </b-nav-item>
+                  <b-nav-item
+                    :active="selectedMessageDefinitionMode === messageDefinitionModes.CUSTOM"
+                    @click="setMessageMode(messageDefinitionModes.CUSTOM)"
+                  >
+                    Customize Message
+                  </b-nav-item>
+                </b-nav>
+                <div v-if="selectedMessageDefinitionMode === messageDefinitionModes.TEMPLATE">
+                  <b-row>
+                    <b-col>
+                      <b-form-select
+                        v-model="selectedMessageTemplate"
+                        class="mt-2"
+                        :options="messageTemplates"
                       />
-                    </div>
-                    <b-popover
-                      target="custom-popover-target-send-messages-message-template-info"
-                      triggers="hover"
-                      placement="bottomright"
-                    >
-                      <b-alert
-                        class="my-0"
-                        show
-                        variant="info"
+                    </b-col>
+                  </b-row>
+                  <b-row>
+                    <b-col>
+                      <b-card class="mt-4">
+                        <b-card-text>
+                          Example:
+                          <h4>
+                            <div v-if="selectedMessageTemplate">
+                              {{ getExampleMessageTemplateValue }}
+                            </div>
+                            <div v-else>
+                              {{ 'Please select a template' }}
+                            </div>
+                          </h4>
+                        </b-card-text>
+                      </b-card>
+                    </b-col>
+                  </b-row>
+                </div>
+                <div v-if="selectedMessageDefinitionMode === messageDefinitionModes.CUSTOM">
+                  <b-row>
+                    <b-col>
+                      <b-form-textarea
+                        id="define-custom-message-text-area"
+                        v-model="customTextMessage"
+                        placeholder="Define Custom Message to Send..."
+                        rows="3"
+                        max-rows="6"
+                      />
+                      <b-card class="mt-4">
+                        <b-card-text>
+                          <h5>Example:</h5>
+                          <pre>{{ getCustomTextMessage }}</pre>
+                        </b-card-text>
+                      </b-card>
+                    </b-col>
+                  </b-row>
+                </div>
+                <div class="mt-4">
+                  <b-row>
+                    <b-col>
+                      <!-- <div
+                        v-if="selectedMessageTemplate"
                       >
-                        {{ 'This example is based on an example patient from the current patient list. This is meant to show what the message will ultiamtely appear as.' }}
-                      </b-alert>
-                    </b-popover>
-                  </b-col>
-                </b-row>
+                        <custom-popover-target
+                          :popover-id="'send-messages-message-template-info'"
+                        />
+                      </div> -->
+                      <b-popover
+                        target="popover-target-send-messages-warning"
+                        triggers="hover"
+                        placement="right"
+                      >
+                        <b-alert
+                          class="my-0"
+                          show
+                          :variant="isValidToSendMessages ? 'info' : 'danger'"
+                        >
+                          {{ getPopoverHelpInfoToSend }}
+                        </b-alert>
+                      </b-popover>
+                    </b-col>
+                    <b-col cols="auto">
+                      <div id="popover-target-send-messages-warning">
+                        <b-button
+                          :disabled="showAlertCountdown > 0 || messageRecipients.length === 0 || (selectedMessageDefinitionMode === messageDefinitionModes.TEMPLATE && selectedMessageTemplate === null) || (selectedMessageDefinitionMode === messageDefinitionModes.CUSTOM && customTextMessage === '')"
+                          @click="showSendMessagePreview()"
+                        >
+                          Send
+                        </b-button>
+                      </div>
+                    </b-col>
+                  </b-row>
+                </div>
               </b-collapse>
             </b-card>
           </b-col>
@@ -273,31 +327,6 @@
             >
               Messages successfully sent! ... {{ showAlertCountdown }}
             </b-alert>
-          </b-col>
-          <b-col cols="auto">
-            <div>
-              <b-popover
-                target="popover-target-send-messages-warning"
-                triggers="hover"
-                placement="right"
-              >
-                <b-alert
-                  class="my-0"
-                  show
-                  :variant="isValidToSendMessages ? 'info' : 'danger'"
-                >
-                  {{ getPopoverHelpInfoToSend }}
-                </b-alert>
-              </b-popover>
-              <div id="popover-target-send-messages-warning">
-                <b-button
-                  :disabled="showAlertCountdown > 0 || messageRecipients.length === 0 || selectedMessageTemplate === null"
-                  @click="showSendMessagePreview()"
-                >
-                  Send
-                </b-button>
-              </div>
-            </div>
           </b-col>
         </b-row>
       </b-collapse>
@@ -334,7 +363,7 @@
         </b-card>
         <b-card class="mt-3">
           <b-card-sub-title>Message Preview</b-card-sub-title>
-          <b-card-text>{{ selectedMessageTemplate }}</b-card-text>
+          <b-card-text>{{ messageToSend }}</b-card-text>
         </b-card>
         <div class="mt-3">
           <b-button
@@ -371,6 +400,11 @@ enum AppointmentModes {
   MULTIPLE_CONTACTS='multipleContacts'
 }
 
+enum MessageDefinitionModes {
+  TEMPLATE='template',
+  CUSTOM='custom'
+}
+
 @Component({
   name: 'sms-message-sending',
   components: {
@@ -381,6 +415,7 @@ export default class SmsMessageSending extends Mixins(ServiceMixin, VMaskMixin) 
   @Prop({ type: Boolean, default: false }) private isAuthorized!: boolean
 
   private appointmentModes = AppointmentModes
+  private messageDefinitionModes = MessageDefinitionModes
   private recipientModes: object[] = []
   private addressBookTableHeaders: object[] = []
 
@@ -404,6 +439,9 @@ export default class SmsMessageSending extends Mixins(ServiceMixin, VMaskMixin) 
   private previewCurrentRecipientListPage: number = 1
   private isValidToSendMessages: boolean = false
   private examplePatient: IClientContactWithAppointment = {} as IClientContactWithAppointment
+  private customTextMessage: string = ''
+  private selectedMessageDefinitionMode: string = this.messageDefinitionModes.TEMPLATE
+  private messageToSend: string = ''
 
   async created () {
     return Promise.resolve()
@@ -531,6 +569,11 @@ export default class SmsMessageSending extends Mixins(ServiceMixin, VMaskMixin) 
   }
 
   private showSendMessagePreview () {
+    if (this.selectedMessageDefinitionMode === this.messageDefinitionModes.TEMPLATE && this.selectedMessageTemplate) {
+      this.messageToSend = this.selectedMessageTemplate
+    } else if (this.selectedMessageDefinitionMode === this.messageDefinitionModes.CUSTOM && this.customTextMessage) {
+      this.messageToSend = this.customTextMessage
+    }
     this.showMessagePreview = true
   }
 
@@ -611,6 +654,14 @@ export default class SmsMessageSending extends Mixins(ServiceMixin, VMaskMixin) 
     const now = new Date()
     const minDate = new Date(now.getFullYear(), now.getMonth(), now.getDate())
     return minDate
+  }
+
+  setMessageMode (mode: string) : void {
+    this.selectedMessageDefinitionMode = mode
+  }
+
+  get getCustomTextMessage () : string {
+    return this.customTextMessage
   }
 }
 </script>
