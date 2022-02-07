@@ -238,9 +238,9 @@ export default class MessagingMonitoringDashboard extends Mixins(ServiceMixin, V
   private interval: number = 30
   private collectionOfDatasets: object[] = []
   private showMessagesReceived: boolean = true
-  private showMessagesSent: boolean = false
+  private showMessagesSent: boolean = true
   private showMessagesOfAcceptedAppointments: boolean = true
-  private showMessagesOfCancelledAppointments: boolean = false
+  private showMessagesOfCancelledAppointments: boolean = true
   private chartOptions: object = {
     responsive: true,
     maintainAspectRatio: false
@@ -373,9 +373,13 @@ export default class MessagingMonitoringDashboard extends Mixins(ServiceMixin, V
     const cleanedCurrentDate = DateAndTime.parse(rawCurrentDate, 'MM/DD/YYYY')
     const listOfPreviousDates: Date[] = []
 
-    for (let i = 1; i <= interval; i++) {
-      const prevDay = DateAndTime.addDays(cleanedCurrentDate, -i)
-      listOfPreviousDates.push(prevDay)
+    for (let i = 0; i <= interval; i++) {
+      if (i !== 0) {
+        const prevDay = DateAndTime.addDays(cleanedCurrentDate, -i)
+        listOfPreviousDates.push(prevDay)
+      } else {
+        listOfPreviousDates.push(cleanedCurrentDate)
+      }
     }
 
     return listOfPreviousDates
