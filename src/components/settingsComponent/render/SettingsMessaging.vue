@@ -153,6 +153,19 @@
             </b-button>
           </b-col>
         </b-row>
+        <!-- Settings for messages -->
+        <b-row class="mt-5">
+          <b-col>
+            <b-form-group>
+              <b-form-checkbox
+                id="checkbox-automatic-message-by-appointment-prompt"
+                v-model="automaticMessagePrompt"
+              >
+                Automatic prompt to send messages by appointment day
+              </b-form-checkbox>
+            </b-form-group>
+          </b-col>
+        </b-row>
         <b-popover
           target="popover-help-message-template-settings-list-keywords"
           triggers="click"
@@ -274,12 +287,18 @@ export default class SettingsMessaging extends Mixins(SettingsMixin, ServiceMixi
   private showDeleteTemplateWarning: boolean = false
   private showKeywordsHelp: boolean = false
   private examplePatient: IClientContactWithAppointment = {} as IClientContactWithAppointment
+  private automaticMessagePrompt: boolean = false
 
   @Watch('selectedMessageTemplate', { immediate: true, deep: true })
   onSelectedMessageTemplateChange (newMessageTemplate: ISmsMessageTemplate, oldMessageTemplate: ISmsMessageTemplate) {
     if (this.selectedMessageTemplate !== this.messageTemplateWorkingCopy) {
       this.messageTemplateWorkingCopy = cloneDeep(this.selectedMessageTemplate)
     }
+  }
+
+  @Watch('automaticMessagePrompt')
+  onAutomaticMessagePromptChange (newAutoMessageSetting: boolean, oldAutoMessageSetting: boolean) {
+    this.messagingService.setAutomaticMessagePromptSettingLocalStorage(this.automaticMessagePrompt)
   }
 
   async getIsAuthorized () : Promise<boolean> {
@@ -316,6 +335,14 @@ export default class SettingsMessaging extends Mixins(SettingsMixin, ServiceMixi
         return this.messagingService.getExamplePatient()
           .then((examplePatient) => {
             this.examplePatient = examplePatient
+          })
+      })
+      .then(() => {
+        // load from local storage whether to set the automatic appointment notifier prompt
+        return this.loadAutomaticaMessagePromptFromLocalStorage()
+          .then((setting) => {
+            console.log('Setting: ', setting)
+            this.automaticMessagePrompt = setting
           })
       })
   }
@@ -416,6 +443,13 @@ export default class SettingsMessaging extends Mixins(SettingsMixin, ServiceMixi
 
   get selectedMessageTemplateExample () : ISmsMessageTemplate | null {
     return this.messagingService.getMessageTransformedKeywordFromTemplate(this.messageTemplateWorkingCopy as ISmsMessageTemplate, this.examplePatient)
+  }
+
+  async loadAutomaticaMessagePromptFromLocalStorage () : Promise<boolean> {
+    return this.messagingService.getAutomaticMessagePromptSettingLocalStorage()
+      .then((autoMessageSetting: boolean) => {
+        return autoMessageSetting
+      })
   }
 }
 </script>

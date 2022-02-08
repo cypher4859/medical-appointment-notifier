@@ -27,4 +27,6 @@ export default interface IMessagingService {
   updateMessageTemplate (newMessageTemplate: ISmsMessageTemplate) : Promise<void>
   setApiKey (key: string) : Promise<void>
   clearStore () : Promise<void>
+  getAutomaticMessagePromptSettingLocalStorage () : Promise<boolean>
+  setAutomaticMessagePromptSettingLocalStorage (autoMessageSetting: boolean) : Promise<void>
 }

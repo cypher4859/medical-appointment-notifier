@@ -183,4 +183,19 @@ export default class MessagingService extends Vue implements IMessagingService {
   async clearStore (): Promise<void> {
     return this.vuexMessagingService.clearStore()
   }
+
+  async getAutomaticMessagePromptSettingLocalStorage () : Promise<boolean> {
+    return Promise.resolve()
+      .then(() => {
+        const setting = localStorage.getItem('medical-appointment-notifier-auto-prompt')
+        return setting ? setting as any as boolean : false
+      })
+  }
+
+  async setAutomaticMessagePromptSettingLocalStorage (autoMessageSetting: boolean) : Promise<void> {
+    return Promise.resolve()
+      .then(() => {
+        localStorage.setItem('medical-appointment-notifier-auto-prompt', autoMessageSetting.toString())
+      })
+  }
 }
