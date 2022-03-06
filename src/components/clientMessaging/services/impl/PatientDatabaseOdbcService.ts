@@ -12,6 +12,7 @@ import IPatient from '../../types/IPatient'
 import IPatientAppointment from '../../types/IPatientAppointment'
 import { assign, property } from 'lodash'
 import PatientDatabaseService from './PatientDatabaseService'
+import { phone } from 'phone'
 
 @injectable()
 export default class PatientDatabaseOdbcService extends Vue implements IPatientDatabaseOdbcService {
@@ -39,6 +40,13 @@ export default class PatientDatabaseOdbcService extends Vue implements IPatientD
           .then((patientList) => {
             return this.validatePatients(patientList)
           })
+          .then((patients) => {
+            return patients.map((patient) => {
+              patient.phoneCell = this.formatPhoneNumber(patient.phoneCell)
+              patient.phoneHome = this.formatPhoneNumber(patient.phoneHome)
+              return patient
+            })
+          })
       })
       .then((patients) => {
         console.log('Valid patients: ', patients)
@@ -51,7 +59,18 @@ export default class PatientDatabaseOdbcService extends Vue implements IPatientD
     const results = await dbInstance.query('SELECT CODE, CLIENT, FULLNAME, FIRSTNAME, MIDDLE, LASTNAME, ADDRESS1, ADDRESS2, EMAIL, CITY, STATE, ZIP, INACTIVE, PHONE_CELL, PHONE_HOME, PROVIDER, BIRTHDATE, FIRST_DATE, LAST_DATE FROM PATIENTLIST')
     dbInstance.close()
     // return results as IPatientBasicInfo[]
-    return this.validatePatientBasicInfoFromDatabase(results) as IPatientBasicInfo[]
+    return Promise.resolve().then(() => {
+      return this.validatePatientBasicInfoFromDatabase(results) as IPatientBasicInfo[]
+    })
+  }
+
+  private formatPhoneNumber (phoneNumber: string) : string {
+    const cleanedPhone = phone(phoneNumber, { country: 'US' })
+    if (cleanedPhone.isValid) {
+      return cleanedPhone.phoneNumber
+    } else {
+      return ''
+    }
   }
 
   async getAppointmentsFromDatabase () : Promise<IPatientAppointment[]> {

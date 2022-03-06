@@ -13,6 +13,7 @@ import { cloneDeep } from 'lodash'
 import type IVuexMessagingService from '../IVuexMessagingService'
 import IMessageSmsPayload from '../../types/IMessageSmsPayload'
 import IAppointment from '../../types/IAppointment'
+import phone from 'phone'
 
 enum MessagingTemplateKeywords {
   APPT_TIME='appointmentTime',
@@ -44,7 +45,9 @@ export default class MessagingService extends Vue implements IMessagingService {
   }
 
   async getAddressBook () : Promise<IClientContactWithAppointment[]> {
-    return this.vuexMessagingService.getAddressBook()
+    return (await this.vuexMessagingService.getAddressBook()).filter((clientsWithAppointment) => {
+      return phone(clientsWithAppointment.phoneNumber!).isValid
+    })
   }
 
   getAddressBookTableHeaders () : object[] {
